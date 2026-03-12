@@ -47,6 +47,8 @@ const GEN_PHASES = [
 
 export default function Deliverables() {
   const { t, lang } = useI18n();
+  const { data: clients = [] } = useClients();
+  const { data: deliverables = [] } = useDeliverables();
   const [step, setStep] = useState(1);
   const [selectedClient, setSelectedClient] = useState("");
   const [selectedType, setSelectedType] = useState("");
@@ -56,7 +58,7 @@ export default function Deliverables() {
   const [genPhase, setGenPhase] = useState(0);
   const [generating, setGenerating] = useState(false);
   const [generated, setGenerated] = useState(false);
-  const [generatedList, setGeneratedList] = useState([...deliverables]);
+  const [generatedList, setGeneratedList] = useState<any[]>([]);
 
   const activeTonePreview = lang === "ar" ? tonePreviewAr : tonePreview;
 

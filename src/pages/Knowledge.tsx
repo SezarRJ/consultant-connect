@@ -45,6 +45,8 @@ const CASE_DESC_KEYS = ["supply_chain_desc","digital_transform_desc","revenue_re
 
 export default function Knowledge() {
   const { t } = useI18n();
+  const { data: playbooks = [] } = usePlaybooks();
+  const { data: clients = [] } = useClients();
   const [playbookSearch, setPlaybookSearch] = useState("");
   const [applyClient, setApplyClient] = useState<Record<string,string>>({});
   const [appliedPlaybooks, setAppliedPlaybooks] = useState<Record<string,string>>({});
@@ -55,7 +57,7 @@ export default function Knowledge() {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
 
-  const filteredPlaybooks = playbooks.filter((pb) => {
+  const filteredPlaybooks = playbooks.filter((pb: any) => {
     const q = playbookSearch.toLowerCase();
     return pb.title.toLowerCase().includes(q) || pb.description.toLowerCase().includes(q) || pb.category.toLowerCase().includes(q);
   });
