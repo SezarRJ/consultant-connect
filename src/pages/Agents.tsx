@@ -6,7 +6,9 @@ import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { agents as staticAgents, clients, activityLog } from "@/data/mockData";
+import { useAgents } from "@/hooks/useAgents";
+import { useClients } from "@/hooks/useClients";
+import { useActivityLog } from "@/hooks/useActivityLog";
 import { FeedbackBar } from "@/components/feedback/FeedbackBar";
 import { useCalibration } from "@/hooks/useFeedback";
 import { useI18n } from "@/lib/i18n";
@@ -36,18 +38,33 @@ const ANALYSIS_STEPS = [
 
 export default function Agents() {
   const { t } = useI18n();
-  const [selectedClient, setSelectedClient] = useState(clients[0].id);
-  const [agentStates, setAgentStates] = useState(staticAgents.map(a => ({ ...a })));
+  const { data: clients = [] } = useClients();
+  const { data: agents = [] } = useAgents();
+  const { data: activityLogData = [] } = useActivityLog(undefined);
+  
+  const [selectedClient, setSelectedClient] = useState("");
+  const [agentStates, setAgentStates] = useState<any[]>([]);
   const [isRunningAnalysis, setIsRunningAnalysis] = useState(false);
   const [analysisSteps, setAnalysisSteps] = useState<string[]>([]);
   const [analysisOpen, setAnalysisOpen] = useState(false);
-  const [activeNowCount, setActiveNowCount] = useState(staticAgents.filter(a => a.status === "running").length);
+  const [activeNowCount, setActiveNowCount] = useState(0);
   const stepsRef = useRef<HTMLDivElement>(null);
 
-  const filteredActivity = activityLog.filter(item => item.clientId === selectedClient);
+  // Initialize state from DB data
+  useEffect(() => {
+    if (clients.length > 0 && !selectedClient) setSelectedClient(clients[0].id);
+  }, [clients, selectedClient]);
+  useEffect(() => {
+    if (agents.length > 0 && agentStates.length === 0) {
+      setAgentStates(agents.map((a: any) => ({ ...a })));
+      setActiveNowCount(agents.filter((a: any) => a.status === "running").length);
+    }
+  }, [agents, agentStates.length]);
+
+  const filteredActivity = activityLogData.filter((item: any) => item.clientId === selectedClient);
 
   const totalAgents = agentStates.length;
-  const tasksToday = activityLog.filter(a => {
+  const tasksToday = activityLogData.filter((a: any) => {
     const today = new Date().toDateString();
     return new Date(a.timestamp).toDateString() === today;
   }).length;
@@ -95,7 +112,7 @@ export default function Agents() {
 
         if (idx === ANALYSIS_STEPS.length - 1) {
           setIsRunningAnalysis(false);
-          setActiveNowCount(staticAgents.filter(a => a.status === "running").length);
+          setActiveNowCount(agents.filter((a: any) => a.status === "running").length);
           toast.success(`Analysis complete for ${clientName}.`);
         }
       }, idx * 700);

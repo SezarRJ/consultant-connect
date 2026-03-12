@@ -9,11 +9,14 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  clients, engagements, documents, strategies, insights,
-  deliverables, revenueData, regionalData, activityLog,
-  simulationResults, clientKPIs,
-} from "@/data/mockData";
+import { useClients } from "@/hooks/useClients";
+import { useEngagements } from "@/hooks/useEngagements";
+import { useDocuments } from "@/hooks/useDocuments";
+import { useInsights } from "@/hooks/useInsights";
+import { useDeliverables } from "@/hooks/useDeliverables";
+import { useActivityLog, useClientKPIs } from "@/hooks/useActivityLog";
+import { useStrategies } from "@/hooks/useStrategy";
+import { revenueData, regionalData, simulationResults } from "@/data/mockData";
 import { FeedbackBar } from "@/components/feedback/FeedbackBar";
 import { useRunAnalysis, useJobStatus } from "@/hooks/useAnalysis";
 import { useUpdateClient } from "@/hooks/useClients";
@@ -33,16 +36,19 @@ import { toast } from "sonner";
 
 export default function ClientWorkspace() {
   const { id } = useParams<{ id: string }>();
-  const client     = clients.find((c) => c.id === id);
-  const engagement = engagements.find((e) => e.clientId === id);
+  const { data: allClients = [] } = useClients();
+  const { data: allEngagements = [] } = useEngagements();
+  const { data: clientDocs = [] } = useDocuments(id);
+  const { data: clientStrategies = [] } = useStrategies(id);
+  const { data: allInsights = [] } = useInsights();
+  const { data: allDeliverables = [] } = useDeliverables();
+  const { data: clientActivity = [] } = useActivityLog(id);
+  const { data: kpis = [] } = useClientKPIs(id);
 
-  // G-12 FIX: filter all data by current clientId
-  const clientDocs         = documents.filter((d) => d.clientId === id);
-  const clientStrategies   = strategies.filter((s) => s.clientId === id);
-  const clientInsights     = insights.filter((i) => i.clientId === id);
-  const clientDeliverables = deliverables.filter((d) => d.clientId === id);
-  const clientActivity     = activityLog.filter((a) => a.clientId === id);
-  const kpis               = clientKPIs[id ?? ""] ?? [];
+  const client = allClients.find((c: any) => c.id === id);
+  const engagement = allEngagements.find((e: any) => e.clientId === id);
+  const clientInsights = allInsights.filter((i: any) => i.clientId === id);
+  const clientDeliverables = allDeliverables.filter((d: any) => d.clientId === id);
 
   // G-06: run analysis state
   const [jobId, setJobId] = useState<string | null>(null);

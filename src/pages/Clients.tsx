@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useClients, useCreateClient } from "@/hooks/useClients";
-import { clients as staticClients, engagements } from "@/data/mockData";
+import { useEngagements } from "@/hooks/useEngagements";
 import { useI18n } from "@/lib/i18n";
 import { Search, Plus, MapPin, DollarSign, Building2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -20,13 +20,10 @@ export default function Clients() {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ name: "", industry: "", revenue: "", location: "" });
-  const [localClients, setLocalClients] = useState(staticClients);
 
-  const { data: serverClients, isLoading } = useClients();
+  const { data: clients = [], isLoading } = useClients();
+  const { data: engagements = [] } = useEngagements();
   const createClient = useCreateClient();
-
-  // Use server data if available, fall back to static mock + locally created
-  const clients = (serverClients && serverClients.length > 0) ? serverClients : localClients;
 
   const industries = [...new Set(clients.map((c: any) => c.industry))];
 
@@ -35,12 +32,12 @@ export default function Clients() {
       c.name.toLowerCase().includes(search.toLowerCase()) ||
       c.industry.toLowerCase().includes(search.toLowerCase());
     const matchIndustry = !industryFilter || c.industry === industryFilter;
-    const eng = engagements.find(e => e.clientId === c.id);
+    const eng = engagements.find((e: any) => e.clientId === c.id);
     const matchStatus = !statusFilter || eng?.status === statusFilter;
     return matchSearch && matchIndustry && matchStatus;
   });
 
-  const getEngagement = (clientId: string) => engagements.find(e => e.clientId === clientId);
+  const getEngagement = (clientId: string) => engagements.find((e: any) => e.clientId === clientId);
 
   const healthColor = (score: number) =>
     score >= 80 ? "text-success" : score >= 60 ? "text-warning" : "text-destructive";
@@ -69,11 +66,7 @@ export default function Clients() {
         setDialogOpen(false);
       },
       onError: () => {
-        // Still show success with local data
-        setLocalClients(prev => [newClient, ...prev]);
-        toast.success(`${form.name} added successfully.`);
-        setForm({ name: "", industry: "", revenue: "", location: "" });
-        setDialogOpen(false);
+        toast.error("Failed to create client.");
       },
     });
   };

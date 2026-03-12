@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { insights as staticInsights, clients } from "@/data/mockData";
+import { useClients } from "@/hooks/useClients";
 import { useInsights, useDismissInsight } from "@/hooks/useInsights";
 import { useI18n } from "@/lib/i18n";
 import { AlertCircle, AlertTriangle, Info, CheckCheck, X, Filter } from "lucide-react";
@@ -18,14 +18,14 @@ const severityConfig: Record<string, { icon: typeof AlertCircle; color: string; 
 
 export default function Insights() {
   const { t } = useI18n();
+  const { data: clients = [] } = useClients();
   const [severityFilter, setSeverityFilter] = useState<string | null>(null);
   const [clientFilter, setClientFilter] = useState<string>("all");
 
   const { data: serverInsights = [], isLoading } = useInsights();
   const dismissInsight = useDismissInsight();
 
-  // Use server data if available, fall back to static mock
-  const sourceInsights = serverInsights.length > 0 ? serverInsights : staticInsights;
+  const sourceInsights = serverInsights;
 
   const [localRead, setLocalRead] = useState<Set<string>>(new Set());
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());

@@ -17,7 +17,8 @@ import {
 import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { documents, clients } from "@/data/mockData";
+import { useAllDocuments } from "@/hooks/useDocuments";
+import { useClients } from "@/hooks/useClients";
 import {
   Search, FileText, FileSpreadsheet, File, FilePlus2,
   CheckCircle2, Loader2, Clock, AlertTriangle, ExternalLink,
@@ -30,7 +31,7 @@ import { toast } from "sonner";
 // ── Types ─────────────────────────────────────────────────────────────────────
 type SortField = "name" | "uploadDate" | "size" | "type";
 type SortDir   = "asc" | "desc";
-type Doc       = typeof documents[0];
+type Doc = { id: string; clientId: string; name: string; type: string; size: string; uploadDate: string; extractionStatus: string };
 
 // ── Icon / status maps ────────────────────────────────────────────────────────
 const typeIcon: Record<string, React.ReactNode> = {
@@ -80,6 +81,8 @@ async function triggerBulkDownload(docs: Doc[], onProgress: (n: number) => void)
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function DocumentHub() {
   const navigate = useNavigate();
+  const { data: clients = [] } = useClients();
+  const { data: documents = [] } = useAllDocuments();
 
   // Filters & sort
   const [search,       setSearch]       = useState("");
@@ -99,7 +102,7 @@ export default function DocumentHub() {
   const [bulkDownloading, setBulkDownloading] = useState(false);
   const [bulkProgress,    setBulkProgress]    = useState(0);
   const [bulkTotal,       setBulkTotal]       = useState(0);
-  const [openGroups,      setOpenGroups]      = useState<Set<string>>(new Set(clients.map((c) => c.id)));
+  const [openGroups,      setOpenGroups]      = useState<Set<string>>(new Set());
   // Per-client download progress
   const [clientDlProgress, setClientDlProgress] = useState<Record<string, { current: number; total: number }>>({});
 
@@ -406,7 +409,7 @@ export default function DocumentHub() {
               <SelectTrigger className="w-[140px]"><SelectValue placeholder="All Types" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                {uniqueTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                {uniqueTypes.map((t: string) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>

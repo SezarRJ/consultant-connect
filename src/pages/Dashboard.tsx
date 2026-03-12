@@ -4,7 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
-import { engagements, playbooks } from "@/data/mockData";
+import { useEngagements } from "@/hooks/useEngagements";
+import { usePlaybooks } from "@/hooks/usePlaybooks";
 import { useInsights } from "@/hooks/useInsights";
 import { ArrowRight, AlertTriangle, Info, AlertCircle, BookOpen, Layers, Globe, TrendingUp } from "lucide-react";
 
@@ -29,11 +30,14 @@ const severityConfig: Record<string, { icon: typeof AlertCircle; color: string; 
 };
 
 export default function Dashboard() {
-  // G-02 FIX: use live hook instead of static mockData import
+  const { data: engagements = [], isLoading: engagementsLoading } = useEngagements();
+  const { data: playbooks = [], isLoading: playbooksLoading } = usePlaybooks();
   const { data: allInsights = [], isLoading: insightsLoading } = useInsights();
 
-  const unreadInsights = allInsights.filter((i) => !i.isRead);
-  const opportunities   = allInsights.filter((i) => i.severity === "info").slice(0, 2);
+  const unreadInsights = allInsights.filter((i: any) => !i.isRead);
+  const opportunities   = allInsights.filter((i: any) => i.severity === "info").slice(0, 2);
+
+  const isLoading = engagementsLoading || insightsLoading || playbooksLoading;
 
   return (
     <div className="space-y-8">
@@ -51,27 +55,29 @@ export default function Dashboard() {
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {engagements.map((eng) => (
-            <Link key={eng.id} to={`/clients/${eng.clientId}`}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-base">{eng.clientName}</CardTitle>
-                    <Badge variant="outline" className={statusColor[eng.status]}>{eng.status}</Badge>
-                  </div>
-                  <p className="text-sm text-muted-foreground">{eng.type}</p>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${phaseColor[eng.phase]}`}>{eng.phase}</span>
-                    <span className="text-sm font-medium">{eng.progress}%</span>
-                  </div>
-                  <Progress value={eng.progress} className="h-2" />
-                  <p className="text-xs text-muted-foreground mt-2">Due: {eng.dueDate}</p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+          {engagementsLoading
+            ? [1, 2, 3].map((i) => <Skeleton key={i} className="h-40 rounded-xl" />)
+            : engagements.map((eng: any) => (
+              <Link key={eng.id} to={`/clients/${eng.clientId}`}>
+                <Card className="hover:shadow-md transition-shadow cursor-pointer">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-base">{eng.clientName}</CardTitle>
+                      <Badge variant="outline" className={statusColor[eng.status]}>{eng.status}</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{eng.type}</p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${phaseColor[eng.phase]}`}>{eng.phase}</span>
+                      <span className="text-sm font-medium">{eng.progress}%</span>
+                    </div>
+                    <Progress value={eng.progress} className="h-2" />
+                    <p className="text-xs text-muted-foreground mt-2">Due: {eng.dueDate}</p>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
         </div>
       </section>
 
@@ -83,7 +89,7 @@ export default function Dashboard() {
           <div className="grid gap-3">
             {insightsLoading
               ? [1, 2].map((i) => <Skeleton key={i} className="h-24 rounded-xl" />)
-              : opportunities.map((insight) => (
+              : opportunities.map((insight: any) => (
                   <Card key={insight.id} className="border-l-4 border-l-primary">
                     <CardContent className="py-4 flex items-start justify-between">
                       <div>
@@ -143,7 +149,7 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="space-y-3">
-            {unreadInsights.slice(0, 4).map((insight) => {
+            {unreadInsights.slice(0, 4).map((insight: any) => {
               const cfg = severityConfig[insight.severity];
               const Icon = cfg.icon;
               return (
