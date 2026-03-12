@@ -112,7 +112,7 @@ export default function Agents() {
 
         if (idx === ANALYSIS_STEPS.length - 1) {
           setIsRunningAnalysis(false);
-          setActiveNowCount(staticAgents.filter(a => a.status === "running").length);
+          setActiveNowCount(agents.filter((a: any) => a.status === "running").length);
           toast.success(`Analysis complete for ${clientName}.`);
         }
       }, idx * 700);
