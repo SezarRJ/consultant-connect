@@ -66,11 +66,7 @@ export default function Clients() {
         setDialogOpen(false);
       },
       onError: () => {
-        // Still show success with local data
-        setLocalClients(prev => [newClient, ...prev]);
-        toast.success(`${form.name} added successfully.`);
-        setForm({ name: "", industry: "", revenue: "", location: "" });
-        setDialogOpen(false);
+        toast.error("Failed to create client.");
       },
     });
   };
