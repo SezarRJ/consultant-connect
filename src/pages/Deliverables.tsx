@@ -6,7 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { clients, deliverables } from "@/data/mockData";
+import { useClients } from "@/hooks/useClients";
+import { useDeliverables } from "@/hooks/useDeliverables";
 import { useI18n } from "@/lib/i18n";
 import { FileText, Download, Loader2, CheckCircle, ChevronRight, Bot, Sparkles } from "lucide-react";
 

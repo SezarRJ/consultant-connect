@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useClients, useCreateClient } from "@/hooks/useClients";
-import { clients as staticClients, engagements } from "@/data/mockData";
+import { useEngagements } from "@/hooks/useEngagements";
 import { useI18n } from "@/lib/i18n";
 import { Search, Plus, MapPin, DollarSign, Building2, Loader2 } from "lucide-react";
 import { toast } from "sonner";
