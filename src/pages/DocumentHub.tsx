@@ -476,7 +476,7 @@ export default function DocumentHub() {
                       {/* Group checkbox */}
                       <Checkbox
                         checked={someGroupChecked ? (allGroupChecked ? true : "indeterminate") : false}
-                        onCheckedChange={(e) => { (e as React.MouseEvent).stopPropagation?.(); toggleClientDocs(client.id, docs); }}
+                        onCheckedChange={() => { toggleClientDocs(client.id, docs); }}
                         onClick={(e) => e.stopPropagation()}
                         aria-label={`Select all ${client.name} documents`}
                       />
