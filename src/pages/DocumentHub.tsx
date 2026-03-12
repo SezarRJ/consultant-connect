@@ -81,6 +81,8 @@ async function triggerBulkDownload(docs: Doc[], onProgress: (n: number) => void)
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function DocumentHub() {
   const navigate = useNavigate();
+  const { data: clients = [] } = useClients();
+  const { data: documents = [] } = useAllDocuments();
 
   // Filters & sort
   const [search,       setSearch]       = useState("");
@@ -100,7 +102,7 @@ export default function DocumentHub() {
   const [bulkDownloading, setBulkDownloading] = useState(false);
   const [bulkProgress,    setBulkProgress]    = useState(0);
   const [bulkTotal,       setBulkTotal]       = useState(0);
-  const [openGroups,      setOpenGroups]      = useState<Set<string>>(new Set(clients.map((c) => c.id)));
+  const [openGroups,      setOpenGroups]      = useState<Set<string>>(new Set());
   // Per-client download progress
   const [clientDlProgress, setClientDlProgress] = useState<Record<string, { current: number; total: number }>>({});
 
