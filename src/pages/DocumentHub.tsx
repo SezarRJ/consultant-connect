@@ -31,7 +31,7 @@ import { toast } from "sonner";
 // ── Types ─────────────────────────────────────────────────────────────────────
 type SortField = "name" | "uploadDate" | "size" | "type";
 type SortDir   = "asc" | "desc";
-type Doc       = typeof documents[0];
+type Doc = { id: string; clientId: string; name: string; type: string; size: string; uploadDate: string; extractionStatus: string };
 
 // ── Icon / status maps ────────────────────────────────────────────────────────
 const typeIcon: Record<string, React.ReactNode> = {
