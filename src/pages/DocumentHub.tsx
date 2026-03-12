@@ -409,7 +409,7 @@ export default function DocumentHub() {
               <SelectTrigger className="w-[140px]"><SelectValue placeholder="All Types" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
-                {uniqueTypes.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                {uniqueTypes.map((t: string) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
