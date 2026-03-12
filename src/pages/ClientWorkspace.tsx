@@ -36,16 +36,19 @@ import { toast } from "sonner";
 
 export default function ClientWorkspace() {
   const { id } = useParams<{ id: string }>();
-  const client     = clients.find((c) => c.id === id);
-  const engagement = engagements.find((e) => e.clientId === id);
+  const { data: allClients = [] } = useClients();
+  const { data: allEngagements = [] } = useEngagements();
+  const { data: clientDocs = [] } = useDocuments(id);
+  const { data: clientStrategies = [] } = useStrategies(id);
+  const { data: allInsights = [] } = useInsights();
+  const { data: allDeliverables = [] } = useDeliverables();
+  const { data: clientActivity = [] } = useActivityLog(id);
+  const { data: kpis = [] } = useClientKPIs(id);
 
-  // G-12 FIX: filter all data by current clientId
-  const clientDocs         = documents.filter((d) => d.clientId === id);
-  const clientStrategies   = strategies.filter((s) => s.clientId === id);
-  const clientInsights     = insights.filter((i) => i.clientId === id);
-  const clientDeliverables = deliverables.filter((d) => d.clientId === id);
-  const clientActivity     = activityLog.filter((a) => a.clientId === id);
-  const kpis               = clientKPIs[id ?? ""] ?? [];
+  const client = allClients.find((c: any) => c.id === id);
+  const engagement = allEngagements.find((e: any) => e.clientId === id);
+  const clientInsights = allInsights.filter((i: any) => i.clientId === id);
+  const clientDeliverables = allDeliverables.filter((d: any) => d.clientId === id);
 
   // G-06: run analysis state
   const [jobId, setJobId] = useState<string | null>(null);
