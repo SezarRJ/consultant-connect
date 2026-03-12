@@ -9,11 +9,14 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  clients, engagements, documents, strategies, insights,
-  deliverables, revenueData, regionalData, activityLog,
-  simulationResults, clientKPIs,
-} from "@/data/mockData";
+import { useClients } from "@/hooks/useClients";
+import { useEngagements } from "@/hooks/useEngagements";
+import { useDocuments } from "@/hooks/useDocuments";
+import { useInsights } from "@/hooks/useInsights";
+import { useDeliverables } from "@/hooks/useDeliverables";
+import { useActivityLog, useClientKPIs } from "@/hooks/useActivityLog";
+import { useStrategies } from "@/hooks/useStrategy";
+import { revenueData, regionalData, simulationResults } from "@/data/mockData";
 import { FeedbackBar } from "@/components/feedback/FeedbackBar";
 import { useRunAnalysis, useJobStatus } from "@/hooks/useAnalysis";
 import { useUpdateClient } from "@/hooks/useClients";

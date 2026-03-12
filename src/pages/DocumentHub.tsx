@@ -17,7 +17,8 @@ import {
 import {
   Collapsible, CollapsibleContent, CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { documents, clients } from "@/data/mockData";
+import { useAllDocuments } from "@/hooks/useDocuments";
+import { useClients } from "@/hooks/useClients";
 import {
   Search, FileText, FileSpreadsheet, File, FilePlus2,
   CheckCircle2, Loader2, Clock, AlertTriangle, ExternalLink,

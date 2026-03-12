@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { insights as staticInsights, clients } from "@/data/mockData";
+import { useClients } from "@/hooks/useClients";
 import { useInsights, useDismissInsight } from "@/hooks/useInsights";
 import { useI18n } from "@/lib/i18n";
 import { AlertCircle, AlertTriangle, Info, CheckCheck, X, Filter } from "lucide-react";
