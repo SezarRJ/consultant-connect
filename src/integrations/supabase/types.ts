@@ -14,7 +14,434 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activity_log: {
+        Row: {
+          action: string
+          client_id: string | null
+          created_at: string
+          id: string
+          timestamp: string
+          type: string
+        }
+        Insert: {
+          action: string
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          timestamp?: string
+          type: string
+        }
+        Update: {
+          action?: string
+          client_id?: string | null
+          created_at?: string
+          id?: string
+          timestamp?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_agents: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          last_run: string | null
+          model: string
+          name: string
+          progress: number | null
+          status: string
+          task: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_run?: string | null
+          model: string
+          name: string
+          progress?: number | null
+          status: string
+          task: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          last_run?: string | null
+          model?: string
+          name?: string
+          progress?: number | null
+          status?: string
+          task?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      client_kpis: {
+        Row: {
+          client_id: string
+          created_at: string
+          goal: string
+          id: string
+          progress: number | null
+          status: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          goal: string
+          id?: string
+          progress?: number | null
+          status: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          goal?: string
+          id?: string
+          progress?: number | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_kpis_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          contact_name: string | null
+          contact_role: string | null
+          created_at: string
+          description: string | null
+          health_score: number | null
+          id: string
+          industry: string
+          location: string | null
+          logo: string | null
+          name: string
+          revenue: string | null
+          updated_at: string
+        }
+        Insert: {
+          contact_name?: string | null
+          contact_role?: string | null
+          created_at?: string
+          description?: string | null
+          health_score?: number | null
+          id?: string
+          industry: string
+          location?: string | null
+          logo?: string | null
+          name: string
+          revenue?: string | null
+          updated_at?: string
+        }
+        Update: {
+          contact_name?: string | null
+          contact_role?: string | null
+          created_at?: string
+          description?: string | null
+          health_score?: number | null
+          id?: string
+          industry?: string
+          location?: string | null
+          logo?: string | null
+          name?: string
+          revenue?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      deliverables: {
+        Row: {
+          audience: string | null
+          client_id: string
+          client_name: string
+          created_at: string
+          download_url: string | null
+          format: string | null
+          id: string
+          status: string
+          type: string
+        }
+        Insert: {
+          audience?: string | null
+          client_id: string
+          client_name: string
+          created_at?: string
+          download_url?: string | null
+          format?: string | null
+          id?: string
+          status: string
+          type: string
+        }
+        Update: {
+          audience?: string | null
+          client_id?: string
+          client_name?: string
+          created_at?: string
+          download_url?: string | null
+          format?: string | null
+          id?: string
+          status?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deliverables_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          client_id: string
+          created_at: string
+          extraction_status: string
+          id: string
+          name: string
+          size: string | null
+          type: string
+          updated_at: string
+          upload_date: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          extraction_status: string
+          id?: string
+          name: string
+          size?: string | null
+          type: string
+          updated_at?: string
+          upload_date?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          extraction_status?: string
+          id?: string
+          name?: string
+          size?: string | null
+          type?: string
+          updated_at?: string
+          upload_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      engagements: {
+        Row: {
+          client_id: string
+          client_name: string
+          created_at: string
+          due_date: string | null
+          id: string
+          phase: string
+          progress: number | null
+          start_date: string | null
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          client_name: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          phase: string
+          progress?: number | null
+          start_date?: string | null
+          status: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          client_name?: string
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          phase?: string
+          progress?: number | null
+          start_date?: string | null
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "engagements_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      insights: {
+        Row: {
+          client_id: string
+          client_name: string
+          created_at: string
+          description: string | null
+          id: string
+          is_read: boolean | null
+          severity: string
+          source: string | null
+          timestamp: string
+          title: string
+        }
+        Insert: {
+          client_id: string
+          client_name: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_read?: boolean | null
+          severity: string
+          source?: string | null
+          timestamp?: string
+          title: string
+        }
+        Update: {
+          client_id?: string
+          client_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_read?: boolean | null
+          severity?: string
+          source?: string | null
+          timestamp?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insights_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playbooks: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          success_rate: number | null
+          times_used: number | null
+          title: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          success_rate?: number | null
+          times_used?: number | null
+          title: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          success_rate?: number | null
+          times_used?: number | null
+          title?: string
+        }
+        Relationships: []
+      }
+      strategies: {
+        Row: {
+          client_id: string
+          cost_change: string | null
+          created_at: string
+          description: string | null
+          id: string
+          impact_score: number | null
+          investment_level: string | null
+          label: string
+          revenue_change: string | null
+          risk_score: number | null
+          roi_breakeven: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          cost_change?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          impact_score?: number | null
+          investment_level?: string | null
+          label: string
+          revenue_change?: string | null
+          risk_score?: number | null
+          roi_breakeven?: string | null
+          status: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          cost_change?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          impact_score?: number | null
+          investment_level?: string | null
+          label?: string
+          revenue_change?: string | null
+          risk_score?: number | null
+          roi_breakeven?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategies_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
