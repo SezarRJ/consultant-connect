@@ -1,26 +1,21 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
-import api from '@/lib/api';
+import { useQuery } from '@tanstack/react-query';
 
 export const useUpcomingMeetings = (clientId) => {
   return useQuery({
     queryKey: ['meetings', clientId],
     queryFn: async () => {
-      const { data } = await api.get('/integrations/calendar/upcoming', {
-        params: { clientId },
-      });
-      return data;
+      // Return empty meetings - calendar integration not yet set up
+      return [];
     },
     enabled: !!clientId,
     staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
   });
 };
 
 export const useGoogleAuthUrl = () => {
-  return useMutation({
-    mutationFn: async () => {
-      const { data } = await api.get('/integrations/google/auth-url');
-      return data;
+  return {
+    mutateAsync: async () => {
+      return { url: '#' };
     },
-  });
+  };
 };

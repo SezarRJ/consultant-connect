@@ -1,15 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '@/lib/api';
+import { supabase } from '@/integrations/supabase/client';
 
 export const usePlaybooks = () => {
   return useQuery({
     queryKey: ['playbooks'],
     queryFn: async () => {
-      const { data } = await api.get('/playbooks');
-      return data;
+      const { data, error } = await supabase.from('playbooks').select('*').order('times_used', { ascending: false });
+      if (error) throw error;
+      return data.map(p => ({
+        id: p.id,
+        title: p.title,
+        category: p.category,
+        successRate: p.success_rate,
+        timesUsed: p.times_used,
+        description: p.description,
+      }));
     },
     staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -17,23 +24,31 @@ export const useSuggestPlaybook = (problem, industry) => {
   return useQuery({
     queryKey: ['playbooks', 'suggest', problem, industry],
     queryFn: async () => {
-      const { data } = await api.get('/playbooks/suggest', {
-        params: { problem, industry },
-      });
-      return data;
+      // For now return all playbooks as suggestions
+      const { data, error } = await supabase.from('playbooks').select('*');
+      if (error) throw error;
+      return data.map(p => ({
+        id: p.id,
+        title: p.title,
+        category: p.category,
+        successRate: p.success_rate,
+        timesUsed: p.times_used,
+        description: p.description,
+      }));
     },
     enabled: !!problem && !!industry,
     staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
   });
 };
 
 export const useApplyPlaybook = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ playbookId, engagementId }) => {
-      const { data } = await api.post(`/playbooks/${playbookId}/apply`, { engagementId });
-      return data;
+    mutationFn: async ({ playbookId }) => {
+      // Increment times_used
+      const { data: current } = await supabase.from('playbooks').select('times_used').eq('id', playbookId).single();
+      const { error } = await supabase.from('playbooks').update({ times_used: (current?.times_used || 0) + 1 }).eq('id', playbookId);
+      if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['playbooks'] });
@@ -44,9 +59,9 @@ export const useApplyPlaybook = () => {
 export const usePlaybookFeedback = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ playbookId, outcome }) => {
-      const { data } = await api.put(`/playbooks/${playbookId}/feedback`, { outcome });
-      return data;
+    mutationFn: async ({ playbookId }) => {
+      // No-op for now
+      return { id: playbookId };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['playbooks'] });

@@ -1,12 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import api from '@/lib/api';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useRunAnalysis = (clientId) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (analysisData) => {
-      const { data } = await api.post(`/clients/${clientId}/analysis/run`, analysisData);
-      return data;
+    mutationFn: async () => {
+      // Simulate starting an analysis
+      return { id: crypto.randomUUID(), status: 'running', clientId };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['analysis', clientId] });
@@ -18,12 +18,11 @@ export const useAnalysis = (clientId) => {
   return useQuery({
     queryKey: ['analysis', clientId],
     queryFn: async () => {
-      const { data } = await api.get(`/clients/${clientId}/analysis`);
-      return data;
+      // Return empty array - analysis results would come from AI processing
+      return [];
     },
     enabled: !!clientId,
     staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -31,12 +30,10 @@ export const useAnalysisDetail = (clientId, analysisId) => {
   return useQuery({
     queryKey: ['analysis', clientId, analysisId],
     queryFn: async () => {
-      const { data } = await api.get(`/clients/${clientId}/analysis/${analysisId}`);
-      return data;
+      return null;
     },
     enabled: !!clientId && !!analysisId,
     staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -44,10 +41,8 @@ export const useJobStatus = (jobId) => {
   return useQuery({
     queryKey: ['job', jobId],
     queryFn: async () => {
-      const { data } = await api.get(`/jobs/${jobId}/status`);
-      return data;
+      return { status: 'complete', progress: 100 };
     },
     enabled: !!jobId,
-    refetchInterval: 3000, // Poll every 3 seconds
   });
 };
