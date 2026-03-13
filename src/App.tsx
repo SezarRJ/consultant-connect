@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { I18nProvider } from "@/lib/i18n";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import MarketEntry from "./pages/MarketEntry";
@@ -14,6 +15,9 @@ import PartnerMatchmaking from "./pages/PartnerMatchmaking";
 import SalesStrategy from "./pages/SalesStrategy";
 import ExportReadiness from "./pages/ExportReadiness";
 import FeasibilityStudy from "./pages/FeasibilityStudy";
+import DocumentHub from "./pages/DocumentHub";
+import Settings from "./pages/Settings";
+import Agents from "./pages/Agents";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -22,27 +26,32 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route element={<AppLayout />}>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/market-entry" element={<MarketEntry />} />
-            <Route path="/distributor-finder" element={<DistributorFinder />} />
-            <Route path="/competitor-analysis" element={<CompetitorAnalysis />} />
-            <Route path="/pricing-intelligence" element={<PricingIntelligence />} />
-            <Route path="/risk-assessment" element={<RiskAssessment />} />
-            <Route path="/partner-matchmaking" element={<PartnerMatchmaking />} />
-            <Route path="/sales-strategy" element={<SalesStrategy />} />
-            <Route path="/export-readiness" element={<ExportReadiness />} />
-            <Route path="/feasibility-study" element={<FeasibilityStudy />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <I18nProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/market-entry" element={<MarketEntry />} />
+              <Route path="/distributor-finder" element={<DistributorFinder />} />
+              <Route path="/competitor-analysis" element={<CompetitorAnalysis />} />
+              <Route path="/pricing-intelligence" element={<PricingIntelligence />} />
+              <Route path="/risk-assessment" element={<RiskAssessment />} />
+              <Route path="/partner-matchmaking" element={<PartnerMatchmaking />} />
+              <Route path="/sales-strategy" element={<SalesStrategy />} />
+              <Route path="/export-readiness" element={<ExportReadiness />} />
+              <Route path="/feasibility-study" element={<FeasibilityStudy />} />
+              <Route path="/agents" element={<Agents />} />
+              <Route path="/documents" element={<DocumentHub />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </I18nProvider>
   </QueryClientProvider>
 );
 
