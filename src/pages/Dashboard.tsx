@@ -148,7 +148,19 @@ export default function Dashboard() {
       </div>
 
       {/* Quick links row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Link to="/crm" className="rounded-xl p-5 flex items-center gap-4 transition-all hover:opacity-90"
+          style={{ background: "hsl(38 95% 52% / 0.08)", border: "1px solid hsl(38 95% 52% / 0.25)" }}>
+          <div className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0"
+            style={{ background: "hsl(38 95% 52% / 0.15)" }}>
+            <Activity className="h-5 w-5" style={{ color: "hsl(38 95% 60%)" }} />
+          </div>
+          <div>
+            <p className="font-semibold text-sm font-display" style={{ color: "hsl(38 95% 60%)" }}>CRM</p>
+            <p className="text-xs" style={{ color: "hsl(215 25% 55%)" }}>Contacts, deals pipeline & client activities</p>
+          </div>
+          <ArrowRight className="h-4 w-4 ms-auto shrink-0" style={{ color: "hsl(38 95% 60%)" }} />
+        </Link>
         <Link to="/agents" className="rounded-xl p-5 flex items-center gap-4 transition-all hover:opacity-90"
           style={{ background: "hsl(217 91% 53% / 0.08)", border: "1px solid hsl(217 91% 53% / 0.25)" }}>
           <div className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0"
@@ -157,7 +169,7 @@ export default function Dashboard() {
           </div>
           <div>
             <p className="font-semibold text-sm font-display" style={{ color: "hsl(217 91% 70%)" }}>AI Agent Workspace</p>
-            <p className="text-xs" style={{ color: "hsl(215 25% 55%)" }}>Monitor all 9 active advisory agents, view run history & accuracy scores</p>
+            <p className="text-xs" style={{ color: "hsl(215 25% 55%)" }}>Monitor all 9 active advisory agents</p>
           </div>
           <ArrowRight className="h-4 w-4 ms-auto shrink-0" style={{ color: "hsl(217 91% 70%)" }} />
         </Link>
@@ -169,7 +181,7 @@ export default function Dashboard() {
           </div>
           <div>
             <p className="font-semibold text-sm font-display" style={{ color: "hsl(158 64% 55%)" }}>Document Hub</p>
-            <p className="text-xs" style={{ color: "hsl(215 25% 55%)" }}>Upload, manage and analyse all client documents — PDF, Excel, Word, CSV</p>
+            <p className="text-xs" style={{ color: "hsl(215 25% 55%)" }}>Upload, manage & analyse all client documents</p>
           </div>
           <ArrowRight className="h-4 w-4 ms-auto shrink-0" style={{ color: "hsl(158 64% 55%)" }} />
         </Link>
