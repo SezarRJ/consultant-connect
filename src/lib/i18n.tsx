@@ -10,6 +10,7 @@ const en = {
   nav_sales: "Sales Strategy", nav_export: "Export Readiness",
   nav_feasibility: "Feasibility Study", nav_agents: "AI Agents",
   nav_documents: "Document Hub", nav_settings: "Settings",
+  nav_crm: "CRM",
   // Groups
   group_overview: "OVERVIEW", group_services: "ADVISORY SERVICES",
   group_tools: "TOOLS & REPORTS",
@@ -38,6 +39,11 @@ const en = {
   // Integrations
   int_title: "Integrations", int_subtitle: "Connect your external tools and data sources",
   int_connect: "Connect", int_connected: "Connected", int_disconnect: "Disconnect",
+  // CRM
+  crm_title: "CRM — Relationship Manager",
+  crm_subtitle: "Contacts, deals pipeline & activities — linked to advisory services",
+  crm_add_contact: "Add Contact", crm_contacts: "Contacts",
+  crm_pipeline: "Pipeline", crm_deals: "All Deals", crm_activities: "Activities",
 };
 
 const ar: typeof en = {
@@ -47,6 +53,7 @@ const ar: typeof en = {
   nav_sales: "استراتيجية المبيعات", nav_export: "جاهزية التصدير",
   nav_feasibility: "دراسة الجدوى", nav_agents: "وكلاء الذكاء الاصطناعي",
   nav_documents: "مركز الوثائق", nav_settings: "الإعدادات",
+  nav_crm: "إدارة العملاء",
   group_overview: "نظرة عامة", group_services: "الخدمات الاستشارية",
   group_tools: "الأدوات والتقارير",
   analyze: "تحليل", analyzing: "جارٍ التحليل...", re_analyze: "إعادة التحليل",
@@ -68,6 +75,10 @@ const ar: typeof en = {
   dash_services: "الخدمات الاستشارية", dash_quick_stats: "نظرة عامة على المنصة",
   int_title: "التكاملات", int_subtitle: "ربط الأدوات ومصادر البيانات الخارجية",
   int_connect: "ربط", int_connected: "مرتبط", int_disconnect: "قطع الاتصال",
+  crm_title: "CRM — إدارة علاقات العملاء",
+  crm_subtitle: "جهات الاتصال وخط الصفقات والأنشطة — مرتبطة بالخدمات الاستشارية",
+  crm_add_contact: "إضافة جهة اتصال", crm_contacts: "جهات الاتصال",
+  crm_pipeline: "خط الصفقات", crm_deals: "جميع الصفقات", crm_activities: "الأنشطة",
 };
 
 type Translations = typeof en;
