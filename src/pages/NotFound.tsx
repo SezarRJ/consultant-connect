@@ -1,25 +1,20 @@
-// BUG 1 FIX: replaced <a href="/"> with React Router <Link to="/"> to prevent full page reload
-import { useLocation, Link } from "react-router-dom";
-import { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { Globe2 } from "lucide-react";
 
-const NotFound = () => {
-  const location = useLocation();
-
-  useEffect(() => {
-    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
-  }, [location.pathname]);
-
+export default function NotFound() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted">
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "hsl(var(--background))" }}>
       <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">404</h1>
-        <p className="mb-4 text-xl text-muted-foreground">Oops! Page not found</p>
-        <Link to="/" className="text-primary underline hover:text-primary/90">
-          Return to Home
+        <div className="flex justify-center mb-4">
+          <Globe2 className="h-12 w-12" style={{ color: "hsl(38 95% 52%)" }} />
+        </div>
+        <h1 className="text-4xl font-bold font-display mb-2" style={{ color: "hsl(210 40% 92%)" }}>404</h1>
+        <p className="text-sm mb-6" style={{ color: "hsl(215 25% 55%)" }}>Page not found</p>
+        <Link to="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold"
+          style={{ background: "hsl(38 95% 52%)", color: "hsl(216 58% 6%)" }}>
+          Back to Dashboard
         </Link>
       </div>
     </div>
   );
-};
-
-export default NotFound;
+}
