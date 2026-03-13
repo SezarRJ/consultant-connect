@@ -18,6 +18,7 @@ import FeasibilityStudy from "./pages/FeasibilityStudy";
 import DocumentHub from "./pages/DocumentHub";
 import Settings from "./pages/Settings";
 import Agents from "./pages/Agents";
+import CRM from "./pages/CRM";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -34,18 +35,19 @@ const App = () => (
           <Routes>
             <Route element={<AppLayout />}>
               <Route path="/" element={<Dashboard />} />
-              <Route path="/market-entry" element={<MarketEntry />} />
-              <Route path="/distributor-finder" element={<DistributorFinder />} />
-              <Route path="/competitor-analysis" element={<CompetitorAnalysis />} />
+              <Route path="/market-entry"         element={<MarketEntry />} />
+              <Route path="/distributor-finder"   element={<DistributorFinder />} />
+              <Route path="/competitor-analysis"  element={<CompetitorAnalysis />} />
               <Route path="/pricing-intelligence" element={<PricingIntelligence />} />
-              <Route path="/risk-assessment" element={<RiskAssessment />} />
-              <Route path="/partner-matchmaking" element={<PartnerMatchmaking />} />
-              <Route path="/sales-strategy" element={<SalesStrategy />} />
-              <Route path="/export-readiness" element={<ExportReadiness />} />
-              <Route path="/feasibility-study" element={<FeasibilityStudy />} />
-              <Route path="/agents" element={<Agents />} />
-              <Route path="/documents" element={<DocumentHub />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/risk-assessment"      element={<RiskAssessment />} />
+              <Route path="/partner-matchmaking"  element={<PartnerMatchmaking />} />
+              <Route path="/sales-strategy"       element={<SalesStrategy />} />
+              <Route path="/export-readiness"     element={<ExportReadiness />} />
+              <Route path="/feasibility-study"    element={<FeasibilityStudy />} />
+              <Route path="/crm"                  element={<CRM />} />
+              <Route path="/agents"               element={<Agents />} />
+              <Route path="/documents"            element={<DocumentHub />} />
+              <Route path="/settings"             element={<Settings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
