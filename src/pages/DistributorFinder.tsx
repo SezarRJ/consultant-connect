@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Users, RefreshCw, MapPin, Phone, Star, Building2 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { OutputCard, LoadingState, EmptyState } from "@/components/analysis/OutputCard";
+import { AIStatusBar } from "@/components/ai/AIStatusBar";
+import { WebSearchPanel } from "@/components/ai/WebSearchPanel";
+
 
 const SYSTEM_PROMPT = `You are an Iraq market distribution expert with deep knowledge of Iraqi distributors, wholesalers, and logistics companies. Respond ONLY with a valid JSON object:
 {
@@ -44,7 +47,7 @@ const productCategories = ["Food & Beverages", "FMCG", "Healthcare", "Constructi
 
 export default function DistributorFinder() {
   const [form, setForm] = useState({ product: "", category: "", city: "All Iraq", volume: "" });
-  const { result, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT });
+  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "distributor" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -70,6 +73,10 @@ Provide realistic Iraqi distributor profiles for Erbil, Baghdad, Basra. Include 
         </div>
         <span className="data-pill-green">Service 02</span>
       </div>
+
+
+      <AIStatusBar agentName="Distributor Agent" tokensUsed={tokensUsed} />
+      <WebSearchPanel label="Iraq distributors & wholesalers" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

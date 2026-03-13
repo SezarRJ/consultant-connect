@@ -2,6 +2,9 @@ import { useState } from "react";
 import { ShieldAlert, RefreshCw, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { OutputCard, DataRow, LoadingState, EmptyState } from "@/components/analysis/OutputCard";
+import { AIStatusBar } from "@/components/ai/AIStatusBar";
+import { WebSearchPanel } from "@/components/ai/WebSearchPanel";
+
 
 const SYSTEM_PROMPT = `You are an Iraq market risk analyst. Respond ONLY with valid JSON:
 {
@@ -53,7 +56,7 @@ const riskBg = (level: string) => level === "High" ? "red" : level === "Medium" 
 
 export default function RiskAssessment() {
   const [form, setForm] = useState({ product: "", origin: "", volume: "", paymentMethod: "Open Account" });
-  const { result, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT });
+  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "risk" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -80,6 +83,10 @@ Provide realistic 2025-2026 Iraq risk assessment covering payment risk, logistic
         </div>
         <span className="data-pill-red">Service 05</span>
       </div>
+
+
+      <AIStatusBar agentName="Risk Assessment Agent" tokensUsed={tokensUsed} />
+      <WebSearchPanel label="Regulatory & compliance updates" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

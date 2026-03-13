@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Handshake, RefreshCw, Star, MapPin, Phone } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { OutputCard, LoadingState, EmptyState } from "@/components/analysis/OutputCard";
+import { AIStatusBar } from "@/components/ai/AIStatusBar";
+import { WebSearchPanel } from "@/components/ai/WebSearchPanel";
+
 
 const SYSTEM_PROMPT = `You are an Iraq business matchmaking expert. Respond ONLY with valid JSON:
 {
@@ -49,7 +52,7 @@ const SYSTEM_PROMPT = `You are an Iraq business matchmaking expert. Respond ONLY
 
 export default function PartnerMatchmaking() {
   const [form, setForm] = useState({ product: "", category: "", city: "All Iraq", companySize: "SME", partnerType: "Distributor" });
-  const { result, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT });
+  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "partner" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -76,6 +79,10 @@ Match with verified Iraqi distributors, agents, and logistics providers. Provide
         </div>
         <span className="data-pill-green">Service 06</span>
       </div>
+
+
+      <AIStatusBar agentName="Partner Matchmaking Agent" tokensUsed={tokensUsed} />
+      <WebSearchPanel label="Partner & distributor networks" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

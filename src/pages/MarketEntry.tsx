@@ -2,6 +2,9 @@ import { useState } from "react";
 import { TrendingUp, MapPin, Package, Users, BarChart2, Target, ArrowRight, RefreshCw, Download } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { OutputCard, DataRow, TagList, LoadingState, EmptyState } from "@/components/analysis/OutputCard";
+import { AIStatusBar } from "@/components/ai/AIStatusBar";
+import { WebSearchPanel } from "@/components/ai/WebSearchPanel";
+
 
 const SYSTEM_PROMPT = `You are an expert Iraq market entry consultant with 20 years of experience in the Iraqi, Kurdish Regional Government (KRG), and Middle East markets. You provide detailed, data-driven market intelligence.
 
@@ -82,7 +85,7 @@ export default function MarketEntry() {
     product: "", category: "", countryOfOrigin: "", description: "",
     targetPrice: "", businessType: "Manufacturer",
   });
-  const { result, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT });
+  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "market-entry" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -119,6 +122,9 @@ Provide a comprehensive Iraq market entry analysis covering all fields in the re
         <span className="data-pill-amber">🇮🇶 Iraq Market</span>
       </div>
 
+
+      <AIStatusBar agentName="Market Entry Agent" tokensUsed={tokensUsed} />
+      <WebSearchPanel label="Iraq market entry data" />
       {/* Input Form */}
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
         <h2 className="text-sm font-semibold font-display mb-4" style={{ color: "hsl(210 40% 85%)" }}>Product Information</h2>

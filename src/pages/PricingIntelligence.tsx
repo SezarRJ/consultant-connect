@@ -2,6 +2,9 @@ import { useState } from "react";
 import { DollarSign, RefreshCw, TrendingUp, TrendingDown } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { OutputCard, DataRow, LoadingState, EmptyState } from "@/components/analysis/OutputCard";
+import { AIStatusBar } from "@/components/ai/AIStatusBar";
+import { WebSearchPanel } from "@/components/ai/WebSearchPanel";
+
 
 const SYSTEM_PROMPT = `You are an Iraq market pricing expert. Respond ONLY with a valid JSON object:
 {
@@ -27,7 +30,7 @@ const SYSTEM_PROMPT = `You are an Iraq market pricing expert. Respond ONLY with 
 
 export default function PricingIntelligence() {
   const [form, setForm] = useState({ product: "", category: "", currentPrice: "", origin: "" });
-  const { result, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT });
+  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "pricing" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -54,6 +57,9 @@ Provide real-world accurate pricing data for Iraq market in 2025-2026.`);
         <span className="data-pill-amber">Service 04</span>
       </div>
 
+
+      <AIStatusBar agentName="Pricing Agent" tokensUsed={tokensUsed} />
+      <WebSearchPanel label="Live pricing & market rates" />
       {/* Form */}
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

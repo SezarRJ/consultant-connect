@@ -2,6 +2,9 @@ import { useState } from "react";
 import { PackageCheck, RefreshCw, CheckCircle2, XCircle, AlertTriangle } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { OutputCard, DataRow, LoadingState, EmptyState } from "@/components/analysis/OutputCard";
+import { AIStatusBar } from "@/components/ai/AIStatusBar";
+import { WebSearchPanel } from "@/components/ai/WebSearchPanel";
+
 
 const SYSTEM_PROMPT = `You are an Iraq export compliance and market readiness expert. Respond ONLY with valid JSON:
 {
@@ -58,7 +61,7 @@ export default function ExportReadiness() {
     product: "", category: "", origin: "",
     hasArabicLabel: "No", targetPrice: "", packaging: ""
   });
-  const { result, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT });
+  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "export" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -88,6 +91,10 @@ Check packaging compliance, Arabic labeling requirements, pricing competitivenes
         </div>
         <span className="data-pill-amber">Service 08</span>
       </div>
+
+
+      <AIStatusBar agentName="Export Readiness Agent" tokensUsed={tokensUsed} />
+      <WebSearchPanel label="Export regulations & compliance" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

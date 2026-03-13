@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Bot, TrendingUp, Users, BarChart2, DollarSign, ShieldAlert, Handshake, Zap, PackageCheck, FileBarChart2, Play, CheckCircle2, Clock, Cpu, Activity, RefreshCw } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
+import { loadAIConfig, ANTHROPIC_MODELS } from "@/lib/aiConfig";
 import { Link } from "react-router-dom";
 
 const AGENTS = [
@@ -52,8 +53,10 @@ const colorMap: Record<string, { text: string; bg: string; border: string; pill:
 
 function AgentTestPanel({ agent }: { agent: typeof AGENTS[0] }) {
   const [prompt, setPrompt] = useState("");
+  const cfg = loadAIConfig();
   const { result, loading, error, analyze, rawText } = useClaudeAnalysis({
-    systemPrompt: `You are the ${agent.name} for a consultancy platform. Specialization: ${agent.specialization}. Respond with structured JSON analysis.`
+    systemPrompt: `You are the ${agent.name} for a consultancy platform. Specialization: ${agent.specialization}. Respond with structured JSON analysis.`,
+    agentId: agent.id,
   });
 
   const run = () => { if (prompt.trim()) analyze(prompt); };
@@ -89,6 +92,8 @@ function AgentTestPanel({ agent }: { agent: typeof AGENTS[0] }) {
 
 export default function Agents() {
   const { t } = useI18n();
+  const cfg = loadAIConfig();
+  const activModel = ANTHROPIC_MODELS.find(m => m.id === cfg.anthropicModel);
   const [expanded, setExpanded] = useState<string | null>(null);
   const totalRuns = AGENTS.reduce((s, a) => s + a.runs, 0);
   const avgAcc = Math.round(AGENTS.reduce((s, a) => s + a.accuracy, 0) / AGENTS.length);

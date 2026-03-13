@@ -2,6 +2,9 @@ import { useState } from "react";
 import { FileBarChart2, RefreshCw, Download, TrendingUp, CheckCircle2 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { OutputCard, DataRow, TagList, LoadingState, EmptyState } from "@/components/analysis/OutputCard";
+import { AIStatusBar } from "@/components/ai/AIStatusBar";
+import { WebSearchPanel } from "@/components/ai/WebSearchPanel";
+
 
 const SYSTEM_PROMPT = `You are a senior Iraq market feasibility consultant. Generate a comprehensive market feasibility study and business plan. Respond ONLY with valid JSON:
 {
@@ -72,7 +75,7 @@ export default function FeasibilityStudy() {
     company: "", product: "", category: "", origin: "",
     targetPrice: "", annualCapacity: "", budget: "", timeline: "6 months"
   });
-  const { result, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT });
+  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "feasibility" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -124,6 +127,9 @@ Provide a comprehensive feasibility study covering: Is the product suitable? Wha
         </p>
       </div>
 
+
+      <AIStatusBar agentName="Feasibility Study Agent" tokensUsed={tokensUsed} />
+      <WebSearchPanel label="Market feasibility data" />
       {/* Form */}
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

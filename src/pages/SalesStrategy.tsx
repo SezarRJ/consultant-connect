@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Zap, RefreshCw, ShoppingCart, Truck, Monitor, Store } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { OutputCard, DataRow, TagList, LoadingState, EmptyState } from "@/components/analysis/OutputCard";
+import { AIStatusBar } from "@/components/ai/AIStatusBar";
+import { WebSearchPanel } from "@/components/ai/WebSearchPanel";
+
 
 const SYSTEM_PROMPT = `You are an Iraq sales strategy expert specializing in FMCG, retail, wholesale, and e-commerce. Respond ONLY with valid JSON:
 {
@@ -54,7 +57,7 @@ const SYSTEM_PROMPT = `You are an Iraq sales strategy expert specializing in FMC
 
 export default function SalesStrategy() {
   const [form, setForm] = useState({ product: "", category: "", budget: "Medium", existingChannels: "" });
-  const { result, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT });
+  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "sales" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -92,6 +95,10 @@ Focus on supermarket chains, wholesalers, cash van distribution, and e-commerce 
         </div>
         <span className="data-pill-blue">Service 07</span>
       </div>
+
+
+      <AIStatusBar agentName="Sales Strategy Agent" tokensUsed={tokensUsed} />
+      <WebSearchPanel label="Sales channels & distribution trends" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

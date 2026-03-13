@@ -2,6 +2,9 @@ import { useState } from "react";
 import { BarChart2, RefreshCw, TrendingUp, Shield } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { OutputCard, TagList, LoadingState, EmptyState } from "@/components/analysis/OutputCard";
+import { AIStatusBar } from "@/components/ai/AIStatusBar";
+import { WebSearchPanel } from "@/components/ai/WebSearchPanel";
+
 
 const SYSTEM_PROMPT = `You are an Iraq market competitive intelligence expert. Respond ONLY with valid JSON:
 {
@@ -38,7 +41,7 @@ const SYSTEM_PROMPT = `You are an Iraq market competitive intelligence expert. R
 
 export default function CompetitorAnalysis() {
   const [form, setForm] = useState({ product: "", category: "", origin: "", yourPrice: "" });
-  const { result, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT });
+  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "competitor" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -66,6 +69,10 @@ Identify all competing brands, their country of origin, price ranges, distributi
         </div>
         <span className="data-pill-blue">Service 03</span>
       </div>
+
+
+      <AIStatusBar agentName="Competitor Agent" tokensUsed={tokensUsed} />
+      <WebSearchPanel label="Market competitor intelligence" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
