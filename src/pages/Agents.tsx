@@ -1,350 +1,199 @@
-import { useState, useEffect, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useAgents } from "@/hooks/useAgents";
-import { useClients } from "@/hooks/useClients";
-import { useActivityLog } from "@/hooks/useActivityLog";
-import { FeedbackBar } from "@/components/feedback/FeedbackBar";
-import { useCalibration } from "@/hooks/useFeedback";
+import { useState } from "react";
+import { Bot, TrendingUp, Users, BarChart2, DollarSign, ShieldAlert, Handshake, Zap, PackageCheck, FileBarChart2, Play, CheckCircle2, Clock, Cpu, Activity, RefreshCw } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-import { Bot, Eye, Clock, CheckCircle, AlertCircle, Loader2, Activity, Cpu, ListChecks, Target, Zap } from "lucide-react";
-import { toast } from "sonner";
+import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
+import { Link } from "react-router-dom";
 
-const statusConfig: Record<string, { icon: typeof CheckCircle; color: string; dot: string }> = {
-  complete: { icon: CheckCircle, color: "text-success",          dot: "bg-success"               },
-  running:  { icon: Loader2,     color: "text-primary",          dot: "bg-primary animate-pulse" },
-  queued:   { icon: Clock,       color: "text-muted-foreground", dot: "bg-muted-foreground"      },
-  error:    { icon: AlertCircle, color: "text-destructive",      dot: "bg-destructive"           },
+const AGENTS = [
+  { id: "market-entry",  name: "Market Entry Agent",    icon: TrendingUp,    url: "/market-entry",        color: "amber", model: "claude-sonnet-4-20250514",
+    task: "Analyzes market conditions, demand, pricing and entry strategy for new markets.",
+    specialization: "Market sizing, demand forecasting, competitive landscapes, entry barriers",
+    accuracy: 94, runs: 847, avgTime: "22s" },
+  { id: "distributor",   name: "Distributor Agent",      icon: Users,         url: "/distributor-finder",  color: "green", model: "claude-sonnet-4-20250514",
+    task: "Finds and vets distributors, wholesalers and logistics partners globally.",
+    specialization: "Channel mapping, partner vetting, wholesale networks, regional coverage",
+    accuracy: 91, runs: 623, avgTime: "18s" },
+  { id: "competitor",    name: "Competitor Agent",        icon: BarChart2,     url: "/competitor-analysis", color: "blue",  model: "claude-sonnet-4-20250514",
+    task: "Maps competitive landscape including brands, pricing and distribution strength.",
+    specialization: "Competitor mapping, SWOT analysis, price benchmarking, market share",
+    accuracy: 92, runs: 751, avgTime: "25s" },
+  { id: "pricing",       name: "Pricing Agent",           icon: DollarSign,    url: "/pricing-intelligence",color: "amber", model: "claude-sonnet-4-20250514",
+    task: "Benchmarks wholesale, retail, and margin structures across market channels.",
+    specialization: "Price modeling, margin analysis, channel economics, price positioning",
+    accuracy: 96, runs: 912, avgTime: "15s" },
+  { id: "risk",          name: "Risk Assessment Agent",   icon: ShieldAlert,   url: "/risk-assessment",     color: "red",   model: "claude-sonnet-4-20250514",
+    task: "Assesses payment, logistics, legal and regulatory risks with mitigation plans.",
+    specialization: "Risk scoring, regulatory compliance, payment terms, contingency planning",
+    accuracy: 93, runs: 689, avgTime: "20s" },
+  { id: "partner",       name: "Partner Matchmaking Agent",icon: Handshake,    url: "/partner-matchmaking", color: "green", model: "claude-sonnet-4-20250514",
+    task: "Matches businesses with verified partners, agents and distributors.",
+    specialization: "Partner profiling, compatibility scoring, due diligence criteria",
+    accuracy: 89, runs: 445, avgTime: "28s" },
+  { id: "sales",         name: "Sales Strategy Agent",    icon: Zap,           url: "/sales-strategy",      color: "blue",  model: "claude-sonnet-4-20250514",
+    task: "Designs channel strategies across retail, wholesale and e-commerce.",
+    specialization: "Channel prioritization, GTM planning, sales force structure, KPIs",
+    accuracy: 90, runs: 567, avgTime: "24s" },
+  { id: "export",        name: "Export Readiness Agent",  icon: PackageCheck,  url: "/export-readiness",    color: "amber", model: "claude-sonnet-4-20250514",
+    task: "Reviews packaging, labeling compliance, and export documentation needs.",
+    specialization: "Export regulations, labeling requirements, logistics optimization",
+    accuracy: 95, runs: 734, avgTime: "19s" },
+  { id: "feasibility",   name: "Feasibility Study Agent", icon: FileBarChart2, url: "/feasibility-study",   color: "green", model: "claude-sonnet-4-20250514",
+    task: "Produces full financial feasibility studies with ROI and go/no-go recommendation.",
+    specialization: "Financial modeling, NPV/IRR, scenario analysis, investment appraisal",
+    accuracy: 91, runs: 312, avgTime: "35s" },
+];
+
+const colorMap: Record<string, { text: string; bg: string; border: string; pill: string }> = {
+  amber: { text: "hsl(38 95% 60%)",   bg: "hsl(38 95% 52% / 0.08)",  border: "hsl(38 95% 52% / 0.3)",  pill: "data-pill-amber" },
+  green: { text: "hsl(158 64% 55%)",  bg: "hsl(158 64% 40% / 0.08)", border: "hsl(158 64% 40% / 0.3)", pill: "data-pill-green" },
+  blue:  { text: "hsl(217 91% 70%)",  bg: "hsl(217 91% 53% / 0.08)", border: "hsl(217 91% 53% / 0.3)", pill: "data-pill-blue" },
+  red:   { text: "hsl(0 72% 68%)",    bg: "hsl(0 72% 51% / 0.08)",   border: "hsl(0 72% 51% / 0.3)",   pill: "data-pill-red" },
 };
 
-// Analysis steps that stream in progressively
-const ANALYSIS_STEPS = [
-  "Connecting to data sources...",
-  "Extracting financial metrics from uploaded documents...",
-  "Running revenue trend decomposition (YoY, QoQ)...",
-  "Benchmarking against industry peers...",
-  "Identifying anomalies in cost structure...",
-  "Generating risk-adjusted opportunity matrix...",
-  "Cross-referencing market intelligence signals...",
-  "Computing confidence intervals for key findings...",
-  "Synthesising strategic recommendations...",
-  "Analysis complete ✓",
-];
+function AgentTestPanel({ agent }: { agent: typeof AGENTS[0] }) {
+  const [prompt, setPrompt] = useState("");
+  const { result, loading, error, analyze, rawText } = useClaudeAnalysis({
+    systemPrompt: `You are the ${agent.name} for a consultancy platform. Specialization: ${agent.specialization}. Respond with structured JSON analysis.`
+  });
+
+  const run = () => { if (prompt.trim()) analyze(prompt); };
+  const c = colorMap[agent.color];
+
+  return (
+    <div className="mt-4 rounded-xl p-4 space-y-3" style={{ background: "hsl(216 52% 8%)", border: `1px solid ${c.border}` }}>
+      <p className="text-xs font-semibold uppercase tracking-wider" style={{ color: c.text }}>Live Agent Test</p>
+      <textarea
+        rows={2}
+        className="w-full rounded-lg px-3 py-2 text-sm resize-none"
+        style={{ background: "hsl(216 45% 12%)", border: "1px solid hsl(var(--border))", color: "hsl(210 40% 85%)" }}
+        placeholder={`Ask the ${agent.name} anything...`}
+        value={prompt}
+        onChange={e => setPrompt(e.target.value)}
+      />
+      <button onClick={run} disabled={loading || !prompt.trim()}
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-50 transition-all"
+        style={{ background: loading ? "hsl(216 45% 18%)" : c.bg, color: c.text, border: `1px solid ${c.border}` }}>
+        {loading ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
+        {loading ? "Agent Running..." : "Run Agent"}
+      </button>
+      {error && <p className="text-xs" style={{ color: "hsl(0 72% 68%)" }}>⚠ {error}</p>}
+      {(result || rawText) && !loading && (
+        <div className="rounded-lg p-3 text-xs font-mono overflow-auto max-h-40"
+          style={{ background: "hsl(216 45% 10%)", color: "hsl(210 40% 75%)", border: "1px solid hsl(var(--border))" }}>
+          <pre className="whitespace-pre-wrap">{JSON.stringify(result, null, 2) || rawText}</pre>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function Agents() {
   const { t } = useI18n();
-  const { data: clients = [] } = useClients();
-  const { data: agents = [] } = useAgents();
-  const { data: activityLogData = [] } = useActivityLog(undefined);
-  
-  const [selectedClient, setSelectedClient] = useState("");
-  const [agentStates, setAgentStates] = useState<any[]>([]);
-  const [isRunningAnalysis, setIsRunningAnalysis] = useState(false);
-  const [analysisSteps, setAnalysisSteps] = useState<string[]>([]);
-  const [analysisOpen, setAnalysisOpen] = useState(false);
-  const [activeNowCount, setActiveNowCount] = useState(0);
-  const stepsRef = useRef<HTMLDivElement>(null);
-
-  // Initialize state from DB data
-  useEffect(() => {
-    if (clients.length > 0 && !selectedClient) setSelectedClient(clients[0].id);
-  }, [clients, selectedClient]);
-  useEffect(() => {
-    if (agents.length > 0 && agentStates.length === 0) {
-      setAgentStates(agents.map((a: any) => ({ ...a })));
-      setActiveNowCount(agents.filter((a: any) => a.status === "running").length);
-    }
-  }, [agents, agentStates.length]);
-
-  const filteredActivity = activityLogData.filter((item: any) => item.clientId === selectedClient);
-
-  const totalAgents = agentStates.length;
-  const tasksToday = activityLogData.filter((a: any) => {
-    const today = new Date().toDateString();
-    return new Date(a.timestamp).toDateString() === today;
-  }).length;
-
-  const { data: calibration } = useCalibration();
-  const avgAccuracy = calibration?.agents
-    ? Math.round(calibration.agents.reduce((sum: number, a: any) => sum + (a.accuracy ?? 0), 0) / calibration.agents.length)
-    : 84;
-
-  // Scroll analysis log to bottom as steps come in
-  useEffect(() => {
-    if (stepsRef.current) {
-      stepsRef.current.scrollTop = stepsRef.current.scrollHeight;
-    }
-  }, [analysisSteps]);
-
-  const handleRunAnalysis = () => {
-    const clientName = clients.find(c => c.id === selectedClient)?.name ?? "Client";
-    setAnalysisSteps([]);
-    setAnalysisOpen(true);
-    setIsRunningAnalysis(true);
-    setActiveNowCount(prev => prev + 2);
-
-    // Set queued agents to running
-    setAgentStates(prev => prev.map(a =>
-      a.status === "queued" ? { ...a, status: "running", progress: 0, lastRun: "Running..." } : a
-    ));
-
-    // Stream steps with delays
-    ANALYSIS_STEPS.forEach((step, idx) => {
-      setTimeout(() => {
-        setAnalysisSteps(prev => [...prev, step]);
-
-        // Update agent progress as steps progress
-        const pct = Math.round(((idx + 1) / ANALYSIS_STEPS.length) * 100);
-        setAgentStates(prev => prev.map((a, ai) => {
-          if (a.status === "running") {
-            const agentPct = Math.min(100, pct + (ai % 20));
-            return agentPct >= 100
-              ? { ...a, progress: 100, status: "complete", lastRun: "Just now" }
-              : { ...a, progress: agentPct };
-          }
-          return a;
-        }));
-
-        if (idx === ANALYSIS_STEPS.length - 1) {
-          setIsRunningAnalysis(false);
-          setActiveNowCount(agents.filter((a: any) => a.status === "running").length);
-          toast.success(`Analysis complete for ${clientName}.`);
-        }
-      }, idx * 700);
-    });
-  };
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const totalRuns = AGENTS.reduce((s, a) => s + a.runs, 0);
+  const avgAcc = Math.round(AGENTS.reduce((s, a) => s + a.accuracy, 0) / AGENTS.length);
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.agents_title}</h1>
-          <p className="text-muted-foreground">
-            {t.agents_subtitle}{" "}
-            <span className="text-xs text-muted-foreground/70">
-              — {clients.find(c => c.id === selectedClient)?.name}
-            </span>
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {/* Run Analysis — fully working */}
-          <Button
-            size="sm"
-            onClick={handleRunAnalysis}
-            disabled={isRunningAnalysis}
-            className="gap-1.5"
-          >
-            {isRunningAnalysis
-              ? <><Loader2 className="h-3 w-3 animate-spin" /> {t.running}</>
-              : <><Zap className="h-3 w-3" /> {t.run_analysis}</>
-            }
-          </Button>
-
-          <Select value={selectedClient} onValueChange={setSelectedClient}>
-            <SelectTrigger className="w-[200px]">
-              <SelectValue placeholder="Select client" />
-            </SelectTrigger>
-            <SelectContent>
-              {clients.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { icon: Cpu,        label: t.total_agents,  value: totalAgents,       color: "text-primary bg-primary/10"        },
-          { icon: Activity,   label: t.active_now,    value: activeNowCount,    color: "text-success bg-success/10"        },
-          { icon: ListChecks, label: t.tasks_today,   value: tasksToday,        color: "text-warning bg-warning/10"        },
-          { icon: Target,     label: t.avg_accuracy,  value: `${avgAccuracy}%`, color: "text-destructive bg-destructive/10" },
-        ].map(({ icon: Icon, label, value, color }) => (
-          <Card key={label}><CardContent className="pt-6 flex items-center gap-3">
-            <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${color}`}><Icon className="h-5 w-5" /></div>
-            <div><p className="text-2xl font-bold">{value}</p><p className="text-xs text-muted-foreground">{label}</p></div>
-          </CardContent></Card>
-        ))}
-      </div>
-
-      {/* Analysis progress dialog */}
-      <Dialog open={analysisOpen} onOpenChange={setAnalysisOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {isRunningAnalysis
-                ? <><Loader2 className="h-4 w-4 animate-spin text-primary" /> Running AI Analysis</>
-                : <><CheckCircle className="h-4 w-4 text-success" /> Analysis Complete</>
-              }
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3 pt-1">
-            <p className="text-xs text-muted-foreground">
-              Client: <strong>{clients.find(c => c.id === selectedClient)?.name}</strong>
-            </p>
-            {isRunningAnalysis && (
-              <Progress value={Math.round((analysisSteps.length / ANALYSIS_STEPS.length) * 100)} className="h-1.5" />
-            )}
-            <div ref={stepsRef} className="bg-muted rounded-lg p-3 font-mono text-xs space-y-1.5 max-h-56 overflow-auto">
-              {analysisSteps.map((step, i) => (
-                <div key={i} className={`flex items-start gap-2 ${i === analysisSteps.length - 1 && !isRunningAnalysis ? "text-success font-semibold" : "text-muted-foreground"}`}>
-                  <span className="text-primary/50 shrink-0">[{String(i + 1).padStart(2, "0")}]</span>
-                  <span>{step}</span>
-                </div>
-              ))}
-              {isRunningAnalysis && <span className="inline-block w-2 h-3 bg-primary animate-pulse rounded-sm" />}
-            </div>
-            {!isRunningAnalysis && analysisSteps.length > 0 && (
-              <Button className="w-full" onClick={() => setAnalysisOpen(false)}>
-                <CheckCircle className="mr-2 h-4 w-4" /> View Results
-              </Button>
-            )}
+          <div className="flex items-center gap-2 mb-1">
+            <Bot className="h-5 w-5" style={{ color: "hsl(38 95% 52%)" }} />
+            <h1 className="text-xl font-bold font-display" style={{ color: "hsl(210 40% 92%)" }}>{t.agents_title}</h1>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Agent Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {agentStates.map((agent) => {
-          const cfg = statusConfig[agent.status] || statusConfig.queued;
-          const StatusIcon = cfg.icon;
-          return (
-            <Card key={agent.id}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className={`h-2.5 w-2.5 rounded-full ${cfg.dot}`} />
-                    <CardTitle className="text-sm">{agent.name}</CardTitle>
-                  </div>
-                  <Badge variant="outline" className="text-xs">{agent.model}</Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-xs text-muted-foreground">{agent.description}</p>
-                <div className="flex items-center gap-2 text-xs">
-                  <StatusIcon className={`h-3.5 w-3.5 ${cfg.color} ${agent.status === "running" ? "animate-spin" : ""}`} />
-                  <span className="capitalize">{agent.status}</span>
-                  <span className="text-muted-foreground ml-auto">{agent.lastRun}</span>
-                </div>
-                {agent.status === "running" && <Progress value={agent.progress} className="h-1.5" />}
-                <div className="flex gap-2 pt-1">
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button size="sm" variant="outline" className="flex-1" disabled={agent.status !== "complete"}>
-                        <Eye className="mr-1 h-3 w-3" /> {t.output}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg">
-                      <DialogHeader><DialogTitle>{agent.name} — Output</DialogTitle></DialogHeader>
-                      <div className="space-y-3 pt-2">
-                        <p className="text-sm text-muted-foreground">Task: {agent.task}</p>
-                        <div className="p-3 rounded-lg bg-muted text-sm">
-                          <p className="font-medium mb-2">Key Findings:</p>
-                          <ul className="space-y-1 text-muted-foreground">
-                            <li>• Revenue concentration risk identified in Midwest (35% of total)</li>
-                            <li>• Operating margins 3.2% below industry benchmark</li>
-                            <li>• Customer acquisition cost increased 18% YoY</li>
-                            <li>• Supply chain efficiency score: 72/100</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button size="sm" variant="ghost" className="flex-1" disabled={agent.status !== "complete"}>
-                        <Bot className="mr-1 h-3 w-3" /> {t.trace}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg">
-                      <DialogHeader><DialogTitle>{agent.name} — Reasoning Trace</DialogTitle></DialogHeader>
-                      <div className="space-y-3 pt-2 text-sm">
-                        <div className="space-y-2">
-                          {["Loaded 4 data sources","Applied extraction templates","Identified 12 key metrics","Cross-referenced with benchmarks","Generated confidence scores"].map((step, i) => (
-                            <div key={i} className="flex gap-2 items-start">
-                              <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center text-xs text-primary shrink-0">{i+1}</div>
-                              <p className="text-muted-foreground">{step}</p>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </div>
-                {agent.status === "complete" && (
-                  <div className="pt-1 border-t">
-                    <FeedbackBar entityType="agent_output" entityId={agent.id} agentName={agent.name} compact />
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
+          <p className="text-sm" style={{ color: "hsl(215 25% 55%)" }}>{t.agents_subtitle}</p>
+        </div>
+        <div className="flex gap-3">
+          {[
+            { label: "Total Agents", value: AGENTS.length.toString() },
+            { label: "Total Runs", value: totalRuns.toLocaleString() },
+            { label: "Avg Accuracy", value: `${avgAcc}%` },
+          ].map(stat => (
+            <div key={stat.label} className="rounded-lg px-4 py-2 text-center"
+              style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
+              <p className="text-lg font-bold font-display" style={{ color: "hsl(38 95% 60%)" }}>{stat.value}</p>
+              <p className="text-[10px] uppercase tracking-wider" style={{ color: "hsl(215 25% 50%)" }}>{stat.label}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Activity Feed & Results */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-base">
-              {t.live_activity}
-              <span className="ml-2 text-xs font-normal text-muted-foreground">
-                — {clients.find(c => c.id === selectedClient)?.name}
-              </span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 max-h-80 overflow-auto">
-            {filteredActivity.length === 0
-              ? <p className="text-sm text-muted-foreground text-center py-4">{t.no_activity}</p>
-              : filteredActivity.map(item => (
-                <div key={item.id} className="flex gap-2 text-sm">
-                  <div className="h-1.5 w-1.5 rounded-full bg-primary mt-2 shrink-0" />
-                  <div>
-                    <p>{item.action}</p>
-                    <p className="text-xs text-muted-foreground">{new Date(item.timestamp).toLocaleTimeString()}</p>
-                  </div>
+      {/* Agent cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+        {AGENTS.map((agent, i) => {
+          const c = colorMap[agent.color];
+          const isExpanded = expanded === agent.id;
+          return (
+            <div key={agent.id} className="rounded-xl p-5 flex flex-col gap-4 transition-all"
+              style={{ background: "hsl(var(--card))", border: `1px solid ${isExpanded ? c.border : "hsl(var(--border))"}` }}>
+              {/* Header */}
+              <div className="flex items-start gap-3">
+                <div className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0"
+                  style={{ background: c.bg }}>
+                  <agent.icon className="h-5 w-5" style={{ color: c.text }} />
                 </div>
-              ))
-            }
-          </CardContent>
-        </Card>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-[10px] font-bold font-mono-data" style={{ color: c.text }}>
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <h3 className="text-sm font-bold font-display truncate" style={{ color: "hsl(210 40% 90%)" }}>{agent.name}</h3>
+                  </div>
+                  <p className="text-xs leading-relaxed" style={{ color: "hsl(215 25% 58%)" }}>{agent.task}</p>
+                </div>
+              </div>
 
-        <Card className="lg:col-span-2">
-          <CardHeader><CardTitle className="text-base">{t.consolidated_results}</CardTitle></CardHeader>
-          <CardContent>
-            <Tabs defaultValue="findings">
-              <TabsList>
-                <TabsTrigger value="findings">{t.key_findings}</TabsTrigger>
-                <TabsTrigger value="strategies">{t.strategy_options}</TabsTrigger>
-                <TabsTrigger value="simulations">{t.simulations}</TabsTrigger>
-                <TabsTrigger value="roadmap">{t.roadmap}</TabsTrigger>
-              </TabsList>
-              <TabsContent value="findings" className="mt-4 space-y-2">
-                {["Revenue declining 12% below forecast in Q1","Last-mile delivery costs 23% above industry average","Top 3 accounts represent 45% of total revenue","Customer satisfaction score dropped from 8.1 to 7.2"].map((f,i) => (
-                  <div key={i} className="flex items-start gap-2 p-2 rounded bg-muted">
-                    <span className="text-xs font-medium text-primary shrink-0">{i+1}.</span>
-                    <p className="text-sm">{f}</p>
+              {/* Metrics */}
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { label: "Accuracy", value: `${agent.accuracy}%`, icon: CheckCircle2 },
+                  { label: "Runs",     value: agent.runs.toLocaleString(), icon: Activity },
+                  { label: "Avg Time", value: agent.avgTime, icon: Clock },
+                ].map(m => (
+                  <div key={m.label} className="rounded-lg p-2 text-center"
+                    style={{ background: "hsl(216 45% 14%)" }}>
+                    <p className="text-sm font-bold font-mono-data" style={{ color: c.text }}>{m.value}</p>
+                    <p className="text-[10px]" style={{ color: "hsl(215 25% 48%)" }}>{m.label}</p>
                   </div>
                 ))}
-              </TabsContent>
-              <TabsContent value="strategies" className="mt-4 text-sm text-muted-foreground">
-                <p>3 strategy options generated. View in the client Strategy tab for detailed simulation results and accept/reject workflow.</p>
-              </TabsContent>
-              <TabsContent value="simulations" className="mt-4 text-sm text-muted-foreground">
-                <p>Monte Carlo simulations complete for all 3 options. Option B (Technology-Led Efficiency) shows highest expected ROI at 18-month horizon.</p>
-              </TabsContent>
-              <TabsContent value="roadmap" className="mt-4 text-sm text-muted-foreground">
-                <p>Implementation roadmap available after strategy acceptance. Navigate to client Strategy tab to accept an option.</p>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+              </div>
+
+              {/* Accuracy bar */}
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span className="text-[10px]" style={{ color: "hsl(215 25% 50%)" }}>Agent accuracy</span>
+                  <span className="text-[10px] font-bold" style={{ color: c.text }}>{agent.accuracy}%</span>
+                </div>
+                <div className="h-1.5 rounded-full" style={{ background: "hsl(216 45% 18%)" }}>
+                  <div className="h-full rounded-full transition-all" style={{ width: `${agent.accuracy}%`, background: c.text }} />
+                </div>
+              </div>
+
+              {/* Specialization */}
+              <div className="rounded-lg p-2.5" style={{ background: "hsl(216 45% 12%)" }}>
+                <p className="text-[10px] uppercase tracking-wider mb-1" style={{ color: "hsl(215 25% 45%)" }}>Specialization</p>
+                <p className="text-xs" style={{ color: "hsl(215 25% 65%)" }}>{agent.specialization}</p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2">
+                <Link to={agent.url} className="flex-1 text-center py-2 rounded-lg text-xs font-semibold transition-all hover:opacity-90"
+                  style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}>
+                  Open Service
+                </Link>
+                <button onClick={() => setExpanded(isExpanded ? null : agent.id)}
+                  className="flex-1 py-2 rounded-lg text-xs font-semibold transition-all"
+                  style={{ background: "hsl(216 45% 18%)", color: "hsl(210 40% 75%)", border: "1px solid hsl(var(--border))" }}>
+                  {isExpanded ? "Close Test" : "Test Agent"}
+                </button>
+              </div>
+
+              {/* Expandable test panel */}
+              {isExpanded && <AgentTestPanel agent={agent} />}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
