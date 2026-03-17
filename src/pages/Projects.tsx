@@ -70,7 +70,6 @@ const SEED_PROJECTS: Project[] = [
 
 const ALL_TYPES: ProjectType[] = ["Real Estate","FMCG","Sales & Distribution","F&B","Marketing","Manufacturing","Telecom","Business Development"];
 
-export default function Projects() {
 // ── Workspace route map by project type ────────────────────────────────────
 const WORKSPACE_ROUTES: Record<ProjectType, string> = {
   "Real Estate":          "/real-estate-intelligence",
