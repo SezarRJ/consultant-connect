@@ -1,5 +1,4 @@
 import { createRoot } from "react-dom/client";
-import "./i18n/index";  // initialize i18n BEFORE app renders
 import App from "./App.tsx";
 import "./index.css";
 
