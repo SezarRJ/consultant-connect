@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FolderOpen, Plus, Search, Building2, TrendingUp, ShoppingCart, Utensils,
   Megaphone, Factory, Radio, Briefcase, BarChart2, ChevronRight, Calendar,
   DollarSign, Target, Clock, CheckCircle2, AlertTriangle, Play, MoreHorizontal,
-  Filter, Grid3x3, List, Star, ArrowRight, Layers, Cpu
+  Filter, Grid3x3, List, Star, ArrowRight, Layers, Cpu, ExternalLink
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -70,6 +71,20 @@ const SEED_PROJECTS: Project[] = [
 const ALL_TYPES: ProjectType[] = ["Real Estate","FMCG","Sales & Distribution","F&B","Marketing","Manufacturing","Telecom","Business Development"];
 
 export default function Projects() {
+// ── Workspace route map by project type ────────────────────────────────────
+const WORKSPACE_ROUTES: Record<ProjectType, string> = {
+  "Real Estate":          "/real-estate-intelligence",
+  "FMCG":                 "/fmcg-intelligence",
+  "Sales & Distribution": "/sales-distribution",
+  "F&B":                  "/fb-consulting",
+  "Marketing":            "/marketing-intelligence",
+  "Manufacturing":        "/manufacturing-module",
+  "Telecom":              "/telecom-module",
+  "Business Development": "/business-development",
+};
+
+export default function Projects() {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>(SEED_PROJECTS);
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState<ProjectType | "All">("All");
@@ -349,8 +364,12 @@ export default function Projects() {
             <div className="flex gap-3">
               <button onClick={() => setSelected(null)} className="flex-1 py-2.5 rounded-lg text-sm font-semibold"
                 style={{ background: "hsl(216 45% 18%)", color: "hsl(210 40% 75%)" }}>Close</button>
-              <button className="flex-1 py-2.5 rounded-lg text-sm font-semibold"
-                style={{ background: "hsl(38 95% 52%)", color: "hsl(216 58% 6%)" }}>Open Workspace</button>
+              <button
+                onClick={() => { navigate(WORKSPACE_ROUTES[selected.type]); setSelected(null); }}
+                className="flex-1 py-2.5 rounded-lg text-sm font-semibold inline-flex items-center justify-center gap-2"
+                style={{ background: "hsl(38 95% 52%)", color: "hsl(216 58% 6%)" }}>
+                <ExternalLink className="h-4 w-4" /> Open Workspace
+              </button>
             </div>
           </div>
         </div>
