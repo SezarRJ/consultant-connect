@@ -62,6 +62,11 @@ export function useClaudeAnalysis({ systemPrompt, agentId }: UseClaudeAnalysisOp
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         const msg = (errData as any)?.error?.message || `API error ${response.status}`;
+        // Friendly messages for common errors
+        if (response.status === 401) throw new Error("Invalid API key. Please update your key in Settings → AI Configuration.");
+        if (response.status === 403) throw new Error("Credit balance too low or access denied. Please top up credits at console.anthropic.com → Plans & Billing, then retry.");
+        if (response.status === 429) throw new Error("Rate limit reached. Please wait a moment and try again.");
+        if (response.status === 529 || response.status === 500) throw new Error("Anthropic service temporarily unavailable. Please try again in a few seconds.");
         throw new Error(msg);
       }
 
