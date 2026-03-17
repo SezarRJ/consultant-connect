@@ -24,6 +24,10 @@ import Tasks from "./pages/Tasks";
 import FinancialOverview from "./pages/FinancialOverview";
 import MarketIntelligence from "./pages/MarketIntelligence";
 import ProposalBuilder from "./pages/ProposalBuilder";
+import RealEstateIntelligence from "./pages/RealEstateIntelligence";
+import ServiceModules from "./pages/ServiceModules";
+import AIAssistant from "./pages/AIAssistant";
+import ReportGenerator from "./pages/ReportGenerator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
@@ -39,25 +43,37 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route element={<AppLayout />}>
-              <Route path="/"                      element={<Dashboard />} />
-              <Route path="/market-entry"          element={<MarketEntry />} />
-              <Route path="/distributor-finder"    element={<DistributorFinder />} />
-              <Route path="/competitor-analysis"   element={<CompetitorAnalysis />} />
-              <Route path="/pricing-intelligence"  element={<PricingIntelligence />} />
-              <Route path="/risk-assessment"       element={<RiskAssessment />} />
-              <Route path="/partner-matchmaking"   element={<PartnerMatchmaking />} />
-              <Route path="/sales-strategy"        element={<SalesStrategy />} />
-              <Route path="/export-readiness"      element={<ExportReadiness />} />
-              <Route path="/feasibility-study"     element={<FeasibilityStudy />} />
-              <Route path="/crm"                   element={<CRM />} />
-              <Route path="/agents"                element={<Agents />} />
-              <Route path="/documents"             element={<DocumentHub />} />
-              <Route path="/settings"              element={<Settings />} />
-              <Route path="/projects"              element={<Projects />} />
-              <Route path="/tasks"                 element={<Tasks />} />
-              <Route path="/financial"             element={<FinancialOverview />} />
-              <Route path="/market-intelligence"   element={<MarketIntelligence />} />
-              <Route path="/proposals"             element={<ProposalBuilder />} />
+              <Route path="/"                           element={<Dashboard />} />
+              <Route path="/market-entry"               element={<MarketEntry />} />
+              <Route path="/distributor-finder"         element={<DistributorFinder />} />
+              <Route path="/competitor-analysis"        element={<CompetitorAnalysis />} />
+              <Route path="/pricing-intelligence"       element={<PricingIntelligence />} />
+              <Route path="/risk-assessment"            element={<RiskAssessment />} />
+              <Route path="/partner-matchmaking"        element={<PartnerMatchmaking />} />
+              <Route path="/sales-strategy"             element={<SalesStrategy />} />
+              <Route path="/export-readiness"           element={<ExportReadiness />} />
+              <Route path="/feasibility-study"          element={<FeasibilityStudy />} />
+              <Route path="/crm"                        element={<CRM />} />
+              <Route path="/agents"                     element={<Agents />} />
+              <Route path="/documents"                  element={<DocumentHub />} />
+              <Route path="/settings"                   element={<Settings />} />
+              <Route path="/projects"                   element={<Projects />} />
+              <Route path="/tasks"                      element={<Tasks />} />
+              <Route path="/financial"                  element={<FinancialOverview />} />
+              <Route path="/market-intelligence"        element={<MarketIntelligence />} />
+              <Route path="/proposals"                  element={<ProposalBuilder />} />
+              <Route path="/real-estate-intelligence"   element={<RealEstateIntelligence />} />
+              <Route path="/service-modules"            element={<ServiceModules />} />
+              <Route path="/ai-assistant"               element={<AIAssistant />} />
+              <Route path="/reports"                    element={<ReportGenerator />} />
+              {/* Service module deep links from Projects workspace */}
+              <Route path="/fmcg-intelligence"          element={<ServiceModules />} />
+              <Route path="/sales-distribution"         element={<ServiceModules />} />
+              <Route path="/fb-consulting"              element={<ServiceModules />} />
+              <Route path="/marketing-intelligence"     element={<ServiceModules />} />
+              <Route path="/manufacturing-module"       element={<ServiceModules />} />
+              <Route path="/telecom-module"             element={<ServiceModules />} />
+              <Route path="/business-development"       element={<ServiceModules />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
