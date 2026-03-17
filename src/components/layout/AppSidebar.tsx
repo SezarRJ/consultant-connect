@@ -4,7 +4,7 @@ import {
   ShieldAlert, Handshake, Zap, PackageCheck, FileBarChart2,
   ChevronRight, Globe2, Bot, FolderOpen, Settings, Languages,
   UserCheck, FolderKanban, CheckSquare, PieChart, Globe, FileText,
-  ChevronDown
+  ChevronDown, Building2, Layers, MessageSquare, FileOutput
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useState } from "react";
@@ -22,52 +22,61 @@ export function AppSidebar() {
 
   const groups = [
     {
-      key: "overview", label: "OVERVIEW", collapsible: false,
+      key: "overview", label: "OVERVIEW", labelAr: "نظرة عامة", collapsible: false,
       items: [
-        { title: "Dashboard",           url: "/",                    icon: LayoutDashboard },
-        { title: "Projects",            url: "/projects",            icon: FolderKanban    },
+        { title: "Dashboard",             url: "/",                   icon: LayoutDashboard },
+        { title: "Projects",              url: "/projects",           icon: FolderKanban    },
       ],
     },
     {
-      key: "services", label: "ADVISORY SERVICES", collapsible: true,
+      key: "services", label: "ADVISORY SERVICES", labelAr: "الخدمات الاستشارية", collapsible: true,
       items: [
-        { title: t.nav_market_entry,    url: "/market-entry",         icon: TrendingUp,    badge: "01" },
-        { title: t.nav_distributor,     url: "/distributor-finder",   icon: Users,         badge: "02" },
-        { title: t.nav_competitor,      url: "/competitor-analysis",  icon: BarChart2,     badge: "03" },
-        { title: t.nav_pricing,         url: "/pricing-intelligence", icon: DollarSign,    badge: "04" },
-        { title: t.nav_risk,            url: "/risk-assessment",      icon: ShieldAlert,   badge: "05" },
-        { title: t.nav_partner,         url: "/partner-matchmaking",  icon: Handshake,     badge: "06" },
-        { title: t.nav_sales,           url: "/sales-strategy",       icon: Zap,           badge: "07" },
-        { title: t.nav_export,          url: "/export-readiness",     icon: PackageCheck,  badge: "08" },
-        { title: t.nav_feasibility,     url: "/feasibility-study",    icon: FileBarChart2, badge: "09" },
+        { title: t.nav_market_entry,      url: "/market-entry",         icon: TrendingUp,    badge: "01" },
+        { title: t.nav_distributor,       url: "/distributor-finder",   icon: Users,         badge: "02" },
+        { title: t.nav_competitor,        url: "/competitor-analysis",  icon: BarChart2,     badge: "03" },
+        { title: t.nav_pricing,           url: "/pricing-intelligence", icon: DollarSign,    badge: "04" },
+        { title: t.nav_risk,              url: "/risk-assessment",      icon: ShieldAlert,   badge: "05" },
+        { title: t.nav_partner,           url: "/partner-matchmaking",  icon: Handshake,     badge: "06" },
+        { title: t.nav_sales,             url: "/sales-strategy",       icon: Zap,           badge: "07" },
+        { title: t.nav_export,            url: "/export-readiness",     icon: PackageCheck,  badge: "08" },
+        { title: t.nav_feasibility,       url: "/feasibility-study",    icon: FileBarChart2, badge: "09" },
       ],
     },
     {
-      key: "intelligence", label: "INTELLIGENCE", collapsible: true,
+      key: "premium", label: "PREMIUM MODULES", labelAr: "الوحدات المتقدمة", collapsible: true,
       items: [
-        { title: "Market Intelligence", url: "/market-intelligence",  icon: Globe          },
-        { title: "AI Agents",           url: "/agents",               icon: Bot            },
+        { title: "Real Estate Intel",     url: "/real-estate-intelligence", icon: Building2  },
+        { title: "Service Modules",       url: "/service-modules",          icon: Layers     },
       ],
     },
     {
-      key: "business", label: "REVENUE ENGINE", collapsible: true,
+      key: "intelligence", label: "INTELLIGENCE", labelAr: "الاستخبارات", collapsible: true,
       items: [
-        { title: "CRM",                 url: "/crm",                  icon: UserCheck      },
-        { title: "Proposal Builder",    url: "/proposals",            icon: FileText       },
-        { title: "Financial Overview",  url: "/financial",            icon: PieChart       },
+        { title: "Market Intelligence",   url: "/market-intelligence",  icon: Globe          },
+        { title: "AI Assistant",          url: "/ai-assistant",         icon: MessageSquare  },
+        { title: "AI Agents",             url: "/agents",               icon: Bot            },
       ],
     },
     {
-      key: "execution", label: "EXECUTION", collapsible: true,
+      key: "business", label: "REVENUE ENGINE", labelAr: "محرك الإيرادات", collapsible: true,
       items: [
-        { title: "Tasks & Execution",   url: "/tasks",                icon: CheckSquare    },
-        { title: "Document Hub",        url: "/documents",            icon: FolderOpen     },
+        { title: "CRM",                   url: "/crm",                  icon: UserCheck      },
+        { title: "Proposal Builder",      url: "/proposals",            icon: FileText       },
+        { title: "Financial Overview",    url: "/financial",            icon: PieChart       },
       ],
     },
     {
-      key: "system", label: "SYSTEM", collapsible: false,
+      key: "execution", label: "EXECUTION", labelAr: "التنفيذ", collapsible: true,
       items: [
-        { title: t.nav_settings,        url: "/settings",             icon: Settings       },
+        { title: "Tasks & Execution",     url: "/tasks",                icon: CheckSquare    },
+        { title: "Report Generator",      url: "/reports",              icon: FileOutput     },
+        { title: "Document Hub",          url: "/documents",            icon: FolderOpen     },
+      ],
+    },
+    {
+      key: "system", label: "SYSTEM", labelAr: "النظام", collapsible: false,
+      items: [
+        { title: t.nav_settings,          url: "/settings",             icon: Settings       },
       ],
     },
   ];
@@ -93,6 +102,7 @@ export function AppSidebar() {
         {groups.map(group => {
           const isCollapsed = group.collapsible && collapsed[group.key];
           const hasActive = group.items.some(i => isActive(i.url));
+          const displayLabel = lang === "ar" ? group.labelAr : group.label;
 
           return (
             <div key={group.key}>
@@ -102,7 +112,7 @@ export function AppSidebar() {
               >
                 <p className="text-[10px] font-semibold tracking-widest uppercase"
                   style={{ color: hasActive && isCollapsed ? "hsl(38 95% 52%)" : "hsl(215 25% 40%)" }}>
-                  {group.label}
+                  {displayLabel}
                   {hasActive && isCollapsed && (
                     <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full" style={{ background: "hsl(38 95% 52%)", verticalAlign: "middle" }} />
                   )}
@@ -161,7 +171,9 @@ export function AppSidebar() {
       <div className="px-4 py-3 border-t space-y-2" style={{ borderColor: "hsl(var(--sidebar-border))" }}>
         <div className="flex items-center gap-2">
           <Languages className="h-3.5 w-3.5 shrink-0" style={{ color: "hsl(215 25% 45%)" }} />
-          <span className="text-[11px] font-medium" style={{ color: "hsl(215 25% 50%)" }}>Language</span>
+          <span className="text-[11px] font-medium" style={{ color: "hsl(215 25% 50%)" }}>
+            {lang === "ar" ? "اللغة" : "Language"}
+          </span>
         </div>
         <div className="grid grid-cols-2 gap-1">
           {(["en", "ar"] as const).map(l => (
