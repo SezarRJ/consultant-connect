@@ -3,57 +3,64 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { I18nProvider } from "@/lib/i18n";
-import { AppLayout } from "@/components/layout/AppLayout";
-import Dashboard from "./pages/Dashboard";
-import MarketEntry from "./pages/MarketEntry";
-import DistributorFinder from "./pages/DistributorFinder";
-import CompetitorAnalysis from "./pages/CompetitorAnalysis";
-import PricingIntelligence from "./pages/PricingIntelligence";
-import RiskAssessment from "./pages/RiskAssessment";
-import PartnerMatchmaking from "./pages/PartnerMatchmaking";
-import SalesStrategy from "./pages/SalesStrategy";
-import ExportReadiness from "./pages/ExportReadiness";
-import FeasibilityStudy from "./pages/FeasibilityStudy";
-import DocumentHub from "./pages/DocumentHub";
-import Settings from "./pages/Settings";
-import Agents from "./pages/Agents";
-import CRM from "./pages/CRM";
-import NotFound from "./pages/NotFound";
+import { AuthProvider } from "@/lib/auth";
+import AppShell from "@/components/AppShell";
+
+// ─── Pages ────────────────────────────────────────────────────────────────────
+import LandingPage             from "@/pages/LandingPage";
+import AuthPage                from "@/pages/AuthPage";
+import Login                   from "@/pages/Login";
+import Signup                  from "@/pages/Signup";
+import ForgotPassword          from "@/pages/ForgotPassword";
+import ResetPassword           from "@/pages/ResetPassword";
+import OpportunitiesPage       from "@/pages/OpportunitiesPage";
+import OpportunityDetailPage   from "@/pages/OpportunityDetailPage";
+import ExecutionBlueprintPage  from "@/pages/ExecutionBlueprintPage";
+import UserDashboardPage       from "@/pages/UserDashboardPage";
+import WeeklySignalsPage       from "@/pages/WeeklySignalsPage";
+import PricingPage             from "@/pages/PricingPage";
+import SubmitOpportunityPage   from "@/pages/SubmitOpportunityPage";
+import VerificationPage        from "@/pages/VerificationPage";
+import NotFound                from "@/pages/NotFound";
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1, staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false } },
+  defaultOptions: { queries: { staleTime: 60_000, retry: 1 } },
 });
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <I18nProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <AuthProvider>
         <BrowserRouter>
-          <Routes>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/market-entry"         element={<MarketEntry />} />
-              <Route path="/distributor-finder"   element={<DistributorFinder />} />
-              <Route path="/competitor-analysis"  element={<CompetitorAnalysis />} />
-              <Route path="/pricing-intelligence" element={<PricingIntelligence />} />
-              <Route path="/risk-assessment"      element={<RiskAssessment />} />
-              <Route path="/partner-matchmaking"  element={<PartnerMatchmaking />} />
-              <Route path="/sales-strategy"       element={<SalesStrategy />} />
-              <Route path="/export-readiness"     element={<ExportReadiness />} />
-              <Route path="/feasibility-study"    element={<FeasibilityStudy />} />
-              <Route path="/crm"                  element={<CRM />} />
-              <Route path="/agents"               element={<Agents />} />
-              <Route path="/documents"            element={<DocumentHub />} />
-              <Route path="/settings"             element={<Settings />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppShell>
+            <Routes>
+              {/* ── Public ───────────────────────────────── */}
+              <Route path="/"                         element={<LandingPage />} />
+              <Route path="/auth"                     element={<AuthPage />} />
+              <Route path="/login"                    element={<Login />} />
+              <Route path="/signup"                   element={<Signup />} />
+              <Route path="/forgot-password"          element={<ForgotPassword />} />
+              <Route path="/reset-password"           element={<ResetPassword />} />
+              <Route path="/pricing"                  element={<PricingPage />} />
+              {/* ── Opportunities ────────────────────────── */}
+              <Route path="/opportunities"            element={<OpportunitiesPage />} />
+              <Route path="/opportunity/:id"          element={<OpportunityDetailPage />} />
+              <Route path="/opportunity/:id/execute"  element={<ExecutionBlueprintPage />} />
+              {/* ── Intelligence Engine ──────────────────── */}
+              <Route path="/submit"                   element={<SubmitOpportunityPage />} />
+              <Route path="/verify"                   element={<VerificationPage />} />
+              {/* ── Authenticated ────────────────────────── */}
+              <Route path="/dashboard"                element={<UserDashboardPage />} />
+              <Route path="/signals"                  element={<WeeklySignalsPage />} />
+              {/* ── Fallback ─────────────────────────────── */}
+              <Route path="*"                         element={<NotFound />} />
+            </Routes>
+          </AppShell>
         </BrowserRouter>
-      </TooltipProvider>
-    </I18nProvider>
+      </AuthProvider>
+    </TooltipProvider>
   </QueryClientProvider>
 );
 
