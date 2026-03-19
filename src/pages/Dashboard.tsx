@@ -39,6 +39,8 @@ const PREMIUM = [
   { title:"Service Modules",          url:"/service-modules",          icon:Layers,      color:"hsl(217 91% 70%)", desc:"Sales · FMCG · F&B · Telecom · Mfg",      badge:"7 MODULES" },
   { title:"AI Assistant",             url:"/ai-assistant",             icon:MessageSquare,color:"hsl(158 64% 55%)", desc:"CEO Advisor · Strategy · Financial",       badge:"6 AGENTS"  },
   { title:"Report Generator",         url:"/reports",                  icon:FileOutput,  color:"hsl(280 80% 70%)", desc:"Feasibility · Strategy · Market · Sales",  badge:"5 TYPES"   },
+  { title:"Company Development",      url:"/company-development",      icon:Network,     color:"hsl(38 95% 60%)",  desc:"Org chart · Depts · Hiring · Salaries",    badge:"NEW"       },
+  { title:"ISO Preparation",          url:"/iso-preparation",          icon:Shield,      color:"hsl(158 64% 55%)", desc:"ISO 9001 · 14001 · 45001 · 27001 & more",  badge:"8 STDS"    },
 ];
 
 const PLATFORM_MODULES = [
@@ -155,7 +157,7 @@ export default function Dashboard() {
             {lang === "ar" ? "ميزة تنافسية" : "Strongest Differentiators"}
           </span>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {PREMIUM.map((m,i) => (
             <Link key={i} to={m.url}
               className="group rounded-xl p-5 transition-all hover:scale-[1.02] block"
