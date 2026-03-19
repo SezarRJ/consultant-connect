@@ -31,11 +31,6 @@ import ReportGenerator from "./pages/ReportGenerator";
 import NotFound from "./pages/NotFound";
 import CompanyDevelopment from "./pages/CompanyDevelopment";
 import ISOPreparation from "./pages/ISOPreparation";
-import Clients from "./pages/Clients";
-import ClientWorkspace from "./pages/ClientWorkspace";
-import Deliverables from "./pages/Deliverables";
-import Insights from "./pages/Insights";
-import Knowledge from "./pages/Knowledge";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false } },
@@ -73,14 +68,7 @@ const App = () => (
               <Route path="/service-modules"            element={<ServiceModules />} />
               <Route path="/ai-assistant"               element={<AIAssistant />} />
               <Route path="/reports"                    element={<ReportGenerator />} />
-              <Route path="/company-development"        element={<CompanyDevelopment />} />
-              <Route path="/iso-preparation"            element={<ISOPreparation />} />
-              <Route path="/clients"                    element={<Clients />} />
-              <Route path="/clients/:id"                element={<ClientWorkspace />} />
-              <Route path="/deliverables"               element={<Deliverables />} />
-              <Route path="/insights"                   element={<Insights />} />
-              <Route path="/knowledge"                  element={<Knowledge />} />
-              {/* Service module deep links */}
+              {/* Service module deep links from Projects workspace */}
               <Route path="/fmcg-intelligence"          element={<ServiceModules />} />
               <Route path="/sales-distribution"         element={<ServiceModules />} />
               <Route path="/fb-consulting"              element={<ServiceModules />} />
@@ -88,6 +76,8 @@ const App = () => (
               <Route path="/manufacturing-module"       element={<ServiceModules />} />
               <Route path="/telecom-module"             element={<ServiceModules />} />
               <Route path="/business-development"       element={<ServiceModules />} />
+              <Route path="/company-development"         element={<CompanyDevelopment />} />
+              <Route path="/iso-preparation"             element={<ISOPreparation />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
@@ -98,3 +88,4 @@ const App = () => (
 );
 
 export default App;
+// This file is auto-generated - imports added below
