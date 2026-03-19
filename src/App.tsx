@@ -29,6 +29,8 @@ import ServiceModules from "./pages/ServiceModules";
 import AIAssistant from "./pages/AIAssistant";
 import ReportGenerator from "./pages/ReportGenerator";
 import NotFound from "./pages/NotFound";
+import CompanyDevelopment from "./pages/CompanyDevelopment";
+import ISOPreparation from "./pages/ISOPreparation";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false } },
@@ -74,6 +76,8 @@ const App = () => (
               <Route path="/manufacturing-module"       element={<ServiceModules />} />
               <Route path="/telecom-module"             element={<ServiceModules />} />
               <Route path="/business-development"       element={<ServiceModules />} />
+              <Route path="/company-development"         element={<CompanyDevelopment />} />
+              <Route path="/iso-preparation"             element={<ISOPreparation />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
@@ -84,3 +88,4 @@ const App = () => (
 );
 
 export default App;
+// This file is auto-generated - imports added below
