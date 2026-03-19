@@ -5,7 +5,7 @@ import {
   Globe2, Activity, Bot, FolderOpen, Cpu, CheckCircle2,
   AlertTriangle, FolderKanban, CheckSquare, PieChart, Globe,
   FileText, Building2, Layers, MessageSquare, FileOutput,
-  Star, Play
+  Star, Play, Network, Shield
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
