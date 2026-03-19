@@ -4,7 +4,8 @@ import {
   ShieldAlert, Handshake, Zap, PackageCheck, FileBarChart2,
   ChevronRight, Globe2, Bot, FolderOpen, Settings, Languages,
   UserCheck, FolderKanban, CheckSquare, PieChart, Globe, FileText,
-  ChevronDown, Building2, Layers, MessageSquare, FileOutput
+  ChevronDown, Building2, Layers, MessageSquare, FileOutput,
+  Shield, Network
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useState } from "react";
@@ -71,6 +72,13 @@ export function AppSidebar() {
         { title: "Tasks & Execution",     url: "/tasks",                icon: CheckSquare    },
         { title: "Report Generator",      url: "/reports",              icon: FileOutput     },
         { title: "Document Hub",          url: "/documents",            icon: FolderOpen     },
+      ],
+    },
+    {
+      key: "company", label: "COMPANY DEVELOPMENT", labelAr: "تطوير الشركة", collapsible: true,
+      items: [
+        { title: "Company Development",   url: "/company-development",   icon: Network  },
+        { title: "ISO Preparation",       url: "/iso-preparation",       icon: Shield   },
       ],
     },
     {
