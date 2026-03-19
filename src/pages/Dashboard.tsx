@@ -5,7 +5,7 @@ import {
   Globe2, Activity, Bot, FolderOpen, Cpu, CheckCircle2,
   AlertTriangle, FolderKanban, CheckSquare, PieChart, Globe,
   FileText, Building2, Layers, MessageSquare, FileOutput,
-  Star, Play
+  Star, Play, Network, ShieldCheck
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 
@@ -40,7 +40,7 @@ const PREMIUM = [
   { title:"AI Assistant",             url:"/ai-assistant",             icon:MessageSquare,color:"hsl(158 64% 55%)", desc:"CEO Advisor · Strategy · Financial",       badge:"6 AGENTS"  },
   { title:"Report Generator",         url:"/reports",                  icon:FileOutput,  color:"hsl(280 80% 70%)", desc:"Feasibility · Strategy · Market · Sales",  badge:"5 TYPES"   },
   { title:"Company Development",      url:"/company-development",      icon:Network,     color:"hsl(38 95% 60%)",  desc:"Org chart · Depts · Hiring · Salaries",    badge:"NEW"       },
-  { title:"ISO Preparation",          url:"/iso-preparation",          icon:Shield,      color:"hsl(158 64% 55%)", desc:"ISO 9001 · 14001 · 45001 · 27001 & more",  badge:"8 STDS"    },
+  { title:"ISO Preparation",          url:"/iso-preparation",          icon:ShieldCheck,     color:"hsl(158 64% 55%)", desc:"ISO 9001 · 14001 · 45001 · 27001 & more",  badge:"8 STDS"    },
 ];
 
 const PLATFORM_MODULES = [
