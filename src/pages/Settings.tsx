@@ -159,7 +159,7 @@ const RE_TOOLS_INIT: RealEstateTool[] = [
 ];
 
 // ─── Main component ───────────────────────────────────────────────────────────
-type Tab = "api_keys" | "re_tools" | "ai" | "language" | "integrations" | "documents" | "agents" | "profile" | "security";
+type Tab = "ai_keys" | "re_tools" | "language" | "integrations" | "documents" | "agents" | "profile" | "security";
 
 const AGENTS_INIT = [
   { id:"market-entry", name:"Market Entry Agent",      accuracy:94, enabled:true, responseLen:"detailed"  },
@@ -195,7 +195,7 @@ const DOC_TYPES = [
 
 export default function Settings() {
   const { t, lang, setLang } = useI18n();
-  const [activeTab, setActiveTab] = useState<Tab>("api_keys");
+  const [activeTab, setActiveTab] = useState<Tab>("ai_keys");
   const [aiCfg, setAiCfg] = useState<AIConfig>(loadAIConfig);
   const [testStatus, setTestStatus] = useState<"idle"|"testing"|"ok"|"fail">("idle");
   const [integrations, setIntegrations] = useState(INTEGRATIONS_INIT);
@@ -218,6 +218,7 @@ export default function Settings() {
     }));
   });
   const [expandedTool, setExpandedTool] = useState<string | null>("feasibilitypro");
+  const [expandedSubToolId, setExpandedSubToolId] = useState<string | null>(null);
   const [testingTool, setTestingTool] = useState<string | null>(null);
 
   useEffect(() => {
@@ -373,15 +374,14 @@ export default function Settings() {
   ];
 
   const tabs: { key: Tab; label: string; icon: React.ElementType; highlight?: boolean; badge?: string }[] = [
-    { key:"api_keys",     label:"API Keys",       icon:Key,       highlight:apiKeys.length === 0, badge: apiKeys.length > 0 ? String(apiKeys.length) : undefined },
-    { key:"re_tools",     label:"RE Tools",       icon:Building2, badge: reTools.filter(t => t.status === "connected" || t.status === "configured").length > 0 ? "✓" : undefined },
-    { key:"ai",           label:"AI Config",      icon:Cpu,       highlight:!aiCfg.anthropicKey   },
-    { key:"language",     label:t.tab_language,   icon:Languages  },
-    { key:"integrations", label:"Integrations",   icon:Plug       },
-    { key:"documents",    label:"Documents",      icon:FolderOpen },
-    { key:"agents",       label:"Agents",         icon:Bot        },
-    { key:"profile",      label:"Profile",        icon:User       },
-    { key:"security",     label:"Security",       icon:Shield     },
+    { key:"ai_keys",      label:"AI & Keys",    icon:Cpu,       highlight:!aiCfg.anthropicKey, badge: apiKeys.length > 0 ? String(apiKeys.length) : undefined },
+    { key:"re_tools",     label:"RE Tools",     icon:Building2, badge: reTools.filter(t => t.status === "connected" || t.status === "configured").length > 0 ? "✓" : undefined },
+    { key:"language",     label:t.tab_language, icon:Languages  },
+    { key:"integrations", label:"Integrations", icon:Plug       },
+    { key:"documents",    label:"Documents",    icon:FolderOpen },
+    { key:"agents",       label:"Agents",       icon:Bot        },
+    { key:"profile",      label:"Profile",      icon:User       },
+    { key:"security",     label:"Security",     icon:Shield     },
   ];
 
   const statusBadge = (status: RealEstateTool["status"]) => {
@@ -430,17 +430,331 @@ export default function Settings() {
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
-      {/* API KEYS TAB                                                           */}
+      {/* AI & KEYS TAB — Primary AI selector + Sub-tools + Key Vault           */}
       {/* ══════════════════════════════════════════════════════════════════════ */}
-      {activeTab === "api_keys" && (
+      {activeTab === "ai_keys" && (
         <div className="space-y-5">
+
+          {/* ─── PRIMARY AI ENGINE ───────────────────────────────────────── */}
+          <div className="rounded-xl p-6 space-y-4" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
+            <div className="flex items-center gap-2">
+              <Star className="h-5 w-5" style={{ color:"hsl(38 95% 52%)" }}/>
+              <div>
+                <h2 className="text-base font-bold font-display" style={{ color:"hsl(210 40% 90%)" }}>Primary AI Engine</h2>
+                <p className="text-xs mt-0.5" style={{ color:"hsl(215 25% 55%)" }}>
+                  Choose the main AI model that powers all agents and analyses. Configure API keys, models, and sub-tools below.
+                </p>
+              </div>
+            </div>
+
+            {/* Provider cards */}
+            {[
+              { id:"anthropic" as const, icon:"🧠", name:"Anthropic Claude", color:"hsl(38 95% 60%)",
+                desc:"Primary AI engine for all 9 advisory agents. Best for structured outputs, JSON analysis and complex reasoning.",
+                kField:"anthropicKey" as keyof AIConfig, kp:"sk-ant-api03-...", docs:"https://console.anthropic.com/",
+                models:ANTHROPIC_MODELS, activeM: aiCfg.anthropicModel, setM:(id:string)=>updateAiCfg({anthropicModel:id as AnthropicModel}) },
+              { id:"openai" as const, icon:"🤖", name:"OpenAI GPT-4o", color:"hsl(158 64% 55%)",
+                desc:"Alternative primary engine. Excellent for vision tasks, code generation and broad reasoning.",
+                kField:"openaiKey" as keyof AIConfig, kp:"sk-...", docs:"https://platform.openai.com/api-keys",
+                models:[
+                  {id:"gpt-4o",label:"GPT-4o",tier:"flagship" as const,contextK:128,desc:"Most capable — vision + reasoning"},
+                  {id:"gpt-4o-mini",label:"GPT-4o Mini",tier:"fast" as const,contextK:128,desc:"Fast & cost-efficient"},
+                  {id:"o3-mini",label:"o3-mini",tier:"balanced" as const,contextK:200,desc:"Advanced reasoning model"},
+                ],
+                activeM: (aiCfg as any).openaiModel||"gpt-4o",
+                setM:(id:string)=>updateAiCfg({...(aiCfg as any),openaiModel:id}) },
+              { id:"custom" as const, icon:"⚡", name:"Custom / Other", color:"hsl(217 91% 70%)",
+                desc:"Any OpenAI-compatible API endpoint — Ollama, Groq, Together AI, Mistral, Cohere, LM Studio, and more.",
+                kField:"" as keyof AIConfig, kp:"", docs:"", models:[], activeM:"", setM:(_:string)=>{} },
+            ].map(prov => {
+              const isMain = ((aiCfg as any).primaryProvider||"anthropic") === prov.id;
+              const kv = prov.kField ? ((aiCfg[prov.kField] as string)||"") : "";
+              const hasKey = prov.id==="custom" ? !!(aiCfg as any).customProviderName : !!kv;
+              return (
+                <div key={prov.id} className="rounded-xl overflow-hidden"
+                  style={{ border:`2px solid ${isMain?prov.color+"55":"hsl(var(--border))"}`, background:isMain?prov.color+"06":"hsl(216 45% 11%)" }}>
+                  {/* Header */}
+                  <div className="flex items-center gap-4 px-5 py-4 flex-wrap">
+                    <span className="text-2xl">{prov.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-bold text-sm" style={{ color:"hsl(210 40% 92%)" }}>{prov.name}</span>
+                        {isMain && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background:prov.color+"20", color:prov.color }}>★ PRIMARY</span>}
+                        {hasKey && <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background:"hsl(158 64% 40%/0.15)", color:"hsl(158 64% 55%)" }}>✓ Key set</span>}
+                      </div>
+                      <p className="text-xs mt-0.5" style={{ color:"hsl(215 25% 55%)" }}>{prov.desc}</p>
+                    </div>
+                    {!isMain && (
+                      <button onClick={() => updateAiCfg({...(aiCfg as any), primaryProvider:prov.id})}
+                        className="px-4 py-2 rounded-lg text-xs font-bold shrink-0"
+                        style={{ background:prov.color+"15", color:prov.color, border:`1px solid ${prov.color}30` }}>
+                        Set as Primary
+                      </button>
+                    )}
+                  </div>
+                  {/* Config */}
+                  {prov.id !== "custom" ? (
+                    <div className="px-5 pb-5 space-y-4" style={{ borderTop:"1px solid hsl(var(--border))" }}>
+                      <div className="pt-4">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="text-[11px] font-semibold uppercase tracking-wider" style={{ color:"hsl(215 25% 50%)" }}>API Key</label>
+                          {prov.docs && <a href={prov.docs} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[10px]" style={{ color:"hsl(217 91% 65%)" }}>Get key <ExternalLink className="h-2.5 w-2.5"/></a>}
+                        </div>
+                        <div className="relative">
+                          <input type="password" value={kv}
+                            onChange={e => { const pt:Partial<AIConfig>={}; if(prov.kField)(pt as any)[prov.kField]=e.target.value; updateAiCfg(pt); }}
+                            placeholder={prov.kp}
+                            className="w-full px-3 py-2.5 pr-10 rounded-lg text-sm font-mono"
+                            style={{ background:"hsl(216 45% 10%)", border:`1px solid ${kv?"hsl(158 64% 40%/0.5)":"hsl(var(--border))"}`, color:"hsl(210 40% 85%)" }}/>
+                          {kv && <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color:"hsl(158 64% 55%)" }}/>}
+                        </div>
+                        {prov.id==="anthropic" && (
+                          <button onClick={testApiKey} disabled={testStatus==="testing"||!aiCfg.anthropicKey}
+                            className="mt-2 flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
+                            style={{ background:"hsl(38 95% 52%/0.12)", color:"hsl(38 95% 60%)", border:"1px solid hsl(38 95% 52%/0.3)" }}>
+                            {testStatus==="testing"?<RefreshCw className="h-3.5 w-3.5 animate-spin"/>:<Wifi className="h-3.5 w-3.5"/>}
+                            {testStatus==="testing"?"Testing...":testStatus==="ok"?"✓ Valid":testStatus==="fail"?"✗ Invalid":"Test Connection"}
+                          </button>
+                        )}
+                      </div>
+                      {prov.models.length>0 && (
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color:"hsl(215 25% 50%)" }}>Model</p>
+                          <div className="grid grid-cols-1 gap-1.5">
+                            {prov.models.map(m => {
+                              const active = prov.activeM === m.id;
+                              const tc = m.tier==="flagship"?"hsl(38 95% 60%)":m.tier==="fast"?"hsl(217 91% 70%)":"hsl(158 64% 55%)";
+                              return (
+                                <button key={m.id} onClick={()=>prov.setM(m.id)}
+                                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-start transition-all"
+                                  style={{ background:active?prov.color+"12":"hsl(216 45% 13%)", border:`1px solid ${active?prov.color+"40":"hsl(var(--border))"}` }}>
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className="text-xs font-semibold" style={{ color:"hsl(210 40% 90%)" }}>{m.label}</span>
+                                      <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ background:`${tc}20`, color:tc }}>{m.tier}</span>
+                                      <span className="text-[9px]" style={{ color:"hsl(215 25% 45%)" }}>{m.contextK}K ctx</span>
+                                    </div>
+                                    <p className="text-[11px] mt-0.5" style={{ color:"hsl(215 25% 55%)" }}>{m.desc}</p>
+                                  </div>
+                                  <div className="h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0"
+                                    style={{ borderColor:active?prov.color:"hsl(215 25% 35%)" }}>
+                                    {active && <div className="h-2 w-2 rounded-full" style={{ background:prov.color }}/>}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="px-5 pb-5 space-y-3" style={{ borderTop:"1px solid hsl(var(--border))" }}>
+                      <div className="pt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {[
+                          { l:"Provider Name", ph:"e.g. Groq, Ollama, Mistral", f:"customProviderName", pw:false },
+                          { l:"Base URL",       ph:"https://api.groq.com/openai/v1", f:"customBaseUrl",    pw:false },
+                          { l:"Model ID",       ph:"e.g. mixtral-8x7b-32768",    f:"customModel",         pw:false },
+                          { l:"API Key",        ph:"Your API key",               f:"customKey",           pw:true  },
+                        ].map(fi=>(
+                          <div key={fi.f}>
+                            <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>{fi.l}</label>
+                            <input value={(aiCfg as any)[fi.f]||""} onChange={e=>updateAiCfg({...(aiCfg as any),[fi.f]:e.target.value})}
+                              placeholder={fi.ph} type={fi.pw?"password":"text"}
+                              className="w-full px-3 py-2 rounded-lg text-sm"
+                              style={{ background:"hsl(216 45% 10%)", border:"1px solid hsl(var(--border))", color:"hsl(210 40% 85%)" }}/>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="rounded-lg p-3 flex items-start gap-2" style={{ background:"hsl(217 91% 70%/0.06)", border:"1px solid hsl(217 91% 70%/0.2)" }}>
+                        <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" style={{ color:"hsl(217 91% 70%)" }}/>
+                        <p className="text-[11px]" style={{ color:"hsl(215 25% 60%)" }}>Must be OpenAI-compatible. Works with Groq, Together AI, Ollama, LM Studio, Mistral, Cohere, and most self-hosted models.</p>
+                      </div>
+                      <button onClick={()=>{updateAiCfg({...(aiCfg as any),primaryProvider:"custom"});toast.success("Custom provider set as primary");}}
+                        className="px-4 py-2 rounded-lg text-xs font-bold"
+                        style={{ background:"hsl(217 91% 70%/0.15)", color:"hsl(217 91% 70%)", border:"1px solid hsl(217 91% 70%/0.3)" }}>
+                        Activate as Primary Engine
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            <button onClick={saveAI} className="w-full py-3 rounded-xl text-sm font-bold" style={{ background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }}>Save Primary AI Settings</button>
+          </div>
+
+          {/* ─── SUB-TOOLS ───────────────────────────────────────────────── */}
+          <div className="rounded-xl p-6 space-y-4" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4" style={{ color:"hsl(38 95% 52%)" }}/>
+              <div>
+                <h2 className="text-base font-bold font-display" style={{ color:"hsl(210 40% 90%)" }}>Sub-Tools & Secondary Services</h2>
+                <p className="text-xs mt-0.5" style={{ color:"hsl(215 25% 55%)" }}>Enable web search, scraping and data tools to augment your primary AI with live information.</p>
+              </div>
+            </div>
+            {[
+              { id:"perplexity", icon:"🔍", name:"Perplexity AI",  role:"Web Search",   color:"hsl(280 80% 70%)",
+                desc:"Real-time web search for live market data and competitor intelligence.",
+                kf:"perplexityKey" as keyof AIConfig, kp:"pplx-...", docs:"https://www.perplexity.ai/settings/api",
+                active:aiCfg.webSearchProvider==="perplexity"&&aiCfg.webSearchEnabled,
+                onEnable:()=>updateAiCfg({webSearchProvider:"perplexity",webSearchEnabled:true}),
+                onDisable:()=>updateAiCfg({webSearchEnabled:false}),
+                models:PERPLEXITY_MODELS, activeM:aiCfg.perplexityModel,
+                setM:(id:string)=>updateAiCfg({perplexityModel:id as PerplexityModel}) },
+              { id:"tavily", icon:"🌐", name:"Tavily Search",   role:"Web Search",   color:"hsl(200 80% 65%)",
+                desc:"AI-optimised structured search built for LLM agents and deep content extraction.",
+                kf:"tavilyKey" as keyof AIConfig, kp:"tvly-...", docs:"https://tavily.com/",
+                active:aiCfg.webSearchProvider==="tavily"&&aiCfg.webSearchEnabled,
+                onEnable:()=>updateAiCfg({webSearchProvider:"tavily",webSearchEnabled:true}),
+                onDisable:()=>updateAiCfg({webSearchEnabled:false}),
+                models:[], activeM:"", setM:(_:string)=>{} },
+              { id:"serpapi", icon:"📊", name:"SerpAPI",         role:"Search Data",  color:"hsl(38 95% 60%)",
+                desc:"Google Search API for SERP data, Google Trends and real-time price monitoring.",
+                kf:"serpapiKey" as keyof AIConfig, kp:"...serpapi...", docs:"https://serpapi.com/manage-api-key",
+                active:aiCfg.webSearchProvider==="serpapi"&&aiCfg.webSearchEnabled,
+                onEnable:()=>updateAiCfg({webSearchProvider:"serpapi",webSearchEnabled:true}),
+                onDisable:()=>updateAiCfg({webSearchEnabled:false}),
+                models:[], activeM:"", setM:(_:string)=>{} },
+              { id:"firecrawl", icon:"🔥", name:"Firecrawl",      role:"Web Scraping", color:"hsl(0 72% 68%)",
+                desc:"Web scraping API that converts any page to clean LLM-ready markdown.",
+                kf:"firecrawlKey" as keyof AIConfig, kp:"fc-...", docs:"https://www.firecrawl.dev/app/api-keys",
+                active:!!(aiCfg as any).firecrawlEnabled,
+                onEnable:()=>updateAiCfg({...(aiCfg as any),firecrawlEnabled:true}),
+                onDisable:()=>updateAiCfg({...(aiCfg as any),firecrawlEnabled:false}),
+                models:[], activeM:"", setM:(_:string)=>{} },
+            ].map(st => {
+              const kv = (aiCfg[st.kf] as string)||"";
+              const hasKey = !!kv;
+              const [exp, setExp] = [st.id === expandedSubToolId, (v:boolean)=>setExpandedSubToolId(v?st.id:null)];
+              return (
+                <div key={st.id} className="rounded-xl overflow-hidden"
+                  style={{ border:`1px solid ${st.active?st.color+"40":"hsl(var(--border))"}`, background:st.active?st.color+"04":"hsl(216 45% 11%)" }}>
+                  <button onClick={()=>setExp(!exp)} className="w-full flex items-center gap-4 px-4 py-3.5 text-left">
+                    <span className="text-lg">{st.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-sm font-semibold" style={{ color:"hsl(210 40% 88%)" }}>{st.name}</span>
+                        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background:st.color+"18", color:st.color }}>{st.role}</span>
+                        {hasKey && <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background:"hsl(158 64% 40%/0.15)", color:"hsl(158 64% 55%)" }}>✓ Key</span>}
+                        {st.active && <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background:st.color+"20", color:st.color }}>ACTIVE</span>}
+                      </div>
+                      <p className="text-[11px] mt-0.5" style={{ color:"hsl(215 25% 50%)" }}>{st.desc}</p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {st.active?(
+                        <button onClick={e=>{e.stopPropagation();st.onDisable();}}
+                          className="px-3 py-1.5 rounded-lg text-[11px] font-bold"
+                          style={{ background:"hsl(0 72% 51%/0.12)", color:"hsl(0 72% 68%)", border:"1px solid hsl(0 72% 51%/0.25)" }}>Disable</button>
+                      ):(
+                        <button onClick={e=>{e.stopPropagation();st.onEnable();}}
+                          className="px-3 py-1.5 rounded-lg text-[11px] font-bold"
+                          style={{ background:st.color+"15", color:st.color, border:`1px solid ${st.color}30` }}>Enable</button>
+                      )}
+                      {exp?<ChevronUp className="h-3.5 w-3.5" style={{ color:"hsl(215 25% 45%)" }}/>:<ChevronDown className="h-3.5 w-3.5" style={{ color:"hsl(215 25% 45%)" }}/>}
+                    </div>
+                  </button>
+                  {exp && (
+                    <div className="px-4 pb-4 space-y-4" style={{ borderTop:"1px solid hsl(var(--border))" }}>
+                      <div className="pt-3">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <label className="text-[11px] font-semibold uppercase tracking-wider" style={{ color:"hsl(215 25% 50%)" }}>API Key</label>
+                          <a href={st.docs} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[10px]" style={{ color:"hsl(217 91% 65%)" }}>Get key <ExternalLink className="h-2.5 w-2.5"/></a>
+                        </div>
+                        <div className="relative">
+                          <input type="password" value={kv}
+                            onChange={e=>{const pt:Partial<AIConfig>={};(pt as any)[st.kf]=e.target.value;updateAiCfg(pt);}}
+                            placeholder={st.kp}
+                            className="w-full px-3 py-2.5 pr-10 rounded-lg text-sm font-mono"
+                            style={{ background:"hsl(216 45% 10%)", border:`1px solid ${hasKey?"hsl(158 64% 40%/0.5)":"hsl(var(--border))"}`, color:"hsl(210 40% 85%)" }}/>
+                          {hasKey && <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color:"hsl(158 64% 55%)" }}/>}
+                        </div>
+                      </div>
+                      {st.models.length>0 && (
+                        <div>
+                          <p className="text-[11px] font-semibold uppercase tracking-wider mb-2" style={{ color:"hsl(215 25% 50%)" }}>Model</p>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {st.models.map((m:any)=>{
+                              const active = st.activeM===m.id;
+                              return (
+                                <button key={m.id} onClick={()=>st.setM(m.id)}
+                                  className="flex items-start gap-2 px-3 py-2.5 rounded-xl text-start transition-all"
+                                  style={{ background:active?st.color+"14":"hsl(216 45% 13%)", border:`1px solid ${active?st.color+"40":"hsl(var(--border))"}` }}>
+                                  <div className="flex-1">
+                                    <p className="text-[11px] font-semibold" style={{ color:"hsl(210 40% 88%)" }}>{m.label}</p>
+                                    <p className="text-[10px]" style={{ color:"hsl(215 25% 50%)" }}>{m.desc}</p>
+                                  </div>
+                                  <div className="h-3.5 w-3.5 rounded-full border-2 flex-shrink-0 mt-0.5 flex items-center justify-center"
+                                    style={{ borderColor:active?st.color:"hsl(215 25% 35%)" }}>
+                                    {active && <div className="h-1.5 w-1.5 rounded-full" style={{ background:st.color }}/>}
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                      <button onClick={()=>{saveAI();toast.success(`${st.name} settings saved`);}}
+                        className="px-4 py-2 rounded-lg text-xs font-semibold"
+                        style={{ background:st.color+"15", color:st.color, border:`1px solid ${st.color}30` }}>
+                        Save {st.name} Settings
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* ─── BEHAVIOUR ───────────────────────────────────────────────── */}
+          <div className="rounded-xl p-6 space-y-5" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
+            <div className="flex items-center gap-2"><Sliders className="h-4 w-4" style={{ color:"hsl(38 95% 52%)" }}/><h2 className="text-base font-bold font-display" style={{ color:"hsl(210 40% 90%)" }}>Behaviour Settings</h2></div>
+            <div className="flex items-center justify-between">
+              <div><p className="text-sm font-medium" style={{ color:"hsl(210 40% 85%)" }}>Streaming Responses</p><p className="text-xs" style={{ color:"hsl(215 25% 50%)" }}>Stream tokens as they generate</p></div>
+              <Toggle defaultOn={aiCfg.streamingEnabled} onChange={on=>updateAiCfg({streamingEnabled:on})}/>
+            </div>
+            <div className="flex items-center justify-between">
+              <div><p className="text-sm font-medium" style={{ color:"hsl(210 40% 85%)" }}>Web Search Augmentation</p><p className="text-xs" style={{ color:"hsl(215 25% 50%)" }}>Enrich analyses with live data via the active search sub-tool</p></div>
+              <Toggle defaultOn={aiCfg.webSearchEnabled} onChange={on=>updateAiCfg({webSearchEnabled:on})}/>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between"><label className="text-xs font-semibold uppercase tracking-wider" style={{ color:"hsl(215 25% 55%)" }}>Max Output Tokens</label><span className="text-xs font-mono" style={{ color:"hsl(38 95% 60%)" }}>{aiCfg.maxTokens.toLocaleString()}</span></div>
+              <input type="range" min={500} max={8000} step={500} value={aiCfg.maxTokens} onChange={e=>updateAiCfg({maxTokens:Number(e.target.value)})} className="w-full accent-amber-500"/>
+              <div className="flex justify-between text-[10px]" style={{ color:"hsl(215 25% 40%)" }}><span>500</span><span>Recommended: 4,000</span><span>8,000</span></div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider" style={{ color:"hsl(215 25% 55%)" }}>Default Response Depth</label>
+              <div className="grid grid-cols-3 gap-2">
+                {(["brief","standard","detailed"] as const).map(d=>(
+                  <button key={d} onClick={()=>updateAiCfg({responseDepth:d})} className="py-2 rounded-lg text-xs font-semibold capitalize"
+                    style={{ background:aiCfg.responseDepth===d?"hsl(38 95% 52%)":"hsl(216 45% 15%)", color:aiCfg.responseDepth===d?"hsl(216 58% 6%)":"hsl(215 25% 60%)", border:"1px solid hsl(var(--border))" }}>{d}</button>
+                ))}
+              </div>
+            </div>
+            <button onClick={saveAI} className="w-full py-3 rounded-xl text-sm font-bold" style={{ background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }}>Save All AI Settings</button>
+          </div>
+
+          {/* ─── API KEY VAULT ───────────────────────────────────────────── */}
+          <div className="rounded-xl p-6 space-y-5" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
+            <div className="flex items-start justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <Key className="h-5 w-5" style={{ color:"hsl(38 95% 52%)" }}/>
+                <div>
+                  <h2 className="text-base font-bold font-display" style={{ color:"hsl(210 40% 90%)" }}>API Key Vault</h2>
+                  <p className="text-xs mt-0.5" style={{ color:"hsl(215 25% 55%)" }}>Store, label and rotate keys for all AI services. Saved in browser local storage only — never sent to any server.</p>
+                </div>
+              </div>
+              <button onClick={() => { setShowAddKey(true); setEditingKey(null); }}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold"
+                style={{ background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }}>
+                <Plus className="h-4 w-4" /> Add API Key
+              </button>
+            </div>
           {/* Header card */}
           <div className="rounded-xl p-5" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
             <div className="flex items-start justify-between flex-wrap gap-3">
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <Key className="h-5 w-5" style={{ color:"hsl(38 95% 52%)" }} />
-                  <h2 className="text-base font-bold font-display" style={{ color:"hsl(210 40% 90%)" }}>API Key Manager</h2>
+                  <h2 className="text-base font-bold font-display" style={{ color:"hsl(210 40% 90%)" }}>API Key Vault</h2>
                 </div>
                 <p className="text-xs" style={{ color:"hsl(215 25% 55%)" }}>
                   Store, manage and switch between API keys for all connected services. Keys are saved in your browser's local storage.
@@ -473,7 +787,7 @@ export default function Settings() {
             <div className="rounded-xl p-10 text-center" style={{ background:"hsl(var(--card))", border:"2px dashed hsl(var(--border))" }}>
               <Key className="h-12 w-12 mx-auto mb-4 opacity-20" style={{ color:"hsl(38 95% 52%)" }} />
               <p className="font-semibold" style={{ color:"hsl(215 25% 50%)" }}>No API keys added yet</p>
-              <p className="text-sm mt-1 mb-4" style={{ color:"hsl(215 25% 38%)" }}>Add your first key to activate AI agents and integrations</p>
+              <p className="text-sm mt-1 mb-4" style={{ color:"hsl(215 25% 38%)" }}>Store keys here to switch and rotate them easily</p>
               <button onClick={() => setShowAddKey(true)}
                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold"
                 style={{ background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }}>
@@ -632,6 +946,9 @@ export default function Settings() {
               </div>
             </div>
           )}
+        </div>
+
+          </div>
         </div>
       )}
 
@@ -818,146 +1135,6 @@ export default function Settings() {
 
       {/* ══════════════════════════════════════════════════════════════════════ */}
       {/* AI CONFIGURATION TAB                                                  */}
-      {/* ══════════════════════════════════════════════════════════════════════ */}
-      {activeTab === "ai" && (
-        <div className="space-y-5">
-          {!aiCfg.anthropicKey && (
-            <div className="rounded-xl p-4 flex items-start gap-3"
-              style={{ background:"hsl(0 72% 51% / 0.08)", border:"1px solid hsl(0 72% 51% / 0.3)" }}>
-              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" style={{ color:"hsl(0 72% 68%)" }} />
-              <div>
-                <p className="text-sm font-semibold" style={{ color:"hsl(0 72% 68%)" }}>No Anthropic API key configured</p>
-                <p className="text-xs mt-0.5" style={{ color:"hsl(215 25% 60%)" }}>
-                  Add your key in the <button onClick={() => setActiveTab("api_keys")} className="underline font-semibold">API Keys tab</button> and click Apply, or paste it directly below.
-                </p>
-              </div>
-            </div>
-          )}
-
-          <div className="rounded-xl p-6 space-y-6" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-            <div className="flex items-center gap-2">
-              <Key className="h-4 w-4" style={{ color:"hsl(38 95% 52%)" }} />
-              <h2 className="text-base font-bold font-display" style={{ color:"hsl(210 40% 90%)" }}>API Keys (Quick Entry)</h2>
-            </div>
-            {AI_PROVIDERS.map(provider => {
-              const keyField = `${provider.id.replace("-", "")}Key` as keyof AIConfig;
-              const val = (aiCfg[keyField] as string) || "";
-              const hasKey = !!val;
-              return (
-                <div key={provider.id} className="rounded-xl p-4 space-y-3"
-                  style={{ background:"hsl(216 45% 11%)", border:`1px solid ${hasKey ? "hsl(158 64% 40% / 0.2)" : "hsl(var(--border))"}` }}>
-                  <div className="flex items-start justify-between gap-2 flex-wrap">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl">{provider.icon}</span>
-                      <div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <p className="font-semibold text-sm" style={{ color:"hsl(210 40% 90%)" }}>{provider.name}</p>
-                          <ProviderStatus hasKey={hasKey} />
-                          <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background:"hsl(216 45% 18%)", color:"hsl(215 25% 55%)" }}>{provider.category}</span>
-                        </div>
-                        <p className="text-xs mt-0.5" style={{ color:"hsl(215 25% 55%)" }}>{provider.description}</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {provider.purpose.map(p => (
-                      <span key={p} className="text-[10px] px-2 py-0.5 rounded-full"
-                        style={{ background:"hsl(216 45% 16%)", color:"hsl(215 25% 60%)", border:"1px solid hsl(var(--border))" }}>{p}</span>
-                    ))}
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label className="text-xs font-semibold uppercase tracking-wider" style={{ color:"hsl(215 25% 55%)" }}>{provider.apiKeyLabel}</label>
-                      <a href={provider.docsUrl} target="_blank" rel="noreferrer"
-                        className="flex items-center gap-1 text-[10px] hover:opacity-80" style={{ color:"hsl(217 91% 65%)" }}>
-                        Get key <ExternalLink className="h-2.5 w-2.5" />
-                      </a>
-                    </div>
-                    <div className="relative flex items-center">
-                      <input type="password" value={val} onChange={e => updateAiCfg({ [keyField]: e.target.value } as any)}
-                        placeholder={provider.apiKeyPlaceholder}
-                        className="w-full pr-12 pl-3 py-2.5 rounded-lg text-sm font-mono"
-                        style={{ background:"hsl(216 45% 10%)", border:`1px solid ${hasKey ? "hsl(158 64% 40% / 0.5)" : "hsl(var(--border))"}`, color:"hsl(210 40% 85%)" }} />
-                      {hasKey && <CheckCircle2 className="absolute right-3 h-4 w-4" style={{ color:"hsl(158 64% 55%)" }} />}
-                    </div>
-                  </div>
-                  {provider.id === "anthropic" && (
-                    <button onClick={testApiKey} disabled={testStatus === "testing" || !aiCfg.anthropicKey}
-                      className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
-                      style={{ background:"hsl(38 95% 52% / 0.12)", color:"hsl(38 95% 60%)", border:"1px solid hsl(38 95% 52% / 0.3)" }}>
-                      {testStatus === "testing" ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Wifi className="h-3.5 w-3.5" />}
-                      {testStatus === "testing" ? "Testing..." : testStatus === "ok" ? "✓ Valid" : testStatus === "fail" ? "✗ Invalid" : "Test Connection"}
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-            <button onClick={saveAI} className="w-full py-3 rounded-xl text-sm font-bold" style={{ background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }}>
-              Save API Keys
-            </button>
-          </div>
-
-          {/* Model Selection */}
-          <div className="rounded-xl p-6 space-y-5" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-            <div className="flex items-center gap-2">
-              <Cpu className="h-4 w-4" style={{ color:"hsl(38 95% 52%)" }} />
-              <h2 className="text-base font-bold font-display" style={{ color:"hsl(210 40% 90%)" }}>Model Selection</h2>
-            </div>
-            <div className="grid grid-cols-1 gap-2">
-              {ANTHROPIC_MODELS.map(m => {
-                const active = aiCfg.anthropicModel === m.id;
-                const tc = m.tier === "flagship" ? "hsl(38 95% 60%)" : m.tier === "fast" ? "hsl(217 91% 70%)" : "hsl(158 64% 55%)";
-                return (
-                  <button key={m.id} onClick={() => updateAiCfg({ anthropicModel:m.id as AnthropicModel })}
-                    className="flex items-center gap-3 px-4 py-3 rounded-xl text-start transition-all"
-                    style={{ background:active ? "hsl(38 95% 52% / 0.1)" : "hsl(216 45% 13%)", border:`1px solid ${active ? "hsl(38 95% 52% / 0.4)" : "hsl(var(--border))"}` }}>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold" style={{ color:"hsl(210 40% 90%)" }}>{m.label}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background:`${tc}20`, color:tc }}>{m.tier}</span>
-                        <span className="text-[10px]" style={{ color:"hsl(215 25% 50%)" }}>{m.contextK}K ctx</span>
-                      </div>
-                      <p className="text-xs mt-0.5" style={{ color:"hsl(215 25% 55%)" }}>{m.desc}</p>
-                    </div>
-                    <div className="h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0"
-                      style={{ borderColor:active ? "hsl(38 95% 52%)" : "hsl(215 25% 35%)" }}>
-                      {active && <div className="h-2 w-2 rounded-full" style={{ background:"hsl(38 95% 52%)" }} />}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Behaviour */}
-          <div className="rounded-xl p-6 space-y-5" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-            <div className="flex items-center gap-2"><Sliders className="h-4 w-4" style={{ color:"hsl(38 95% 52%)" }} /><h2 className="text-base font-bold font-display" style={{ color:"hsl(210 40% 90%)" }}>Behaviour Settings</h2></div>
-            <div className="flex items-center justify-between">
-              <div><p className="text-sm font-medium" style={{ color:"hsl(210 40% 85%)" }}>Streaming Responses</p><p className="text-xs" style={{ color:"hsl(215 25% 50%)" }}>Stream tokens as they generate</p></div>
-              <Toggle defaultOn={aiCfg.streamingEnabled} onChange={on => updateAiCfg({ streamingEnabled:on })} />
-            </div>
-            <div className="flex items-center justify-between">
-              <div><p className="text-sm font-medium" style={{ color:"hsl(210 40% 85%)" }}>Web Search Augmentation</p><p className="text-xs" style={{ color:"hsl(215 25% 50%)" }}>Enrich analyses with live market data</p></div>
-              <Toggle defaultOn={aiCfg.webSearchEnabled} onChange={on => updateAiCfg({ webSearchEnabled:on })} />
-            </div>
-            <div className="space-y-2">
-              <div className="flex justify-between"><label className="text-xs font-semibold uppercase tracking-wider" style={{ color:"hsl(215 25% 55%)" }}>Max Output Tokens</label><span className="text-xs font-mono" style={{ color:"hsl(38 95% 60%)" }}>{aiCfg.maxTokens.toLocaleString()}</span></div>
-              <input type="range" min={500} max={8000} step={500} value={aiCfg.maxTokens} onChange={e => updateAiCfg({ maxTokens:Number(e.target.value) })} className="w-full accent-amber-500" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider" style={{ color:"hsl(215 25% 55%)" }}>Default Response Depth</label>
-              <div className="grid grid-cols-3 gap-2">
-                {(["brief","standard","detailed"] as const).map(d => (
-                  <button key={d} onClick={() => updateAiCfg({ responseDepth:d })} className="py-2 rounded-lg text-xs font-semibold capitalize"
-                    style={{ background:aiCfg.responseDepth===d?"hsl(38 95% 52%)":"hsl(216 45% 15%)", color:aiCfg.responseDepth===d?"hsl(216 58% 6%)":"hsl(215 25% 60%)", border:"1px solid hsl(var(--border))" }}>{d}</button>
-                ))}
-              </div>
-            </div>
-            <button onClick={saveAI} className="w-full py-3 rounded-xl text-sm font-bold" style={{ background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }}>Save AI Configuration</button>
-          </div>
-        </div>
-      )}
-
       {/* LANGUAGE TAB */}
       {activeTab === "language" && (
         <div className="rounded-xl p-6 space-y-6" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>

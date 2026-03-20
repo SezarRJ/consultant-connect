@@ -1,374 +1,376 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
-  FolderOpen, Plus, Search, Building2, TrendingUp, ShoppingCart, Utensils,
-  Megaphone, Factory, Radio, Briefcase, BarChart2, ChevronRight, Calendar,
-  DollarSign, Target, Clock, CheckCircle2, AlertTriangle, Play, MoreHorizontal,
-  Filter, Grid3x3, List, Star, ArrowRight, Layers, Cpu, ExternalLink
+  FolderKanban, Plus, Search, DollarSign, Zap, CheckCircle2, Circle,
+  AlertTriangle, X, Edit3, Trash2, Eye, FolderOpen
 } from "lucide-react";
 import { toast } from "sonner";
 
-type ProjectType = "Real Estate" | "FMCG" | "Sales & Distribution" | "F&B" | "Marketing" | "Manufacturing" | "Telecom" | "Business Development";
-type ProjectStatus = "Active" | "In Progress" | "Completed" | "On Hold";
-type ProjectPhase = "Analysis" | "Scenario Planning" | "Decision" | "Financial Model" | "Risk Review" | "Delivery";
+type Status   = "pipeline"|"active"|"review"|"completed"|"on_hold";
+type Priority = "critical"|"high"|"medium"|"low";
 
+interface Milestone { id:string; title:string; dueDate:string; done:boolean; }
 interface Project {
-  id: string;
-  name: string;
-  client: string;
-  type: ProjectType;
-  status: ProjectStatus;
-  phase: ProjectPhase;
-  value: string;
-  progress: number;
-  deadline: string;
-  createdAt: string;
-  description: string;
-  objectives: string[];
-  priority: "High" | "Medium" | "Low";
+  id:string; name:string; client:string; country:string; industry:string; type:string;
+  status:Status; priority:Priority; value:number; currency:string;
+  startDate:string; endDate:string; progress:number; lead:string;
+  team:string[]; tags:string[]; milestones:Milestone[]; notes:string; createdAt:string;
 }
 
-const TYPE_ICONS: Record<ProjectType, any> = {
-  "Real Estate": Building2,
-  "FMCG": ShoppingCart,
-  "Sales & Distribution": TrendingUp,
-  "F&B": Utensils,
-  "Marketing": Megaphone,
-  "Manufacturing": Factory,
-  "Telecom": Radio,
-  "Business Development": Briefcase,
+const LS_KEY = "consultai_projects_v1";
+const S_CFG:{[k in Status]:{label:string;color:string;bg:string}} = {
+  pipeline:  {label:"Pipeline",  color:"hsl(217 91% 70%)",bg:"hsl(217 91% 53%/0.12)"},
+  active:    {label:"Active",    color:"hsl(158 64% 55%)",bg:"hsl(158 64% 40%/0.12)"},
+  review:    {label:"In Review", color:"hsl(38 95% 60%)", bg:"hsl(38 95% 52%/0.12)" },
+  completed: {label:"Completed", color:"hsl(158 64% 55%)",bg:"hsl(158 64% 40%/0.12)"},
+  on_hold:   {label:"On Hold",   color:"hsl(0 72% 68%)",  bg:"hsl(0 72% 51%/0.12)"  },
 };
-
-const TYPE_COLORS: Record<ProjectType, { bg: string; text: string; border: string }> = {
-  "Real Estate":        { bg: "hsl(38 95% 52% / 0.1)",  text: "hsl(38 95% 60%)",   border: "hsl(38 95% 52% / 0.3)" },
-  "FMCG":               { bg: "hsl(158 64% 40% / 0.1)", text: "hsl(158 64% 55%)",  border: "hsl(158 64% 40% / 0.3)" },
-  "Sales & Distribution":{ bg: "hsl(217 91% 53% / 0.1)", text: "hsl(217 91% 70%)", border: "hsl(217 91% 53% / 0.3)" },
-  "F&B":                { bg: "hsl(0 72% 51% / 0.1)",   text: "hsl(0 72% 68%)",    border: "hsl(0 72% 51% / 0.3)" },
-  "Marketing":          { bg: "hsl(280 80% 50% / 0.1)", text: "hsl(280 80% 70%)",  border: "hsl(280 80% 50% / 0.3)" },
-  "Manufacturing":      { bg: "hsl(200 80% 45% / 0.1)", text: "hsl(200 80% 65%)",  border: "hsl(200 80% 45% / 0.3)" },
-  "Telecom":            { bg: "hsl(38 95% 52% / 0.1)",  text: "hsl(38 95% 60%)",   border: "hsl(38 95% 52% / 0.3)" },
-  "Business Development":{ bg: "hsl(158 64% 40% / 0.1)",text: "hsl(158 64% 55%)",  border: "hsl(158 64% 40% / 0.3)" },
+const P_CFG:{[k in Priority]:{label:string;color:string}} = {
+  critical:{label:"Critical",color:"hsl(0 72% 68%)"},
+  high:    {label:"High",    color:"hsl(38 95% 60%)"},
+  medium:  {label:"Medium",  color:"hsl(217 91% 70%)"},
+  low:     {label:"Low",     color:"hsl(215 25% 55%)"},
 };
+const TEAM   = ["Ahmad Al-Rashidi","Sara Khalil","Omar Hassan","Nour Mahmoud","Layla Ibrahim","Karim Jaber"];
+const INDS   = ["FMCG","Food & Beverage","Construction","Healthcare","Technology","Retail","Manufacturing","Energy","Telecom","Real Estate","Finance","Logistics"];
+const TYPES  = ["Market Entry","Feasibility Study","ISO Preparation","Company Development","Partner Matching","Sales Strategy","Export Readiness","Risk Assessment","Custom"];
+const CTRS   = ["Iraq","Jordan","UAE","Saudi Arabia","Kuwait","Qatar","Bahrain","Oman","Egypt","Turkey"];
 
-const STATUS_COLORS: Record<ProjectStatus, { bg: string; text: string }> = {
-  "Active":      { bg: "hsl(158 64% 40% / 0.15)", text: "hsl(158 64% 55%)" },
-  "In Progress": { bg: "hsl(38 95% 52% / 0.15)",  text: "hsl(38 95% 60%)" },
-  "Completed":   { bg: "hsl(217 91% 53% / 0.15)", text: "hsl(217 91% 70%)" },
-  "On Hold":     { bg: "hsl(0 72% 51% / 0.15)",   text: "hsl(0 72% 68%)" },
-};
-
-const PHASE_STEPS: ProjectPhase[] = ["Analysis", "Scenario Planning", "Decision", "Financial Model", "Risk Review", "Delivery"];
-
-const SEED_PROJECTS: Project[] = [
-  { id:"p1", name:"Baghdad Mixed-Use Tower", client:"Al-Rafidain Investments", type:"Real Estate", status:"Active", phase:"Financial Model", value:"$4.2M", progress:65, deadline:"2026-06-30", createdAt:"2026-01-15", description:"Feasibility for 18-floor mixed-use development in central Baghdad.", objectives:["ROI Analysis","Market Demand Study","Competitor Mapping"], priority:"High" },
-  { id:"p2", name:"Iraq FMCG Distribution Overhaul", client:"Gulf Foods Group", type:"FMCG", status:"In Progress", phase:"Scenario Planning", value:"$320K", progress:42, deadline:"2026-05-15", createdAt:"2026-02-01", description:"Full RTM redesign for 5 governorates covering 2,400+ retail outlets.", objectives:["RTM Redesign","Territory Mapping","KPI Framework"], priority:"High" },
-  { id:"p3", name:"Erbil F&B Concept Launch", client:"Nouri Hospitality Group", type:"F&B", status:"Active", phase:"Decision", value:"$180K", progress:58, deadline:"2026-07-01", createdAt:"2026-02-20", description:"Restaurant concept development and feasibility for premium dining in Erbil.", objectives:["Concept Selection","Menu Engineering","Cost Model"], priority:"Medium" },
-  { id:"p4", name:"Telecom Bundle Optimization", client:"IraqCell Ltd.", type:"Telecom", status:"In Progress", phase:"Analysis", value:"$95K", progress:25, deadline:"2026-08-01", createdAt:"2026-03-01", description:"Pricing bundle strategy and channel optimization for consumer segment.", objectives:["Bundle Design","Channel Analysis","CRM Strategy"], priority:"Medium" },
-  { id:"p5", name:"Mosul Manufacturing Setup", client:"Al-Jazeera Industries", type:"Manufacturing", status:"On Hold", phase:"Risk Review", value:"$2.1M", progress:80, deadline:"2026-09-30", createdAt:"2025-11-10", description:"Greenfield manufacturing plant feasibility including supply chain design.", objectives:["Process Design","Cost Reduction","Supply Chain"], priority:"High" },
-  { id:"p6", name:"Jordan FMCG Iraq Entry", client:"Jordan Foods Export", type:"Sales & Distribution", status:"Active", phase:"Delivery", value:"$75K", progress:92, deadline:"2026-03-31", createdAt:"2025-12-01", description:"Full market entry strategy and distributor matchmaking for Jordan FMCG brands.", objectives:["Market Entry","Distributor Selection","GTM Plan"], priority:"Low" },
+const SAMPLE: Project[] = [
+  {id:"p1",name:"Baghdad FMCG Market Entry — Unilever",client:"Unilever Iraq",country:"Iraq",industry:"FMCG",type:"Market Entry",status:"active",priority:"high",value:42000,currency:"USD",startDate:"2026-02-01",endDate:"2026-05-31",progress:65,lead:"Ahmad Al-Rashidi",team:["Sara Khalil","Omar Hassan"],tags:["FMCG","Baghdad","Distribution"],milestones:[{id:"m1",title:"Market sizing report",dueDate:"2026-02-28",done:true},{id:"m2",title:"Competitor mapping",dueDate:"2026-03-15",done:true},{id:"m3",title:"Distributor shortlist",dueDate:"2026-04-01",done:false},{id:"m4",title:"Final strategy deck",dueDate:"2026-05-15",done:false}],notes:"Client prefers weekly check-ins. Key decision-maker is VP Sales MENA.",createdAt:"2026-01-20"},
+  {id:"p2",name:"Erbil Mixed-Use Tower Feasibility",client:"Kurdistan Group for Investment",country:"Iraq",industry:"Real Estate",type:"Feasibility Study",status:"review",priority:"critical",value:85000,currency:"USD",startDate:"2026-01-15",endDate:"2026-04-30",progress:88,lead:"Nour Mahmoud",team:["Karim Jaber","Ahmad Al-Rashidi"],tags:["Real Estate","Erbil","KRG"],milestones:[{id:"m5",title:"Site due diligence",dueDate:"2026-02-01",done:true},{id:"m6",title:"Financial model v1",dueDate:"2026-03-01",done:true},{id:"m7",title:"Final feasibility report",dueDate:"2026-04-15",done:false}],notes:"Awaiting client sign-off on financial assumptions.",createdAt:"2026-01-10"},
+  {id:"p3",name:"ISO 9001 Certification — Basra Oil Services",client:"Gulf Oil Services Co.",country:"Iraq",industry:"Energy",type:"ISO Preparation",status:"active",priority:"medium",value:28000,currency:"USD",startDate:"2026-03-01",endDate:"2026-09-30",progress:20,lead:"Sara Khalil",team:["Layla Ibrahim"],tags:["ISO 9001","Basra","Oil & Gas"],milestones:[{id:"m8",title:"Gap analysis",dueDate:"2026-03-31",done:false},{id:"m9",title:"QMS documentation",dueDate:"2026-05-31",done:false},{id:"m10",title:"Internal audit",dueDate:"2026-08-01",done:false}],notes:"Company has ~200 employees. Needs ATEX compliance documentation.",createdAt:"2026-02-20"},
+  {id:"p4",name:"Jordan Pharma Export Strategy",client:"Hikma Pharmaceuticals",country:"Jordan",industry:"Healthcare",type:"Export Readiness",status:"pipeline",priority:"high",value:35000,currency:"USD",startDate:"2026-04-01",endDate:"2026-07-31",progress:0,lead:"Omar Hassan",team:[],tags:["Pharma","Jordan","Export"],milestones:[],notes:"Proposal accepted. Contract in legal review.",createdAt:"2026-03-10"},
+  {id:"p5",name:"UAE F&B Brand Expansion",client:"Al Rawdah Foods",country:"UAE",industry:"Food & Beverage",type:"Market Entry",status:"completed",priority:"medium",value:22000,currency:"USD",startDate:"2025-10-01",endDate:"2026-01-31",progress:100,lead:"Layla Ibrahim",team:["Sara Khalil"],tags:["F&B","UAE","Retail"],milestones:[{id:"m11",title:"Market analysis",dueDate:"2025-10-31",done:true},{id:"m12",title:"Distribution plan",dueDate:"2025-11-30",done:true},{id:"m13",title:"Final report",dueDate:"2026-01-20",done:true}],notes:"Successfully delivered. Client requested follow-up engagement.",createdAt:"2025-09-15"},
 ];
 
-const ALL_TYPES: ProjectType[] = ["Real Estate","FMCG","Sales & Distribution","F&B","Marketing","Manufacturing","Telecom","Business Development"];
+const BLANK:Omit<Project,"id"|"createdAt"> = {name:"",client:"",country:"Iraq",industry:"FMCG",type:"Market Entry",status:"pipeline",priority:"medium",value:0,currency:"USD",startDate:new Date().toISOString().slice(0,10),endDate:new Date(Date.now()+90*86400000).toISOString().slice(0,10),progress:0,lead:TEAM[0],team:[],tags:[],milestones:[],notes:""};
 
-// ── Workspace route map by project type ────────────────────────────────────
-const WORKSPACE_ROUTES: Record<ProjectType, string> = {
-  "Real Estate":          "/real-estate-intelligence",
-  "FMCG":                 "/fmcg-intelligence",
-  "Sales & Distribution": "/sales-distribution",
-  "F&B":                  "/fb-consulting",
-  "Marketing":            "/marketing-intelligence",
-  "Manufacturing":        "/manufacturing-module",
-  "Telecom":              "/telecom-module",
-  "Business Development": "/business-development",
-};
+function load():Project[]{try{const d=JSON.parse(localStorage.getItem(LS_KEY)||"null");return d||SAMPLE;}catch{return SAMPLE;}}
+function daysLeft(d:string){return Math.ceil((new Date(d).getTime()-Date.now())/86400000);}
 
-export default function Projects() {
-  const navigate = useNavigate();
-  const [projects, setProjects] = useState<Project[]>(SEED_PROJECTS);
-  const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState<ProjectType | "All">("All");
-  const [filterStatus, setFilterStatus] = useState<ProjectStatus | "All">("All");
-  const [view, setView] = useState<"grid" | "list">("grid");
-  const [showNew, setShowNew] = useState(false);
-  const [selected, setSelected] = useState<Project | null>(null);
+export default function Projects(){
+  const [projects,setProjects]=useState<Project[]>(load);
+  const [view,setView]=useState<"board"|"list">("board");
+  const [search,setSearch]=useState("");
+  const [fStatus,setFStatus]=useState<Status|"all">("all");
+  const [showForm,setShowForm]=useState(false);
+  const [editId,setEditId]=useState<string|null>(null);
+  const [selId,setSelId]=useState<string|null>(null);
+  const [form,setForm]=useState<Omit<Project,"id"|"createdAt">>(BLANK);
+  const [newTag,setNewTag]=useState("");
+  const [newMile,setNewMile]=useState({title:"",dueDate:""});
 
-  // New project form state
-  const [form, setForm] = useState({ name: "", client: "", type: "Real Estate" as ProjectType, description: "", value: "", deadline: "" });
+  useEffect(()=>{localStorage.setItem(LS_KEY,JSON.stringify(projects));},[projects]);
 
-  const filtered = projects.filter(p => {
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.client.toLowerCase().includes(search.toLowerCase());
-    const matchType = filterType === "All" || p.type === filterType;
-    const matchStatus = filterStatus === "All" || p.status === filterStatus;
-    return matchSearch && matchType && matchStatus;
-  });
+  const filtered=projects.filter(p=>(fStatus==="all"||p.status===fStatus)&&(search===""||p.name.toLowerCase().includes(search.toLowerCase())||p.client.toLowerCase().includes(search.toLowerCase())));
+  const sel=projects.find(p=>p.id===selId);
+  const stats={total:projects.length,active:projects.filter(p=>p.status==="active").length,revenue:projects.reduce((s,p)=>s+p.value,0),completed:projects.filter(p=>p.status==="completed").length};
 
-  const stats = {
-    total: projects.length,
-    active: projects.filter(p => p.status === "Active" || p.status === "In Progress").length,
-    value: "$7.0M",
-    completed: projects.filter(p => p.status === "Completed").length,
+  const openNew=()=>{setForm(BLANK);setEditId(null);setShowForm(true);};
+  const openEdit=(p:Project)=>{const{id,createdAt,...rest}=p;setForm(rest);setEditId(id);setShowForm(true);};
+  const save=()=>{
+    if(!form.name.trim()||!form.client.trim()){toast.error("Name and client are required");return;}
+    if(editId){setProjects(ps=>ps.map(p=>p.id===editId?{...p,...form}:p));toast.success("Project updated");}
+    else{setProjects(ps=>[{...form,id:`p_${Date.now()}`,createdAt:new Date().toISOString().slice(0,10)},...ps]);toast.success("Project created");}
+    setShowForm(false);
   };
+  const del=(id:string)=>{setProjects(ps=>ps.filter(p=>p.id!==id));if(selId===id)setSelId(null);toast.success("Deleted");};
+  const toggleMile=(pid:string,mid:string)=>setProjects(ps=>ps.map(p=>p.id===pid?{...p,milestones:p.milestones.map(m=>m.id===mid?{...m,done:!m.done}:m)}:p));
+  const addMile=()=>{if(!newMile.title||!newMile.dueDate)return;setForm(f=>({...f,milestones:[...f.milestones,{id:`m_${Date.now()}`,...newMile,done:false}]}));setNewMile({title:"",dueDate:""});};
 
-  const handleCreate = () => {
-    if (!form.name || !form.client) { toast.error("Name and client are required."); return; }
-    const np: Project = {
-      id: `p${Date.now()}`, name: form.name, client: form.client, type: form.type,
-      status: "Active", phase: "Analysis", value: form.value || "TBD",
-      progress: 0, deadline: form.deadline || "TBD", createdAt: new Date().toISOString().split("T")[0],
-      description: form.description, objectives: [], priority: "Medium",
-    };
-    setProjects(prev => [np, ...prev]);
-    setShowNew(false);
-    setForm({ name: "", client: "", type: "Real Estate", description: "", value: "", deadline: "" });
-    toast.success("Project created successfully!");
-  };
+  const inp="w-full px-3 py-2 rounded-lg text-sm";
+  const IS={background:"hsl(216 45% 12%)",border:"1px solid hsl(var(--border))",color:"hsl(210 40% 85%)"};
 
-  return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-bold font-display" style={{ color: "hsl(210 40% 94%)" }}>
-            Projects
-          </h1>
-          <p className="text-sm mt-1" style={{ color: "hsl(215 25% 55%)" }}>
-            Client case management — from analysis to delivery
-          </p>
+  const Card=({p}:{p:Project})=>{
+    const sc=S_CFG[p.status];const pc=P_CFG[p.priority];const dl=daysLeft(p.endDate);const ov=dl<0&&p.status!=="completed";
+    return(
+      <div onClick={()=>setSelId(p.id)} className="rounded-xl p-4 cursor-pointer transition-all"
+        style={{background:"hsl(var(--card))",border:`1px solid ${selId===p.id?"hsl(38 95% 52%/0.5)":"hsl(var(--border))"}`,transform:selId===p.id?"none":""}}>
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <p className="text-xs font-semibold leading-tight flex-1" style={{color:"hsl(210 40% 88%)"}}>{p.name}</p>
+          <button onClick={e=>{e.stopPropagation();openEdit(p);}} className="p-1 rounded hover:bg-white/5 shrink-0"><Edit3 className="h-3 w-3" style={{color:"hsl(215 25% 45%)"}}/></button>
         </div>
-        <button onClick={() => setShowNew(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold"
-          style={{ background: "hsl(38 95% 52%)", color: "hsl(216 58% 6%)" }}>
-          <Plus className="h-4 w-4" /> New Project
+        <p className="text-[10px] mb-2" style={{color:"hsl(215 25% 50%)"}}>{p.client} · {p.country}</p>
+        <div className="flex items-center gap-1.5 mb-2 flex-wrap">
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold" style={{background:`${pc.color}18`,color:pc.color}}>{pc.label}</span>
+          <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{background:sc.bg,color:sc.color}}>{sc.label}</span>
+        </div>
+        <div className="mb-2">
+          <div className="flex justify-between text-[9px] mb-1" style={{color:"hsl(215 25% 45%)"}}>
+            <span>{p.progress}%</span>
+            <span style={{color:ov?"hsl(0 72% 68%)":"hsl(215 25% 45%)"}}>{ov?`${Math.abs(dl)}d overdue`:p.status==="completed"?"Done":`${dl}d left`}</span>
+          </div>
+          <div className="h-1 rounded-full overflow-hidden" style={{background:"hsl(216 45% 18%)"}}>
+            <div className="h-full rounded-full" style={{width:`${p.progress}%`,background:p.progress===100?"hsl(158 64% 55%)":"hsl(38 95% 52%)"}}/>
+          </div>
+        </div>
+        <div className="flex items-center justify-between text-[10px]">
+          <span style={{color:"hsl(38 95% 60%)"}}>${p.value.toLocaleString()}</span>
+          <span style={{color:"hsl(215 25% 45%)"}}>{p.lead.split(" ")[0]}</span>
+        </div>
+      </div>
+    );
+  };
+
+  return(
+    <div className="space-y-5 max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          <FolderKanban className="h-6 w-6" style={{color:"hsl(38 95% 52%)"}}/>
+          <div><h1 className="text-xl font-bold font-display" style={{color:"hsl(210 40% 92%)"}}>Projects</h1><p className="text-xs" style={{color:"hsl(215 25% 55%)"}}>All consulting engagements · pipeline to delivery</p></div>
+        </div>
+        <button onClick={openNew} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold" style={{background:"hsl(38 95% 52%)",color:"hsl(216 58% 6%)"}}>
+          <Plus className="h-4 w-4"/> New Project
         </button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Total Projects", value: stats.total, icon: FolderOpen, color: "hsl(38 95% 60%)" },
-          { label: "Active Cases", value: stats.active, icon: Play, color: "hsl(158 64% 55%)" },
-          { label: "Total Value", value: stats.value, icon: DollarSign, color: "hsl(217 91% 70%)" },
-          { label: "Completed", value: stats.completed, icon: CheckCircle2, color: "hsl(158 64% 55%)" },
-        ].map((s, i) => (
-          <div key={i} className="rounded-xl p-4" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
-            <div className="flex items-center gap-2 mb-2">
-              <s.icon className="h-4 w-4" style={{ color: s.color }} />
-              <span className="text-xs" style={{ color: "hsl(215 25% 55%)" }}>{s.label}</span>
-            </div>
-            <p className="text-2xl font-bold" style={{ color: "hsl(210 40% 94%)" }}>{s.value}</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[{l:"Total",v:stats.total,c:"hsl(217 91% 70%)",I:FolderKanban},{l:"Active",v:stats.active,c:"hsl(158 64% 55%)",I:Zap},{l:"Completed",v:stats.completed,c:"hsl(38 95% 60%)",I:CheckCircle2},{l:"Revenue",v:`$${(stats.revenue/1000).toFixed(0)}K`,c:"hsl(38 95% 60%)",I:DollarSign}].map((s,i)=>(
+          <div key={i} className="rounded-xl p-4 flex items-center gap-3" style={{background:"hsl(var(--card))",border:"1px solid hsl(var(--border))"}}>
+            <div className="h-9 w-9 rounded-xl flex items-center justify-center shrink-0" style={{background:`${s.c}18`}}><s.I className="h-4 w-4" style={{color:s.c}}/></div>
+            <div><p className="text-xl font-bold" style={{color:s.c}}>{s.v}</p><p className="text-[10px]" style={{color:"hsl(215 25% 50%)"}}>{s.l}</p></div>
           </div>
         ))}
       </div>
 
-      {/* Filters */}
+      {/* Toolbar */}
       <div className="flex items-center gap-3 flex-wrap">
-        <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{ color: "hsl(215 25% 45%)" }} />
-          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search projects or clients..."
-            className="w-full pl-9 pr-3 py-2 rounded-lg text-sm"
-            style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", color: "hsl(210 40% 85%)" }} />
+        <div className="relative flex-1 min-w-48">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{color:"hsl(215 25% 45%)"}}/>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search projects or clients..."
+            className="w-full pl-9 pr-3 py-2 rounded-lg text-sm" style={{background:"hsl(var(--card))",border:"1px solid hsl(var(--border))",color:"hsl(210 40% 85%)"}}/>
         </div>
-        <select value={filterType} onChange={e => setFilterType(e.target.value as any)}
-          className="px-3 py-2 rounded-lg text-sm"
-          style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", color: "hsl(210 40% 85%)" }}>
-          <option value="All">All Types</option>
-          {ALL_TYPES.map(t => <option key={t}>{t}</option>)}
+        <select value={fStatus} onChange={e=>setFStatus(e.target.value as Status|"all")} className="px-3 py-2 rounded-lg text-sm" style={{background:"hsl(var(--card))",border:"1px solid hsl(var(--border))",color:"hsl(210 40% 85%)"}}>
+          <option value="all">All Status</option>
+          {(Object.entries(S_CFG) as [Status,typeof S_CFG[Status]][]).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}
         </select>
-        <select value={filterStatus} onChange={e => setFilterStatus(e.target.value as any)}
-          className="px-3 py-2 rounded-lg text-sm"
-          style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", color: "hsl(210 40% 85%)" }}>
-          <option value="All">All Status</option>
-          {["Active","In Progress","Completed","On Hold"].map(s => <option key={s}>{s}</option>)}
-        </select>
-        <div className="flex rounded-lg overflow-hidden" style={{ border: "1px solid hsl(var(--border))" }}>
-          {(["grid","list"] as const).map(v => (
-            <button key={v} onClick={() => setView(v)}
-              className="px-3 py-2"
-              style={{ background: view === v ? "hsl(38 95% 52% / 0.15)" : "hsl(var(--card))", color: view === v ? "hsl(38 95% 60%)" : "hsl(215 25% 55%)" }}>
-              {v === "grid" ? <Grid3x3 className="h-4 w-4" /> : <List className="h-4 w-4" />}
-            </button>
+        <div className="flex items-center gap-1 rounded-lg p-1" style={{background:"hsl(216 45% 12%)"}}>
+          {(["board","list"] as const).map(v=>(
+            <button key={v} onClick={()=>setView(v)} className="px-3 py-1.5 rounded text-xs font-semibold capitalize"
+              style={{background:view===v?"hsl(38 95% 52%)":"transparent",color:view===v?"hsl(216 58% 6%)":"hsl(215 25% 55%)"}}>{v}</button>
           ))}
         </div>
       </div>
 
-      {/* Project Grid */}
-      {filtered.length === 0 ? (
-        <div className="text-center py-16" style={{ color: "hsl(215 25% 45%)" }}>
-          <FolderOpen className="h-12 w-12 mx-auto mb-3 opacity-30" />
-          <p className="font-medium">No projects found</p>
-          <p className="text-sm mt-1">Try adjusting your filters or create a new project</p>
-        </div>
-      ) : (
-        <div className={view === "grid" ? "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4" : "space-y-3"}>
-          {filtered.map(p => {
-            const Icon = TYPE_ICONS[p.type];
-            const tc = TYPE_COLORS[p.type];
-            const sc = STATUS_COLORS[p.status];
-            const phaseIdx = PHASE_STEPS.indexOf(p.phase);
-            return (
-              <div key={p.id}
-                className="rounded-xl p-5 cursor-pointer transition-all hover:scale-[1.01]"
-                style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
-                onClick={() => setSelected(p)}>
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ background: tc.bg, border: `1px solid ${tc.border}` }}>
-                      <Icon className="h-4 w-4" style={{ color: tc.text }} />
+      {/* Content */}
+      <div className="flex gap-4">
+        <div className={`flex-1 min-w-0 ${sel?"hidden lg:block":""}`}>
+          {view==="board"?(
+            <div className="flex gap-3 overflow-x-auto pb-4">
+              {(Object.entries(S_CFG) as [Status,typeof S_CFG[Status]][]).map(([s,c])=>{
+                const col=filtered.filter(p=>p.status===s);
+                return(
+                  <div key={s} className="flex-1 min-w-56">
+                    <div className="flex items-center gap-2 mb-3 px-1">
+                      <span className="text-xs font-bold uppercase tracking-wider" style={{color:c.color}}>{c.label}</span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full ml-auto" style={{background:c.bg,color:c.color}}>{col.length}</span>
                     </div>
-                    <div>
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: tc.bg, color: tc.text }}>{p.type}</span>
+                    <div className="space-y-2">
+                      {col.map(p=><Card key={p.id} p={p}/>)}
+                      {col.length===0&&<div className="rounded-xl p-4 text-center" style={{border:"1px dashed hsl(var(--border))"}}>
+                        <p className="text-[11px]" style={{color:"hsl(215 25% 38%)"}}>No projects</p></div>}
                     </div>
                   </div>
-                  <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: sc.bg, color: sc.text }}>{p.status}</span>
-                </div>
-                <h3 className="font-semibold text-sm mb-1" style={{ color: "hsl(210 40% 92%)" }}>{p.name}</h3>
-                <p className="text-xs mb-3" style={{ color: "hsl(215 25% 55%)" }}>{p.client}</p>
-                <p className="text-xs mb-4 line-clamp-2" style={{ color: "hsl(215 25% 50%)" }}>{p.description}</p>
-
-                {/* Phase Progress */}
-                <div className="mb-3">
-                  <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-[10px] font-medium" style={{ color: "hsl(215 25% 50%)" }}>Phase: {p.phase}</span>
-                    <span className="text-[10px] font-semibold" style={{ color: "hsl(38 95% 60%)" }}>{p.progress}%</span>
-                  </div>
-                  <div className="h-1.5 rounded-full" style={{ background: "hsl(216 45% 15%)" }}>
-                    <div className="h-1.5 rounded-full transition-all" style={{ width: `${p.progress}%`, background: "hsl(38 95% 52%)" }} />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-[11px]" style={{ color: "hsl(215 25% 50%)" }}>
-                  <div className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{p.value}</div>
-                  <div className="flex items-center gap-1"><Calendar className="h-3 w-3" />{p.deadline}</div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* New Project Modal */}
-      {showNew && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.7)" }}>
-          <div className="w-full max-w-lg rounded-2xl p-6 space-y-4" style={{ background: "hsl(216 52% 10%)", border: "1px solid hsl(var(--border))" }}>
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold font-display" style={{ color: "hsl(210 40% 94%)" }}>New Project</h2>
-              <button onClick={() => setShowNew(false)} style={{ color: "hsl(215 25% 55%)" }}>✕</button>
+                );
+              })}
             </div>
-            <div className="space-y-3">
-              <input value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} placeholder="Project name *"
-                className="w-full px-3 py-2.5 rounded-lg text-sm"
-                style={{ background: "hsl(216 45% 14%)", border: "1px solid hsl(var(--border))", color: "hsl(210 40% 85%)" }} />
-              <input value={form.client} onChange={e => setForm(f => ({...f, client: e.target.value}))} placeholder="Client name *"
-                className="w-full px-3 py-2.5 rounded-lg text-sm"
-                style={{ background: "hsl(216 45% 14%)", border: "1px solid hsl(var(--border))", color: "hsl(210 40% 85%)" }} />
-              <select value={form.type} onChange={e => setForm(f => ({...f, type: e.target.value as ProjectType}))}
-                className="w-full px-3 py-2.5 rounded-lg text-sm"
-                style={{ background: "hsl(216 45% 14%)", border: "1px solid hsl(var(--border))", color: "hsl(210 40% 85%)" }}>
-                {ALL_TYPES.map(t => <option key={t}>{t}</option>)}
-              </select>
-              <textarea value={form.description} onChange={e => setForm(f => ({...f, description: e.target.value}))} placeholder="Project description"
-                rows={3} className="w-full px-3 py-2.5 rounded-lg text-sm resize-none"
-                style={{ background: "hsl(216 45% 14%)", border: "1px solid hsl(var(--border))", color: "hsl(210 40% 85%)" }} />
-              <div className="grid grid-cols-2 gap-3">
-                <input value={form.value} onChange={e => setForm(f => ({...f, value: e.target.value}))} placeholder="Deal value (e.g. $250K)"
-                  className="px-3 py-2.5 rounded-lg text-sm"
-                  style={{ background: "hsl(216 45% 14%)", border: "1px solid hsl(var(--border))", color: "hsl(210 40% 85%)" }} />
-                <input type="date" value={form.deadline} onChange={e => setForm(f => ({...f, deadline: e.target.value}))}
-                  className="px-3 py-2.5 rounded-lg text-sm"
-                  style={{ background: "hsl(216 45% 14%)", border: "1px solid hsl(var(--border))", color: "hsl(210 40% 85%)" }} />
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <button onClick={() => setShowNew(false)} className="flex-1 py-2.5 rounded-lg text-sm font-semibold"
-                style={{ background: "hsl(216 45% 18%)", color: "hsl(210 40% 75%)" }}>Cancel</button>
-              <button onClick={handleCreate} className="flex-1 py-2.5 rounded-lg text-sm font-semibold"
-                style={{ background: "hsl(38 95% 52%)", color: "hsl(216 58% 6%)" }}>Create Project</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Project Detail Modal */}
-      {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.7)" }}>
-          <div className="w-full max-w-2xl rounded-2xl p-6 space-y-5 overflow-y-auto max-h-[90vh]" style={{ background: "hsl(216 52% 10%)", border: "1px solid hsl(var(--border))" }}>
-            <div className="flex items-start justify-between">
-              <div>
-                <h2 className="text-xl font-bold font-display" style={{ color: "hsl(210 40% 94%)" }}>{selected.name}</h2>
-                <p className="text-sm mt-1" style={{ color: "hsl(215 25% 55%)" }}>{selected.client}</p>
-              </div>
-              <button onClick={() => setSelected(null)} style={{ color: "hsl(215 25% 55%)" }}>✕</button>
-            </div>
-
-            {/* Phase Tracker */}
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-widest mb-3" style={{ color: "hsl(215 25% 45%)" }}>Project Phases</p>
-              <div className="flex items-center gap-1 flex-wrap">
-                {PHASE_STEPS.map((phase, i) => {
-                  const phaseIdx = PHASE_STEPS.indexOf(selected.phase);
-                  const done = i < phaseIdx;
-                  const current = i === phaseIdx;
-                  return (
-                    <div key={phase} className="flex items-center gap-1">
-                      <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium"
-                        style={{
-                          background: current ? "hsl(38 95% 52% / 0.15)" : done ? "hsl(158 64% 40% / 0.12)" : "hsl(216 45% 14%)",
-                          color: current ? "hsl(38 95% 60%)" : done ? "hsl(158 64% 55%)" : "hsl(215 25% 45%)",
-                          border: `1px solid ${current ? "hsl(38 95% 52% / 0.4)" : done ? "hsl(158 64% 40% / 0.3)" : "hsl(216 45% 20%)"}`,
-                        }}>
-                        {done && <CheckCircle2 className="h-3 w-3" />}
-                        {current && <Play className="h-3 w-3" />}
-                        {phase}
-                      </div>
-                      {i < PHASE_STEPS.length - 1 && <ChevronRight className="h-3 w-3 shrink-0" style={{ color: "hsl(215 25% 35%)" }} />}
-                    </div>
+          ):(
+            <div className="rounded-xl overflow-hidden" style={{background:"hsl(var(--card))",border:"1px solid hsl(var(--border))"}}>
+              <table className="w-full text-xs">
+                <thead><tr style={{background:"hsl(216 45% 11%)",borderBottom:"1px solid hsl(var(--border))"}}>
+                  {["Project","Client","Status","Priority","Value","Progress","End Date","Lead",""].map(h=><th key={h} className="px-4 py-3 text-left font-semibold whitespace-nowrap" style={{color:"hsl(215 25% 45%)"}}>{h}</th>)}
+                </tr></thead>
+                <tbody>{filtered.map((p,i)=>{
+                  const sc=S_CFG[p.status];const pc=P_CFG[p.priority];
+                  return(
+                    <tr key={p.id} onClick={()=>setSelId(p.id)} className="cursor-pointer" style={{borderTop:"1px solid hsl(var(--border))",background:i%2===0?"transparent":"hsl(216 45% 8%/0.4)"}}>
+                      <td className="px-4 py-3 font-medium max-w-48 truncate" style={{color:"hsl(210 40% 88%)"}}>{p.name}</td>
+                      <td className="px-4 py-3" style={{color:"hsl(215 25% 60%)"}}>{p.client}</td>
+                      <td className="px-4 py-3"><span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{background:sc.bg,color:sc.color}}>{sc.label}</span></td>
+                      <td className="px-4 py-3"><span className="text-[10px] font-semibold" style={{color:pc.color}}>{pc.label}</span></td>
+                      <td className="px-4 py-3 font-semibold" style={{color:"hsl(38 95% 60%)"}}>${p.value.toLocaleString()}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <div className="h-1.5 w-20 rounded-full overflow-hidden" style={{background:"hsl(216 45% 18%)"}}>
+                            <div className="h-full" style={{width:`${p.progress}%`,background:"hsl(38 95% 52%)"}}/>
+                          </div>
+                          <span style={{color:"hsl(215 25% 55%)"}}>{p.progress}%</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3" style={{color:"hsl(215 25% 55%)"}}>{p.endDate}</td>
+                      <td className="px-4 py-3" style={{color:"hsl(215 25% 60%)"}}>{p.lead.split(" ")[0]}</td>
+                      <td className="px-3 py-3">
+                        <div className="flex gap-1">
+                          <button onClick={e=>{e.stopPropagation();openEdit(p);}} className="p-1.5 rounded hover:bg-white/5"><Edit3 className="h-3 w-3" style={{color:"hsl(215 25% 45%)"}}/></button>
+                          <button onClick={e=>{e.stopPropagation();del(p.id);}} className="p-1.5 rounded hover:bg-white/5"><Trash2 className="h-3 w-3" style={{color:"hsl(0 72% 60%)"}}/></button>
+                        </div>
+                      </td>
+                    </tr>
                   );
-                })}
+                })}</tbody>
+              </table>
+              {filtered.length===0&&<div className="p-10 text-center"><p style={{color:"hsl(215 25% 45%)"}}>No projects match filters</p></div>}
+            </div>
+          )}
+        </div>
+
+        {/* Detail panel */}
+        {sel&&(
+          <div className="w-full lg:w-80 xl:w-96 shrink-0 rounded-2xl p-5 overflow-y-auto" style={{background:"hsl(var(--card))",border:"1px solid hsl(38 95% 52%/0.2)",maxHeight:"calc(100vh - 200px)"}}>
+            <div className="flex items-start justify-between gap-3 mb-4">
+              <div>
+                <h2 className="text-sm font-bold" style={{color:"hsl(210 40% 92%)"}}>{sel.name}</h2>
+                <p className="text-[11px] mt-0.5" style={{color:"hsl(215 25% 55%)"}}>{sel.client} · {sel.country} · {sel.industry}</p>
+              </div>
+              <div className="flex gap-1 shrink-0">
+                <button onClick={()=>openEdit(sel)} className="p-1.5 rounded-lg" style={{background:"hsl(216 45% 18%)"}}><Edit3 className="h-3.5 w-3.5" style={{color:"hsl(215 25% 60%)"}}/></button>
+                <button onClick={()=>del(sel.id)} className="p-1.5 rounded-lg" style={{background:"hsl(0 72% 51%/0.1)"}}><Trash2 className="h-3.5 w-3.5" style={{color:"hsl(0 72% 68%)"}}/></button>
+                <button onClick={()=>setSelId(null)} className="p-1.5 rounded-lg" style={{background:"hsl(216 45% 18%)"}}><X className="h-3.5 w-3.5" style={{color:"hsl(215 25% 60%)"}}/></button>
               </div>
             </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-xl p-4" style={{ background: "hsl(216 45% 12%)", border: "1px solid hsl(var(--border))" }}>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "hsl(215 25% 45%)" }}>Details</p>
-                <div className="space-y-2 text-xs" style={{ color: "hsl(210 40% 75%)" }}>
-                  <div className="flex justify-between"><span style={{ color: "hsl(215 25% 50%)" }}>Type</span><span>{selected.type}</span></div>
-                  <div className="flex justify-between"><span style={{ color: "hsl(215 25% 50%)" }}>Value</span><span className="font-semibold" style={{ color: "hsl(38 95% 60%)" }}>{selected.value}</span></div>
-                  <div className="flex justify-between"><span style={{ color: "hsl(215 25% 50%)" }}>Deadline</span><span>{selected.deadline}</span></div>
-                  <div className="flex justify-between"><span style={{ color: "hsl(215 25% 50%)" }}>Priority</span><span>{selected.priority}</span></div>
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {[{l:"Value",v:`$${sel.value.toLocaleString()}`,c:"hsl(38 95% 60%)"},{l:"Progress",v:`${sel.progress}%`,c:"hsl(158 64% 55%)"},{l:"Milestones",v:`${sel.milestones.filter(m=>m.done).length}/${sel.milestones.length}`,c:"hsl(217 91% 70%)"}].map((s,i)=>(
+                <div key={i} className="rounded-lg p-2.5 text-center" style={{background:"hsl(216 45% 12%)"}}><p className="text-sm font-bold" style={{color:s.c}}>{s.v}</p><p className="text-[9px]" style={{color:"hsl(215 25% 45%)"}}>{s.l}</p></div>
+              ))}
+            </div>
+            {/* Status change */}
+            <div className="mb-4">
+              <p className="text-[10px] font-bold uppercase mb-2" style={{color:"hsl(215 25% 45%)"}}>Status</p>
+              <div className="flex flex-wrap gap-1.5">
+                {(Object.entries(S_CFG) as [Status,typeof S_CFG[Status]][]).map(([s,c])=>(
+                  <button key={s} onClick={()=>{setProjects(ps=>ps.map(p=>p.id===sel.id?{...p,status:s}:p));toast.success(`Moved to ${c.label}`);}}
+                    className="text-[11px] px-2.5 py-1 rounded-lg font-semibold"
+                    style={{background:sel.status===s?c.bg:"hsl(216 45% 14%)",color:sel.status===s?c.color:"hsl(215 25% 50%)",border:`1px solid ${sel.status===s?c.color+"40":"hsl(var(--border))"}`}}>
+                    {c.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* Progress */}
+            <div className="mb-4">
+              <div className="flex justify-between mb-1">
+                <p className="text-[10px] font-bold uppercase" style={{color:"hsl(215 25% 45%)"}}>Completion</p>
+                <span className="text-[10px] font-bold" style={{color:"hsl(38 95% 60%)"}}>{sel.progress}%</span>
+              </div>
+              <input type="range" min={0} max={100} step={5} value={sel.progress}
+                onChange={e=>setProjects(ps=>ps.map(p=>p.id===sel.id?{...p,progress:Number(e.target.value)}:p))}
+                className="w-full accent-amber-500"/>
+            </div>
+            {/* Milestones */}
+            {sel.milestones.length>0&&(
+              <div className="mb-4">
+                <p className="text-[10px] font-bold uppercase mb-2" style={{color:"hsl(215 25% 45%)"}}>Milestones</p>
+                <div className="space-y-1.5">
+                  {sel.milestones.map(m=>(
+                    <div key={m.id} onClick={()=>toggleMile(sel.id,m.id)} className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer" style={{background:"hsl(216 45% 12%)"}}>
+                      {m.done?<CheckCircle2 className="h-3.5 w-3.5 shrink-0" style={{color:"hsl(158 64% 55%)"}}/>:<Circle className="h-3.5 w-3.5 shrink-0" style={{color:"hsl(215 25% 40%)"}}/> }
+                      <span className="text-xs flex-1" style={{color:m.done?"hsl(215 25% 45%)":"hsl(210 40% 82%)",textDecoration:m.done?"line-through":"none"}}>{m.title}</span>
+                      <span className="text-[10px]" style={{color:"hsl(215 25% 40%)"}}>{m.dueDate}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div className="rounded-xl p-4" style={{ background: "hsl(216 45% 12%)", border: "1px solid hsl(var(--border))" }}>
-                <p className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "hsl(215 25% 45%)" }}>Objectives</p>
-                {selected.objectives.length > 0 ? (
-                  <div className="space-y-1.5">
-                    {selected.objectives.map((o, i) => (
-                      <div key={i} className="flex items-center gap-2 text-xs">
-                        <CheckCircle2 className="h-3 w-3 shrink-0" style={{ color: "hsl(158 64% 55%)" }} />
-                        <span style={{ color: "hsl(210 40% 75%)" }}>{o}</span>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-xs" style={{ color: "hsl(215 25% 40%)" }}>No objectives defined yet.</p>
-                )}
+            )}
+            {/* Team + dates */}
+            <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
+              <div className="rounded-lg p-2.5" style={{background:"hsl(216 45% 12%)"}}>
+                <p className="text-[9px] font-bold uppercase mb-1" style={{color:"hsl(215 25% 45%)"}}>Lead</p>
+                <p style={{color:"hsl(210 40% 82%)"}}>{sel.lead}</p>
+              </div>
+              <div className="rounded-lg p-2.5" style={{background:"hsl(216 45% 12%)"}}>
+                <p className="text-[9px] font-bold uppercase mb-1" style={{color:"hsl(215 25% 45%)"}}>Timeline</p>
+                <p style={{color:"hsl(210 40% 82%)"}}>{sel.startDate}</p>
+                <p style={{color:"hsl(215 25% 45%)"}}>{sel.endDate}</p>
               </div>
             </div>
+            {sel.tags.length>0&&(
+              <div className="flex flex-wrap gap-1.5 mb-3">
+                {sel.tags.map(t=><span key={t} className="text-[10px] px-2 py-0.5 rounded-full" style={{background:"hsl(217 91% 70%/0.1)",color:"hsl(217 91% 70%)",border:"1px solid hsl(217 91% 70%/0.2)"}}>{t}</span>)}
+              </div>
+            )}
+            {sel.notes&&<div className="rounded-lg p-3" style={{background:"hsl(216 45% 12%)"}}>
+              <p className="text-[9px] font-bold uppercase mb-1" style={{color:"hsl(215 25% 45%)"}}>Notes</p>
+              <p className="text-xs" style={{color:"hsl(215 25% 60%)"}}>{sel.notes}</p>
+            </div>}
+          </div>
+        )}
+      </div>
 
-            <div className="rounded-xl p-4" style={{ background: "hsl(216 45% 12%)", border: "1px solid hsl(var(--border))" }}>
-              <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: "hsl(215 25% 45%)" }}>Description</p>
-              <p className="text-sm" style={{ color: "hsl(210 40% 75%)" }}>{selected.description}</p>
+      {/* Form */}
+      {showForm&&(
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto" style={{background:"rgba(0,0,0,0.75)"}}>
+          <div className="w-full max-w-2xl rounded-2xl p-6 space-y-5 my-8" style={{background:"hsl(216 52% 10%)",border:"1px solid hsl(var(--border))"}}>
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold" style={{color:"hsl(210 40% 94%)"}}>{editId?"Edit Project":"New Project"}</h2>
+              <button onClick={()=>setShowForm(false)} style={{color:"hsl(215 25% 55%)"}}><X className="h-5 w-5"/></button>
             </div>
-
-            <div className="flex gap-3">
-              <button onClick={() => setSelected(null)} className="flex-1 py-2.5 rounded-lg text-sm font-semibold"
-                style={{ background: "hsl(216 45% 18%)", color: "hsl(210 40% 75%)" }}>Close</button>
-              <button
-                onClick={() => { navigate(WORKSPACE_ROUTES[selected.type]); setSelected(null); }}
-                className="flex-1 py-2.5 rounded-lg text-sm font-semibold inline-flex items-center justify-center gap-2"
-                style={{ background: "hsl(38 95% 52%)", color: "hsl(216 58% 6%)" }}>
-                <ExternalLink className="h-4 w-4" /> Open Workspace
-              </button>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>Project Name *</label>
+                <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))} placeholder="e.g. Baghdad FMCG Market Entry — Client Name" className={inp} style={IS}/>
+              </div>
+              {[{l:"Client *",k:"client",ph:"Client company name"},{l:"Country",k:"country",opts:CTRS},{l:"Industry",k:"industry",opts:INDS},{l:"Type",k:"type",opts:TYPES},{l:"Status",k:"status",opts:Object.keys(S_CFG)},{l:"Priority",k:"priority",opts:Object.keys(P_CFG)},{l:"Lead",k:"lead",opts:TEAM}].map(f=>
+                <div key={f.k}>
+                  <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>{f.l}</label>
+                  {f.opts?<select value={(form as any)[f.k]} onChange={e=>setForm(prev=>({...prev,[f.k]:e.target.value}))} className={inp} style={IS}>{f.opts.map(o=><option key={o}>{o}</option>)}</select>
+                  :<input value={(form as any)[f.k]} onChange={e=>setForm(prev=>({...prev,[f.k]:e.target.value}))} placeholder={f.ph} className={inp} style={IS}/>}
+                </div>
+              )}
+              <div>
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>Value (USD)</label>
+                <input type="number" value={form.value} onChange={e=>setForm(f=>({...f,value:Number(e.target.value)}))} className={inp} style={IS}/>
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>Start Date</label>
+                <input type="date" value={form.startDate} onChange={e=>setForm(f=>({...f,startDate:e.target.value}))} className={inp} style={IS}/>
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>End Date</label>
+                <input type="date" value={form.endDate} onChange={e=>setForm(f=>({...f,endDate:e.target.value}))} className={inp} style={IS}/>
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>Progress %</label>
+                <div className="flex items-center gap-3">
+                  <input type="range" min={0} max={100} step={5} value={form.progress} onChange={e=>setForm(f=>({...f,progress:Number(e.target.value)}))} className="flex-1 accent-amber-500"/>
+                  <span className="text-sm font-bold w-10 text-right" style={{color:"hsl(38 95% 60%)"}}>{form.progress}%</span>
+                </div>
+              </div>
+            </div>
+            {/* Tags */}
+            <div>
+              <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>Tags</label>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {form.tags.map(t=><span key={t} className="flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full" style={{background:"hsl(217 91% 70%/0.1)",color:"hsl(217 91% 70%)",border:"1px solid hsl(217 91% 70%/0.2)"}}>{t}<button onClick={()=>setForm(f=>({...f,tags:f.tags.filter(x=>x!==t)}))}><X className="h-2.5 w-2.5"/></button></span>)}
+              </div>
+              <input value={newTag} onChange={e=>setNewTag(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&newTag.trim()){setForm(f=>({...f,tags:[...f.tags,newTag.trim()]}));setNewTag("");}}} placeholder="Type tag and press Enter" className={inp} style={IS}/>
+            </div>
+            {/* Milestones */}
+            <div>
+              <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>Milestones</label>
+              <div className="space-y-1.5 mb-2">
+                {form.milestones.map(m=><div key={m.id} className="flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg" style={{background:"hsl(216 45% 12%)"}}>
+                  <CheckCircle2 className="h-3 w-3 shrink-0" style={{color:"hsl(158 64% 55%)"}}/>
+                  <span className="flex-1" style={{color:"hsl(210 40% 82%)"}}>{m.title}</span>
+                  <span style={{color:"hsl(215 25% 45%)"}}>{m.dueDate}</span>
+                  <button onClick={()=>setForm(f=>({...f,milestones:f.milestones.filter(x=>x.id!==m.id)}))}><X className="h-3 w-3" style={{color:"hsl(0 72% 60%)"}}/></button>
+                </div>)}
+              </div>
+              <div className="flex gap-2">
+                <input value={newMile.title} onChange={e=>setNewMile(m=>({...m,title:e.target.value}))} placeholder="Milestone title" className={`flex-1 ${inp}`} style={IS}/>
+                <input type="date" value={newMile.dueDate} onChange={e=>setNewMile(m=>({...m,dueDate:e.target.value}))} className={`w-36 ${inp}`} style={IS}/>
+                <button onClick={addMile} className="px-3 py-2 rounded-lg text-xs font-bold" style={{background:"hsl(38 95% 52%/0.15)",color:"hsl(38 95% 60%)"}}>Add</button>
+              </div>
+            </div>
+            {/* Notes */}
+            <div>
+              <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>Notes</label>
+              <textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} rows={3} placeholder="Client preferences, key contacts, special requirements..." className={`${inp} resize-none`} style={IS}/>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button onClick={()=>setShowForm(false)} className="flex-1 py-2.5 rounded-lg text-sm font-semibold" style={{background:"hsl(216 45% 18%)",color:"hsl(210 40% 75%)"}}>Cancel</button>
+              <button onClick={save} className="flex-1 py-2.5 rounded-lg text-sm font-bold" style={{background:"hsl(38 95% 52%)",color:"hsl(216 58% 6%)"}}>{editId?"Save Changes":"Create Project"}</button>
             </div>
           </div>
         </div>

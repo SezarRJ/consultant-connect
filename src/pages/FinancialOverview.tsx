@@ -1,239 +1,226 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-  DollarSign, TrendingUp, TrendingDown, BarChart2, PieChart,
-  ArrowUpRight, ArrowDownRight, Calendar, Target, CheckCircle2,
-  AlertTriangle, RefreshCw, Download, Filter, Activity, Layers
+  PieChart, Plus, TrendingUp, TrendingDown, DollarSign, Calendar,
+  CheckCircle2, Clock, X, Edit3, Trash2, Search
 } from "lucide-react";
+import { toast } from "sonner";
 
-interface ProjectFinancial {
-  id: string;
-  project: string;
-  client: string;
-  type: string;
-  revenue: number;
-  cost: number;
-  profit: number;
-  margin: number;
-  status: "Active" | "Completed" | "At Risk";
-  invoiced: number;
-  collected: number;
+type TxType = "invoice"|"expense"|"payment"|"refund";
+type TxStatus = "pending"|"paid"|"overdue"|"cancelled";
+
+interface Transaction {
+  id:string; type:TxType; status:TxStatus; description:string; project:string;
+  client:string; amount:number; currency:string; date:string; dueDate:string; notes:string;
 }
 
-const FINANCIALS: ProjectFinancial[] = [
-  { id:"f1", project:"Baghdad Mixed-Use Tower",      client:"Al-Rafidain Investments", type:"Real Estate",          revenue:420000, cost:180000, profit:240000, margin:57, status:"Active",    invoiced:210000, collected:168000 },
-  { id:"f2", project:"Iraq FMCG Distribution",       client:"Gulf Foods Group",         type:"FMCG",                 revenue:320000, cost:140000, profit:180000, margin:56, status:"Active",    invoiced:160000, collected:128000 },
-  { id:"f3", project:"Erbil F&B Concept Launch",     client:"Nouri Hospitality",        type:"F&B",                  revenue:180000, cost:82000,  profit:98000,  margin:54, status:"Active",    invoiced:90000,  collected:90000  },
-  { id:"f4", project:"Telecom Bundle Optimization",  client:"IraqCell Ltd.",            type:"Telecom",              revenue:95000,  cost:42000,  profit:53000,  margin:56, status:"Active",    invoiced:47500,  collected:32000  },
-  { id:"f5", project:"Mosul Manufacturing Setup",    client:"Al-Jazeera Industries",    type:"Manufacturing",        revenue:210000, cost:95000,  profit:115000, margin:55, status:"At Risk",   invoiced:105000, collected:62000  },
-  { id:"f6", project:"Jordan FMCG Iraq Entry",       client:"Jordan Foods Export",      type:"Sales & Distribution", revenue:75000,  cost:28000,  profit:47000,  margin:63, status:"Completed", invoiced:75000,  collected:75000  },
+const LS="consultai_finance_v1";
+const TYPE_CFG:{[k in TxType]:{label:string;color:string;bg:string;dir:1|-1}} = {
+  invoice: {label:"Invoice",color:"hsl(158 64% 55%)",bg:"hsl(158 64% 40%/0.12)",dir:1},
+  payment: {label:"Payment",color:"hsl(38 95% 60%)",bg:"hsl(38 95% 52%/0.12)",dir:1},
+  expense: {label:"Expense",color:"hsl(0 72% 68%)",bg:"hsl(0 72% 51%/0.12)",dir:-1},
+  refund:  {label:"Refund", color:"hsl(217 91% 70%)",bg:"hsl(217 91% 53%/0.12)",dir:-1},
+};
+const STATUS_CFG:{[k in TxStatus]:{label:string;color:string}} = {
+  pending:   {label:"Pending",  color:"hsl(38 95% 60%)"},
+  paid:      {label:"Paid",     color:"hsl(158 64% 55%)"},
+  overdue:   {label:"Overdue",  color:"hsl(0 72% 68%)"},
+  cancelled: {label:"Cancelled",color:"hsl(215 25% 50%)"},
+};
+const PROJECTS=["Baghdad FMCG Market Entry","Erbil Tower Feasibility","ISO 9001 Basra","Jordan Pharma Export","UAE F&B Expansion","General / Admin"];
+
+const SAMPLE:Transaction[]=[
+  {id:"tx1",type:"invoice",status:"paid",description:"Market Entry Analysis — Phase 1",project:"Baghdad FMCG Market Entry",client:"Unilever Iraq",amount:20000,currency:"USD",date:"2026-02-15",dueDate:"2026-03-01",notes:"Phase 1 of 3. Paid on time."},
+  {id:"tx2",type:"invoice",status:"paid",description:"Market Entry Analysis — Phase 2",project:"Baghdad FMCG Market Entry",client:"Unilever Iraq",amount:15000,currency:"USD",date:"2026-03-10",dueDate:"2026-03-25",notes:"Phase 2 complete."},
+  {id:"tx3",type:"invoice",status:"pending",description:"Final strategy delivery — Phase 3",project:"Baghdad FMCG Market Entry",client:"Unilever Iraq",amount:7000,currency:"USD",date:"2026-04-01",dueDate:"2026-04-15",notes:"Due on delivery of final deck."},
+  {id:"tx4",type:"invoice",status:"paid",description:"Feasibility Study — Milestone 1 (50%)",project:"Erbil Tower Feasibility",client:"Kurdistan Group for Investment",amount:42500,currency:"USD",date:"2026-01-20",dueDate:"2026-02-05",notes:"Paid in full after due diligence report."},
+  {id:"tx5",type:"invoice",status:"pending",description:"Feasibility Study — Milestone 2 (50%)",project:"Erbil Tower Feasibility",client:"Kurdistan Group for Investment",amount:42500,currency:"USD",date:"2026-04-15",dueDate:"2026-04-30",notes:"Due on final report delivery."},
+  {id:"tx6",type:"payment",status:"paid",description:"ISO 9001 Project Retainer — Month 1",project:"ISO 9001 Basra",client:"Gulf Oil Services Co.",amount:5000,currency:"USD",date:"2026-03-01",dueDate:"2026-03-01",notes:"Monthly retainer setup."},
+  {id:"tx7",type:"expense",status:"paid",description:"Research data — FMCG Iraq market reports",project:"Baghdad FMCG Market Entry",client:"",amount:1200,currency:"USD",date:"2026-02-10",dueDate:"2026-02-10",notes:"Euromonitor subscription."},
+  {id:"tx8",type:"expense",status:"paid",description:"Field research — Baghdad distributor visits",project:"Baghdad FMCG Market Entry",client:"",amount:800,currency:"USD",date:"2026-03-05",dueDate:"2026-03-05",notes:"3-day field trip expenses."},
+  {id:"tx9",type:"invoice",status:"overdue",description:"Jordan Export Readiness — Retainer Month 1",project:"Jordan Pharma Export",client:"Hikma Pharmaceuticals",amount:5000,currency:"USD",date:"2026-03-01",dueDate:"2026-03-15",notes:"Contract not yet signed. Chasing client."},
 ];
 
-const MONTHLY = [
-  { month:"Oct", revenue:180, cost:82,  profit:98  },
-  { month:"Nov", revenue:210, cost:95,  profit:115 },
-  { month:"Dec", revenue:195, cost:88,  profit:107 },
-  { month:"Jan", revenue:285, cost:125, profit:160 },
-  { month:"Feb", revenue:340, cost:148, profit:192 },
-  { month:"Mar", revenue:420, cost:180, profit:240 },
-];
+const BLANK:Omit<Transaction,"id">={type:"invoice",status:"pending",description:"",project:PROJECTS[0],client:"",amount:0,currency:"USD",date:new Date().toISOString().slice(0,10),dueDate:new Date(Date.now()+30*86400000).toISOString().slice(0,10),notes:""};
 
-const fmt = (n: number) => n >= 1000000 ? `$${(n/1000000).toFixed(1)}M` : n >= 1000 ? `$${(n/1000).toFixed(0)}K` : `$${n}`;
+function load():Transaction[]{try{const d=JSON.parse(localStorage.getItem(LS)||"null");return d||SAMPLE;}catch{return SAMPLE;}}
 
-export default function FinancialOverview() {
-  const [period, setPeriod] = useState<"month" | "quarter" | "year">("month");
+export default function FinancialOverview(){
+  const [txs,setTxs]=useState<Transaction[]>(load);
+  const [search,setSearch]=useState("");
+  const [fType,setFType]=useState<TxType|"all">("all");
+  const [fStatus,setFStatus]=useState<TxStatus|"all">("all");
+  const [showForm,setShowForm]=useState(false);
+  const [editId,setEditId]=useState<string|null>(null);
+  const [form,setForm]=useState<Omit<Transaction,"id">>(BLANK);
 
-  const totalRevenue = FINANCIALS.reduce((a,f) => a+f.revenue, 0);
-  const totalCost    = FINANCIALS.reduce((a,f) => a+f.cost, 0);
-  const totalProfit  = FINANCIALS.reduce((a,f) => a+f.profit, 0);
-  const avgMargin    = Math.round(FINANCIALS.reduce((a,f) => a+f.margin, 0) / FINANCIALS.length);
-  const totalInvoiced   = FINANCIALS.reduce((a,f) => a+f.invoiced, 0);
-  const totalCollected  = FINANCIALS.reduce((a,f) => a+f.collected, 0);
-  const outstanding = totalInvoiced - totalCollected;
-  const maxRev = Math.max(...MONTHLY.map(m => m.revenue));
+  useEffect(()=>{localStorage.setItem(LS,JSON.stringify(txs));},[txs]);
 
-  return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+  const filtered=txs.filter(t=>(fType==="all"||t.type===fType)&&(fStatus==="all"||t.status===fStatus)&&(search===""||t.description.toLowerCase().includes(search.toLowerCase())||t.client.toLowerCase().includes(search.toLowerCase())));
 
-      {/* Header */}
-      <div className="flex items-start justify-between flex-wrap gap-4">
-        <div>
-          <h1 className="text-2xl font-bold font-display" style={{ color: "hsl(210 40% 94%)" }}>Financial Overview</h1>
-          <p className="text-sm mt-1" style={{ color: "hsl(215 25% 55%)" }}>Revenue, profitability & cash flow across all projects</p>
+  const income=txs.filter(t=>t.type==="invoice"||t.type==="payment").reduce((s,t)=>s+(t.status!=="cancelled"?t.amount:0),0);
+  const paidIn=txs.filter(t=>(t.type==="invoice"||t.type==="payment")&&t.status==="paid").reduce((s,t)=>s+t.amount,0);
+  const expenses=txs.filter(t=>(t.type==="expense"||t.type==="refund")&&t.status!=="cancelled").reduce((s,t)=>s+t.amount,0);
+  const outstanding=txs.filter(t=>(t.type==="invoice")&&t.status==="pending").reduce((s,t)=>s+t.amount,0);
+  const overdue=txs.filter(t=>t.status==="overdue").reduce((s,t)=>s+t.amount,0);
+  const profit=paidIn-expenses;
+
+  const openNew=()=>{setForm(BLANK);setEditId(null);setShowForm(true);};
+  const openEdit=(t:Transaction)=>{const{id,...rest}=t;setForm(rest);setEditId(id);setShowForm(true);};
+  const save=()=>{
+    if(!form.description.trim()||form.amount<=0){toast.error("Description and amount required");return;}
+    if(editId){setTxs(ts=>ts.map(t=>t.id===editId?{...t,...form}:t));toast.success("Updated");}
+    else{setTxs(ts=>[{...form,id:`tx_${Date.now()}`},...ts]);toast.success("Added");}
+    setShowForm(false);
+  };
+  const del=(id:string)=>{setTxs(ts=>ts.filter(t=>t.id!==id));toast.success("Deleted");};
+
+  const inp="w-full px-3 py-2 rounded-lg text-sm";
+  const IS={background:"hsl(216 45% 12%)",border:"1px solid hsl(var(--border))",color:"hsl(210 40% 85%)"};
+
+  return(
+    <div className="space-y-5 max-w-5xl mx-auto">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex items-center gap-3">
+          <PieChart className="h-6 w-6" style={{color:"hsl(38 95% 52%)"}}/>
+          <div><h1 className="text-xl font-bold font-display" style={{color:"hsl(210 40% 92%)"}}>Financial Overview</h1><p className="text-xs" style={{color:"hsl(215 25% 55%)"}}>Revenue tracking, invoices, expenses & cashflow</p></div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex rounded-lg overflow-hidden" style={{ border: "1px solid hsl(var(--border))" }}>
-            {(["month","quarter","year"] as const).map(p => (
-              <button key={p} onClick={() => setPeriod(p)} className="px-3 py-1.5 text-xs font-semibold capitalize"
-                style={{ background: period===p ? "hsl(38 95% 52% / 0.15)" : "hsl(var(--card))", color: period===p ? "hsl(38 95% 60%)" : "hsl(215 25% 55%)" }}>
-                {p}
-              </button>
-            ))}
-          </div>
-          <button className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-            style={{ background: "hsl(216 45% 18%)", color: "hsl(210 40% 75%)", border: "1px solid hsl(var(--border))" }}>
-            <Download className="h-3.5 w-3.5" /> Export
-          </button>
-        </div>
+        <button onClick={openNew} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold" style={{background:"hsl(38 95% 52%)",color:"hsl(216 58% 6%)"}}>
+          <Plus className="h-4 w-4"/> Add Transaction
+        </button>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* KPI cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
         {[
-          { label:"Total Revenue",   value:fmt(totalRevenue),  sub:"+24% vs last month", icon:DollarSign,   color:"hsl(38 95% 60%)",   up:true  },
-          { label:"Net Profit",      value:fmt(totalProfit),   sub:`${avgMargin}% avg margin`,  icon:TrendingUp,   color:"hsl(158 64% 55%)",  up:true  },
-          { label:"Total Cost",      value:fmt(totalCost),     sub:"Across all projects", icon:BarChart2,    color:"hsl(0 72% 68%)",    up:false },
-          { label:"Outstanding",     value:fmt(outstanding),   sub:"Pending collection",  icon:AlertTriangle,color:"hsl(38 95% 60%)",   up:false },
-        ].map((k,i) => (
-          <div key={i} className="rounded-xl p-5" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs" style={{ color:"hsl(215 25% 55%)" }}>{k.label}</span>
-              <k.icon className="h-4 w-4" style={{ color:k.color }} />
-            </div>
-            <p className="text-2xl font-bold mb-1" style={{ color:"hsl(210 40% 94%)" }}>{k.value}</p>
-            <div className="flex items-center gap-1 text-xs" style={{ color:k.up?"hsl(158 64% 55%)":"hsl(215 25% 50%)" }}>
-              {k.up ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-              {k.sub}
-            </div>
+          {l:"Total Billed",v:`$${(income/1000).toFixed(0)}K`,c:"hsl(158 64% 55%)",I:TrendingUp,sub:"Invoiced"},
+          {l:"Collected",v:`$${(paidIn/1000).toFixed(0)}K`,c:"hsl(38 95% 60%)",I:CheckCircle2,sub:"Received"},
+          {l:"Expenses",v:`$${(expenses/1000).toFixed(0)}K`,c:"hsl(0 72% 68%)",I:TrendingDown,sub:"Outgoing"},
+          {l:"Net Profit",v:`$${(profit/1000).toFixed(0)}K`,c:profit>=0?"hsl(158 64% 55%)":"hsl(0 72% 68%)",I:DollarSign,sub:"Collected-Expenses"},
+          {l:"Outstanding",v:`$${(outstanding/1000).toFixed(0)}K`,c:"hsl(38 95% 60%)",I:Clock,sub:"Pending invoices"},
+          {l:"Overdue",v:`$${(overdue/1000).toFixed(0)}K`,c:overdue>0?"hsl(0 72% 68%)":"hsl(158 64% 55%)",I:Calendar,sub:"Late payments"},
+        ].map((s,i)=>(
+          <div key={i} className="rounded-xl p-4" style={{background:"hsl(var(--card))",border:`1px solid ${s.l==="Overdue"&&overdue>0?"hsl(0 72% 51%/0.3)":"hsl(var(--border))"}` }}>
+            <div className="flex items-center gap-1.5 mb-1"><s.I className="h-3.5 w-3.5" style={{color:s.c}}/><p className="text-[9px] font-bold uppercase" style={{color:"hsl(215 25% 45%)"}}>{s.l}</p></div>
+            <p className="text-xl font-bold" style={{color:s.c}}>{s.v}</p>
+            <p className="text-[9px]" style={{color:"hsl(215 25% 40%)"}}>{s.sub}</p>
           </div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Revenue Chart */}
-        <div className="lg:col-span-2 rounded-xl p-5" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm font-semibold" style={{ color:"hsl(210 40% 92%)" }}>Monthly Performance</h2>
-            <div className="flex items-center gap-4 text-xs">
-              <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full inline-block" style={{ background:"hsl(38 95% 52%)" }} />Revenue</span>
-              <span className="flex items-center gap-1.5" style={{ color:"hsl(215 25% 55%)" }}><span className="h-2 w-2 rounded-full inline-block" style={{ background:"hsl(158 64% 45%)" }} />Profit</span>
-              <span className="flex items-center gap-1.5" style={{ color:"hsl(215 25% 55%)" }}><span className="h-2 w-2 rounded-full inline-block" style={{ background:"hsl(0 72% 51%)" }} />Cost</span>
+      {/* Revenue breakdown */}
+      <div className="grid grid-cols-4 gap-2">
+        {(Object.entries(TYPE_CFG) as [TxType,typeof TYPE_CFG[TxType]][]).map(([t,c])=>{
+          const total=txs.filter(x=>x.type===t&&x.status!=="cancelled").reduce((s,x)=>s+x.amount,0);
+          const count=txs.filter(x=>x.type===t).length;
+          return(
+            <div key={t} onClick={()=>setFType(fType===t?"all":t)} className="rounded-xl p-4 cursor-pointer"
+              style={{background:fType===t?c.bg:"hsl(var(--card))",border:`1px solid ${fType===t?c.color+"40":"hsl(var(--border))"}` }}>
+              <p className="text-[10px] font-bold uppercase mb-1" style={{color:c.color}}>{c.label}</p>
+              <p className="text-lg font-black" style={{color:c.color}}>${(total/1000).toFixed(0)}K</p>
+              <p className="text-[9px]" style={{color:"hsl(215 25% 45%)"}}>{count} transactions</p>
             </div>
-          </div>
-          <div className="flex items-end gap-3 h-48">
-            {MONTHLY.map((m, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                <div className="w-full flex items-end gap-0.5 h-40" style={{ alignItems:"flex-end" }}>
-                  {/* Revenue bar */}
-                  <div className="flex-1 rounded-t-sm transition-all"
-                    style={{ height:`${(m.revenue/maxRev)*100}%`, background:"hsl(38 95% 52% / 0.8)", minHeight:"4px" }} />
-                  {/* Profit bar */}
-                  <div className="flex-1 rounded-t-sm transition-all"
-                    style={{ height:`${(m.profit/maxRev)*100}%`, background:"hsl(158 64% 45% / 0.7)", minHeight:"4px" }} />
-                  {/* Cost bar */}
-                  <div className="flex-1 rounded-t-sm transition-all"
-                    style={{ height:`${(m.cost/maxRev)*100}%`, background:"hsl(0 72% 51% / 0.5)", minHeight:"4px" }} />
-                </div>
-                <span className="text-[10px]" style={{ color:"hsl(215 25% 45%)" }}>{m.month}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Collection Status */}
-        <div className="rounded-xl p-5" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-          <h2 className="text-sm font-semibold mb-4" style={{ color:"hsl(210 40% 92%)" }}>Collection Status</h2>
-          <div className="space-y-4">
-            <div>
-              <div className="flex justify-between text-xs mb-1.5">
-                <span style={{ color:"hsl(215 25% 55%)" }}>Invoiced</span>
-                <span style={{ color:"hsl(210 40% 85%)" }}>{fmt(totalInvoiced)}</span>
-              </div>
-              <div className="flex justify-between text-xs mb-1.5">
-                <span style={{ color:"hsl(215 25% 55%)" }}>Collected</span>
-                <span style={{ color:"hsl(158 64% 55%)" }}>{fmt(totalCollected)}</span>
-              </div>
-              <div className="flex justify-between text-xs mb-1.5">
-                <span style={{ color:"hsl(215 25% 55%)" }}>Outstanding</span>
-                <span style={{ color:"hsl(38 95% 60%)" }}>{fmt(outstanding)}</span>
-              </div>
-            </div>
-            <div className="h-2 rounded-full overflow-hidden" style={{ background:"hsl(216 45% 15%)" }}>
-              <div className="h-2 rounded-full" style={{ width:`${(totalCollected/totalInvoiced)*100}%`, background:"hsl(158 64% 45%)" }} />
-            </div>
-            <p className="text-xs text-center" style={{ color:"hsl(215 25% 50%)" }}>
-              {Math.round((totalCollected/totalInvoiced)*100)}% collection rate
-            </p>
-
-            <div className="pt-3 border-t space-y-2" style={{ borderColor:"hsl(var(--border))" }}>
-              <p className="text-xs font-semibold" style={{ color:"hsl(215 25% 45%)" }}>By Project Type</p>
-              {[
-                { type:"Real Estate", pct:37, color:"hsl(38 95% 52%)" },
-                { type:"FMCG", pct:25, color:"hsl(158 64% 45%)" },
-                { type:"Manufacturing", pct:18, color:"hsl(217 91% 60%)" },
-                { type:"Other", pct:20, color:"hsl(215 25% 40%)" },
-              ].map((t,i) => (
-                <div key={i}>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span style={{ color:"hsl(215 25% 55%)" }}>{t.type}</span>
-                    <span style={{ color:"hsl(210 40% 75%)" }}>{t.pct}%</span>
-                  </div>
-                  <div className="h-1 rounded-full overflow-hidden" style={{ background:"hsl(216 45% 15%)" }}>
-                    <div className="h-1 rounded-full" style={{ width:`${t.pct}%`, background:t.color }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+          );
+        })}
       </div>
 
-      {/* Project Financials Table */}
-      <div className="rounded-xl overflow-hidden" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-        <div className="px-5 py-4 border-b" style={{ borderColor:"hsl(var(--border))" }}>
-          <h2 className="text-sm font-semibold" style={{ color:"hsl(210 40% 92%)" }}>Project Financials</h2>
+      {/* Filter + list */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative flex-1 min-w-48">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5" style={{color:"hsl(215 25% 45%)"}}/>
+          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search transactions..." className="w-full pl-9 pr-3 py-2 rounded-lg text-sm" style={{background:"hsl(var(--card))",border:"1px solid hsl(var(--border))",color:"hsl(210 40% 85%)"}}/>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-xs">
-            <thead>
-              <tr style={{ background:"hsl(216 45% 12%)" }}>
-                {["Project","Client","Type","Revenue","Cost","Profit","Margin","Status","Collected"].map(h => (
-                  <th key={h} className="px-4 py-3 text-left font-semibold" style={{ color:"hsl(215 25% 45%)" }}>{h}</th>
-                ))}
+        <select value={fStatus} onChange={e=>setFStatus(e.target.value as TxStatus|"all")} className="px-3 py-2 rounded-lg text-sm" style={{background:"hsl(var(--card))",border:"1px solid hsl(var(--border))",color:"hsl(210 40% 85%)"}}>
+          <option value="all">All Status</option>
+          {(Object.entries(STATUS_CFG) as [TxStatus,typeof STATUS_CFG[TxStatus]][]).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}
+        </select>
+      </div>
+
+      <div className="rounded-xl overflow-hidden" style={{background:"hsl(var(--card))",border:"1px solid hsl(var(--border))"}}>
+        <table className="w-full text-xs">
+          <thead><tr style={{background:"hsl(216 45% 11%)",borderBottom:"1px solid hsl(var(--border))"}}>
+            {["Type","Description","Project/Client","Amount","Date","Due","Status",""].map(h=><th key={h} className="px-4 py-3 text-left font-semibold whitespace-nowrap" style={{color:"hsl(215 25% 45%)"}}>{h}</th>)}
+          </tr></thead>
+          <tbody>{filtered.map((t,i)=>{
+            const tc=TYPE_CFG[t.type];const sc=STATUS_CFG[t.status];const isOverdue=t.status==="overdue";
+            return(
+              <tr key={t.id} style={{borderTop:"1px solid hsl(var(--border))",background:isOverdue?"hsl(0 72% 51%/0.04)":i%2===0?"transparent":"hsl(216 45% 8%/0.4)"}}>
+                <td className="px-4 py-3"><span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{background:tc.bg,color:tc.color}}>{tc.label}</span></td>
+                <td className="px-4 py-3 max-w-48 truncate" style={{color:"hsl(210 40% 85%)"}}>{t.description}</td>
+                <td className="px-4 py-3" style={{color:"hsl(215 25% 55%)"}}>{t.project.split(" ").slice(0,3).join(" ")}{t.client&&<span> · {t.client.split(" ")[0]}</span>}</td>
+                <td className="px-4 py-3 font-bold" style={{color:tc.dir===1?"hsl(158 64% 55%)":"hsl(0 72% 68%)"}}>
+                  {tc.dir===1?"+":"-"}${t.amount.toLocaleString()}
+                </td>
+                <td className="px-4 py-3" style={{color:"hsl(215 25% 55%)"}}>{t.date}</td>
+                <td className="px-4 py-3" style={{color:isOverdue?"hsl(0 72% 68%)":"hsl(215 25% 50%)"}}>{t.dueDate}</td>
+                <td className="px-4 py-3">
+                  <select value={t.status} onChange={e=>setTxs(ts=>ts.map(x=>x.id===t.id?{...x,status:e.target.value as TxStatus}:x))}
+                    className="px-2 py-1 rounded text-[11px] font-semibold"
+                    style={{background:sc.color+"18",color:sc.color,border:`1px solid ${sc.color}30`,appearance:"none"}}>
+                    {(Object.entries(STATUS_CFG) as [TxStatus,typeof STATUS_CFG[TxStatus]][]).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}
+                  </select>
+                </td>
+                <td className="px-3 py-3">
+                  <div className="flex gap-1">
+                    <button onClick={()=>openEdit(t)} className="p-1.5 rounded hover:bg-white/5"><Edit3 className="h-3 w-3" style={{color:"hsl(215 25% 45%)"}}/></button>
+                    <button onClick={()=>del(t.id)} className="p-1.5 rounded hover:bg-white/5"><Trash2 className="h-3 w-3" style={{color:"hsl(0 72% 60%)"}}/></button>
+                  </div>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {FINANCIALS.map((f,i) => (
-                <tr key={f.id} style={{ borderTop:"1px solid hsl(var(--border))", background:i%2===0?"transparent":"hsl(216 45% 8% / 0.5)" }}>
-                  <td className="px-4 py-3 font-medium" style={{ color:"hsl(210 40% 85%)" }}>{f.project}</td>
-                  <td className="px-4 py-3" style={{ color:"hsl(215 25% 60%)" }}>{f.client}</td>
-                  <td className="px-4 py-3" style={{ color:"hsl(215 25% 55%)" }}>{f.type}</td>
-                  <td className="px-4 py-3 font-semibold" style={{ color:"hsl(38 95% 60%)" }}>{fmt(f.revenue)}</td>
-                  <td className="px-4 py-3" style={{ color:"hsl(0 72% 65%)" }}>{fmt(f.cost)}</td>
-                  <td className="px-4 py-3 font-semibold" style={{ color:"hsl(158 64% 55%)" }}>{fmt(f.profit)}</td>
-                  <td className="px-4 py-3" style={{ color:"hsl(210 40% 75%)" }}>{f.margin}%</td>
-                  <td className="px-4 py-3">
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold"
-                      style={{
-                        background: f.status==="Completed"?"hsl(217 91% 53% / 0.15)":f.status==="At Risk"?"hsl(0 72% 51% / 0.15)":"hsl(158 64% 40% / 0.15)",
-                        color: f.status==="Completed"?"hsl(217 91% 70%)":f.status==="At Risk"?"hsl(0 72% 68%)":"hsl(158 64% 55%)",
-                      }}>
-                      {f.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 rounded-full" style={{ background:"hsl(216 45% 15%)", width:"60px" }}>
-                        <div className="h-1.5 rounded-full" style={{ width:`${(f.collected/f.invoiced)*100}%`, background:"hsl(158 64% 45%)" }} />
-                      </div>
-                      <span style={{ color:"hsl(215 25% 55%)" }}>{fmt(f.collected)}</span>
-                    </div>
-                  </td>
-                </tr>
+            );
+          })}</tbody>
+        </table>
+        {filtered.length===0&&<div className="p-10 text-center"><p style={{color:"hsl(215 25% 45%)"}}>No transactions found</p></div>}
+      </div>
+
+      {/* Form */}
+      {showForm&&(
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto" style={{background:"rgba(0,0,0,0.75)"}}>
+          <div className="w-full max-w-lg rounded-2xl p-6 space-y-4 my-8" style={{background:"hsl(216 52% 10%)",border:"1px solid hsl(var(--border))"}}>
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold" style={{color:"hsl(210 40% 94%)"}}>{editId?"Edit Transaction":"Add Transaction"}</h2>
+              <button onClick={()=>setShowForm(false)} style={{color:"hsl(215 25% 55%)"}}><X className="h-5 w-5"/></button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="col-span-2">
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>Description *</label>
+                <input value={form.description} onChange={e=>setForm(f=>({...f,description:e.target.value}))} placeholder="Invoice/expense description..." className={inp} style={IS}/>
+              </div>
+              {[{l:"Type",k:"type",opts:Object.keys(TYPE_CFG)},{l:"Status",k:"status",opts:Object.keys(STATUS_CFG)},{l:"Project",k:"project",opts:PROJECTS}].map(f=>(
+                <div key={f.k}>
+                  <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>{f.l}</label>
+                  <select value={(form as any)[f.k]} onChange={e=>setForm(prev=>({...prev,[f.k]:e.target.value}))} className={inp} style={IS}>
+                    {f.opts.map(o=><option key={o}>{o}</option>)}
+                  </select>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="px-5 py-3 flex items-center justify-between" style={{ borderTop:"1px solid hsl(var(--border))", background:"hsl(216 45% 10%)" }}>
-          <span className="text-xs" style={{ color:"hsl(215 25% 45%)" }}>Totals</span>
-          <div className="flex items-center gap-8 text-xs font-semibold">
-            <span style={{ color:"hsl(38 95% 60%)" }}>Revenue: {fmt(totalRevenue)}</span>
-            <span style={{ color:"hsl(0 72% 65%)" }}>Cost: {fmt(totalCost)}</span>
-            <span style={{ color:"hsl(158 64% 55%)" }}>Profit: {fmt(totalProfit)}</span>
-            <span style={{ color:"hsl(210 40% 75%)" }}>Avg Margin: {avgMargin}%</span>
+              <div>
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>Client</label>
+                <input value={form.client} onChange={e=>setForm(f=>({...f,client:e.target.value}))} placeholder="Client name" className={inp} style={IS}/>
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>Amount (USD) *</label>
+                <input type="number" value={form.amount} onChange={e=>setForm(f=>({...f,amount:Number(e.target.value)}))} className={inp} style={IS}/>
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>Date</label>
+                <input type="date" value={form.date} onChange={e=>setForm(f=>({...f,date:e.target.value}))} className={inp} style={IS}/>
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>Due Date</label>
+                <input type="date" value={form.dueDate} onChange={e=>setForm(f=>({...f,dueDate:e.target.value}))} className={inp} style={IS}/>
+              </div>
+              <div className="col-span-2">
+                <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1.5" style={{color:"hsl(215 25% 45%)"}}>Notes</label>
+                <textarea value={form.notes} onChange={e=>setForm(f=>({...f,notes:e.target.value}))} rows={2} className={`${inp} resize-none`} style={IS}/>
+              </div>
+            </div>
+            <div className="flex gap-3 pt-1">
+              <button onClick={()=>setShowForm(false)} className="flex-1 py-2.5 rounded-lg text-sm font-semibold" style={{background:"hsl(216 45% 18%)",color:"hsl(210 40% 75%)"}}>Cancel</button>
+              <button onClick={save} className="flex-1 py-2.5 rounded-lg text-sm font-bold" style={{background:"hsl(38 95% 52%)",color:"hsl(216 58% 6%)"}}>{editId?"Save Changes":"Add Transaction"}</button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
