@@ -234,16 +234,16 @@ export default function Settings() {
   };
 
   const testApiKey = async () => {
-    if (!aiCfg.anthropicKey) { toast.error("Enter an API key first"); return; }
     setTestStatus("testing");
     try {
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
+      const res = await fetch(url, {
         method:"POST",
-        headers:{ "Content-Type":"application/json","x-api-key":aiCfg.anthropicKey,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true" },
-        body:JSON.stringify({ model:"claude-haiku-3-5-20241022", max_tokens:10, messages:[{ role:"user", content:"ping" }] }),
+        headers:{ "Content-Type":"application/json", Authorization:`Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        body:JSON.stringify({ system:"Reply with OK", messages:[{ role:"user", content:"ping" }], stream:false, maxTokens:10 }),
       });
-      if (res.ok) { setTestStatus("ok"); toast.success("✓ API key is valid"); saveAIConfig({ ...aiCfg }); }
-      else { const err = await res.json().catch(() => ({})); setTestStatus("fail"); toast.error(`Key invalid: ${(err as any)?.error?.message || res.status}`); }
+      if (res.ok) { setTestStatus("ok"); toast.success("✓ AI connection is active"); }
+      else { const err = await res.json().catch(() => ({})); setTestStatus("fail"); toast.error(`AI error: ${(err as any)?.error || res.status}`); }
     } catch { setTestStatus("fail"); toast.error("Connection failed"); }
     setTimeout(() => setTestStatus("idle"), 3000);
   };

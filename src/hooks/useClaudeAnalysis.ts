@@ -1,8 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// useClaudeAnalysis.ts  –  Core AI hook with config-aware model, key, streaming
+// useClaudeAnalysis.ts  –  AI hook using Lovable AI Gateway (no external keys needed)
 // ─────────────────────────────────────────────────────────────────────────────
 import { useState, useCallback } from "react";
-import { loadAIConfig } from "@/lib/aiConfig";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UseClaudeAnalysisOptions {
   systemPrompt: string;
@@ -18,98 +18,83 @@ export function useClaudeAnalysis({ systemPrompt, agentId }: UseClaudeAnalysisOp
   const [tokensUsed, setTokensUsed] = useState<number>(0);
 
   const analyze = useCallback(async (userPrompt: string) => {
-    const cfg = loadAIConfig();
-
-    // Resolve per-agent override or fall back to global config
-    const override = agentId ? cfg.agentOverrides[agentId] : undefined;
-    const model = override?.model ?? cfg.anthropicModel;
-    const maxTokens = cfg.maxTokens;
-    const apiKey = cfg.anthropicKey;
-
-    if (!apiKey) {
-      setError("No Anthropic API key configured. Please go to Settings → AI Configuration to add your key.");
-      return;
-    }
-
     setLoading(true);
     setError(null);
     setResult(null);
     setRawText("");
     setTokensUsed(0);
 
-    const useStream = cfg.streamingEnabled;
-
     try {
-      const body = {
-        model,
-        max_tokens: maxTokens,
-        stream: useStream,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }],
-      };
-
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
+      // Use streaming via fetch for SSE support
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
+      
+      const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": apiKey,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
-        body: JSON.stringify(body),
+        body: JSON.stringify({
+          system: systemPrompt,
+          messages: [{ role: "user", content: userPrompt }],
+          stream: true,
+          maxTokens: 4000,
+        }),
       });
 
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
-        const msg = (errData as any)?.error?.message || `API error ${response.status}`;
-        // Friendly messages for common errors
-        if (response.status === 401) throw new Error("Invalid API key. Please update your key in Settings → AI Configuration.");
-        if (response.status === 403) throw new Error("Credit balance too low or access denied. Please top up credits at console.anthropic.com → Plans & Billing, then retry.");
-        if (response.status === 429) throw new Error("Rate limit reached. Please wait a moment and try again.");
-        if (response.status === 529 || response.status === 500) throw new Error("Anthropic service temporarily unavailable. Please try again in a few seconds.");
+        const msg = (errData as any)?.error || `Service error ${response.status}`;
         throw new Error(msg);
       }
 
-      if (useStream) {
-        setStreaming(true);
-        let fullText = "";
-        const reader = response.body!.getReader();
-        const decoder = new TextDecoder();
+      // Stream response
+      setStreaming(true);
+      let fullText = "";
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "";
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n").filter(Boolean);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
 
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            const data = line.slice(6).trim();
-            if (data === "[DONE]") continue;
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.type === "content_block_delta" && parsed.delta?.text) {
-                fullText += parsed.delta.text;
-                setRawText(fullText);
-              }
-              if (parsed.type === "message_delta" && parsed.usage?.output_tokens) {
-                setTokensUsed(parsed.usage.output_tokens);
-              }
-            } catch { /* skip malformed SSE lines */ }
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") break;
+
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const content = parsed.choices?.[0]?.delta?.content;
+            if (content) {
+              fullText += content;
+              setRawText(fullText);
+            }
+            if (parsed.usage?.total_tokens) {
+              setTokensUsed(parsed.usage.total_tokens);
+            }
+          } catch {
+            // partial JSON, put back
+            textBuffer = line + "\n" + textBuffer;
+            break;
           }
         }
-
-        setStreaming(false);
-        parseAndSetResult(fullText, setResult);
-      } else {
-        const data = await response.json();
-        const text = data.content?.map((b: any) => b.text || "").join("") || "";
-        setRawText(text);
-        setTokensUsed(data.usage?.output_tokens ?? 0);
-        parseAndSetResult(text, setResult);
       }
+
+      setStreaming(false);
+      setTokensUsed(prev => prev || fullText.split(/\s+/).length); // rough estimate if not provided
+      parseAndSetResult(fullText, setResult);
     } catch (err: any) {
-      setError(err.message || "Analysis failed. Please check your API key in Settings.");
+      setError(err.message || "Analysis failed. Please try again.");
     } finally {
       setLoading(false);
       setStreaming(false);
