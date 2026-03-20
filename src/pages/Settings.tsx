@@ -748,25 +748,6 @@ export default function Settings() {
                 <Plus className="h-4 w-4" /> Add API Key
               </button>
             </div>
-          {/* Header card */}
-          <div className="rounded-xl p-5" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-            <div className="flex items-start justify-between flex-wrap gap-3">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <Key className="h-5 w-5" style={{ color:"hsl(38 95% 52%)" }} />
-                  <h2 className="text-base font-bold font-display" style={{ color:"hsl(210 40% 90%)" }}>API Key Vault</h2>
-                </div>
-                <p className="text-xs" style={{ color:"hsl(215 25% 55%)" }}>
-                  Store, manage and switch between API keys for all connected services. Keys are saved in your browser's local storage.
-                </p>
-              </div>
-              <button onClick={() => { setShowAddKey(true); setEditingKey(null); }}
-                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold"
-                style={{ background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }}>
-                <Plus className="h-4 w-4" /> Add API Key
-              </button>
-            </div>
-          </div>
 
           {/* Stats row */}
           <div className="grid grid-cols-3 gap-3">
