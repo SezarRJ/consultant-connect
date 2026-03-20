@@ -171,7 +171,7 @@ export default function CRM(){
             </div>
             <div className="space-y-2 text-xs">
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{background:"hsl(216 45% 12%)"}}>
-                <User className="h-3.5 w-3.5 shrink-0" style={{color:"hsl(215 25% 45%)"}}/><span style={{color:"hsl(210 40% 82%)"}}>{sel.name}</span><span style={{color:"hsl(215 25% 45%)"}}>· {sel.role}</span>
+                <Users className="h-3.5 w-3.5 shrink-0" style={{color:"hsl(215 25% 45%)"}}/><span style={{color:"hsl(210 40% 82%)"}}>{sel.name}</span><span style={{color:"hsl(215 25% 45%)"}}>· {sel.role}</span>
               </div>
               {sel.email&&<div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{background:"hsl(216 45% 12%)"}}><Mail className="h-3.5 w-3.5 shrink-0" style={{color:"hsl(217 91% 65%)"}}/><a href={`mailto:${sel.email}`} className="hover:underline" style={{color:"hsl(217 91% 70%)"}}>{sel.email}</a></div>}
               {sel.phone&&<div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{background:"hsl(216 45% 12%)"}}><Phone className="h-3.5 w-3.5 shrink-0" style={{color:"hsl(158 64% 55%)"}}/><span style={{color:"hsl(210 40% 82%)"}}>{sel.phone}</span></div>}
