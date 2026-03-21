@@ -200,8 +200,8 @@ export default function MarketEntry() {
     product: "", category: "", countryOfOrigin: "", description: "",
     targetPrice: "", businessType: "Manufacturer", annualCapacity: "", budget: "",
   });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({
-    systemPrompt: SYSTEM_PROMPT, agentId: "market-entry-v2",
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({
+    systemPrompt: SYSTEM_PROMPT, agentId: "market-entry-v2", modelTier: "flash", reasoningEffort: "medium",
   });
 
   const run = () => {
