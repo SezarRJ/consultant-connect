@@ -47,7 +47,7 @@ const productCategories = ["Food & Beverages", "FMCG", "Healthcare", "Constructi
 
 export default function DistributorFinder() {
   const [form, setForm] = useState({ product: "", category: "", city: "All Iraq", volume: "" });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "distributor" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "distributor", modelTier: "flash-lite" });
 
   const handleSubmit = () => {
     if (!form.product) return;
