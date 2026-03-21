@@ -57,7 +57,7 @@ const SYSTEM_PROMPT = `You are an Iraq sales strategy expert specializing in FMC
 
 export default function SalesStrategy() {
   const [form, setForm] = useState({ product: "", category: "", budget: "Medium", existingChannels: "" });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "sales" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "sales", modelTier: "flash-lite" });
 
   const handleSubmit = () => {
     if (!form.product) return;
