@@ -52,7 +52,7 @@ const SYSTEM_PROMPT = `You are an Iraq business matchmaking expert. Respond ONLY
 
 export default function PartnerMatchmaking() {
   const [form, setForm] = useState({ product: "", category: "", city: "All Iraq", companySize: "SME", partnerType: "Distributor" });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "partner" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "partner", modelTier: "flash-lite" });
 
   const handleSubmit = () => {
     if (!form.product) return;
