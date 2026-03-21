@@ -123,7 +123,7 @@ const QUICK_TOPICS = [
 
 export default function MarketIntelligence() {
   const [query, setQuery] = useState("");
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "market-intel-v2" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "market-intel-v2", modelTier: "flash-lite" });
 
   const run = (q?: string) => { const topic = q || query; if (topic.trim()) { setQuery(topic); analyze(`Generate a comprehensive Iraq market intelligence brief for the following topic:\n\n${topic}\n\nBe highly specific to Iraq 2025-2026. Include real market sizes in USD, price benchmarks in both USD and IQD, actual player names, city-by-city demand analysis, and actionable investment intelligence.`); } };
 
