@@ -25,7 +25,7 @@ export default function ProposalBuilder() {
     client: "", contact: "", service: "Market Entry Analysis", industry: "FMCG",
     scope: "", duration: "4 weeks", budget: "", geography: "Iraq", objectives: ""
   });
-  const { result, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "proposal" });
+  const { result, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "proposal", modelTier: "flash-lite" });
   const [copied, setCopied] = useState(false);
 
   const handleGenerate = () => {

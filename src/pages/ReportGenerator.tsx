@@ -204,7 +204,7 @@ export default function ReportGenerator() {
   const [geography, setGeography] = useState("Iraq");
 
   const rt = REPORT_TYPES.find(r => r.key === reportType)!;
-  const { result, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: rt.prompt, agentId: `report-${reportType}` });
+  const { result, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: rt.prompt, agentId: `report-${reportType}`, modelTier: "flash-lite" });
 
   const handleGenerate = () => {
     if (!subject.trim()) { toast.error("Please enter a report subject"); return; }

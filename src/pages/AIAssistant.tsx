@@ -118,7 +118,7 @@ export default function AIAssistant() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const agent = AGENTS.find(a => a.id === activeAgentId)!;
-  const { rawText, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: agent.prompt, agentId: activeAgentId });
+  const { rawText, loading, error, analyze } = useClaudeAnalysis({ systemPrompt: agent.prompt, agentId: activeAgentId, modelTier: "flash-lite" });
 
   // Track streaming text for the current response
   const [streamingText, setStreamingText] = useState("");
