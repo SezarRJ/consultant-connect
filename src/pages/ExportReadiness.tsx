@@ -93,7 +93,7 @@ Check packaging compliance, Arabic labeling requirements, pricing competitivenes
       </div>
 
 
-      <AIStatusBar agentName="Export Readiness Agent" tokensUsed={tokensUsed} />
+      <AIStatusBar agentName="Export Readiness Agent" tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />
       <WebSearchPanel label="Export regulations & compliance" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

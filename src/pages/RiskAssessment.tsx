@@ -85,7 +85,7 @@ Provide realistic 2025-2026 Iraq risk assessment covering payment risk, logistic
       </div>
 
 
-      <AIStatusBar agentName="Risk Assessment Agent" tokensUsed={tokensUsed} />
+      <AIStatusBar agentName="Risk Assessment Agent" tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />
       <WebSearchPanel label="Regulatory & compliance updates" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

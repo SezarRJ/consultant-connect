@@ -81,7 +81,7 @@ Match with verified Iraqi distributors, agents, and logistics providers. Provide
       </div>
 
 
-      <AIStatusBar agentName="Partner Matchmaking Agent" tokensUsed={tokensUsed} />
+      <AIStatusBar agentName="Partner Matchmaking Agent" tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />
       <WebSearchPanel label="Partner & distributor networks" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

@@ -97,7 +97,7 @@ Focus on supermarket chains, wholesalers, cash van distribution, and e-commerce 
       </div>
 
 
-      <AIStatusBar agentName="Sales Strategy Agent" tokensUsed={tokensUsed} />
+      <AIStatusBar agentName="Sales Strategy Agent" tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />
       <WebSearchPanel label="Sales channels & distribution trends" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

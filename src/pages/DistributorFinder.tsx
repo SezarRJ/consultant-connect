@@ -75,7 +75,7 @@ Provide realistic Iraqi distributor profiles for Erbil, Baghdad, Basra. Include 
       </div>
 
 
-      <AIStatusBar agentName="Distributor Agent" tokensUsed={tokensUsed} />
+      <AIStatusBar agentName="Distributor Agent" tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />
       <WebSearchPanel label="Iraq distributors & wholesalers" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

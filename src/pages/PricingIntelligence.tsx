@@ -58,7 +58,7 @@ Provide real-world accurate pricing data for Iraq market in 2025-2026.`);
       </div>
 
 
-      <AIStatusBar agentName="Pricing Agent" tokensUsed={tokensUsed} />
+      <AIStatusBar agentName="Pricing Agent" tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />
       <WebSearchPanel label="Live pricing & market rates" />
       {/* Form */}
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
