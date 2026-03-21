@@ -30,7 +30,7 @@ const SYSTEM_PROMPT = `You are an Iraq market pricing expert. Respond ONLY with 
 
 export default function PricingIntelligence() {
   const [form, setForm] = useState({ product: "", category: "", currentPrice: "", origin: "" });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "pricing" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "pricing", modelTier: "flash-lite" });
 
   const handleSubmit = () => {
     if (!form.product) return;
