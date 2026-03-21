@@ -47,7 +47,7 @@ const productCategories = ["Food & Beverages", "FMCG", "Healthcare", "Constructi
 
 export default function DistributorFinder() {
   const [form, setForm] = useState({ product: "", category: "", city: "All Iraq", volume: "" });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "distributor" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "distributor", modelTier: "flash-lite" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -75,7 +75,7 @@ Provide realistic Iraqi distributor profiles for Erbil, Baghdad, Basra. Include 
       </div>
 
 
-      <AIStatusBar agentName="Distributor Agent" tokensUsed={tokensUsed} />
+      <AIStatusBar agentName="Distributor Agent" tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />
       <WebSearchPanel label="Iraq distributors & wholesalers" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

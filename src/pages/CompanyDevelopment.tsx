@@ -693,13 +693,13 @@ export default function CompanyDevelopment() {
     workNature:"",founded:"",vision:"",challenges:""
   });
 
-  const orgAI  = useClaudeAnalysis({systemPrompt:SYS_ORG,   agentId:"org-v4"});
-  const procAI = useClaudeAnalysis({systemPrompt:SYS_PROC,  agentId:"proc-v4"});
-  const relAI  = useClaudeAnalysis({systemPrompt:SYS_REL,   agentId:"rel-v4"});
-  const hirAI  = useClaudeAnalysis({systemPrompt:SYS_HIRE,  agentId:"hire-v4"});
-  const salAI  = useClaudeAnalysis({systemPrompt:SYS_SAL,   agentId:"sal-v4"});
-  const recAI  = useClaudeAnalysis({systemPrompt:SYS_RECO,  agentId:"reco-v4"});
-  const rolAI  = useClaudeAnalysis({systemPrompt:SYS_ROLES, agentId:"roles-v4"});
+  const orgAI  = useClaudeAnalysis({systemPrompt:SYS_ORG,   agentId:"org-v4",   modelTier:"flash-lite"});
+  const procAI = useClaudeAnalysis({systemPrompt:SYS_PROC,  agentId:"proc-v4",  modelTier:"flash-lite"});
+  const relAI  = useClaudeAnalysis({systemPrompt:SYS_REL,   agentId:"rel-v4",   modelTier:"flash-lite"});
+  const hirAI  = useClaudeAnalysis({systemPrompt:SYS_HIRE,  agentId:"hire-v4",  modelTier:"flash-lite"});
+  const salAI  = useClaudeAnalysis({systemPrompt:SYS_SAL,   agentId:"sal-v4",   modelTier:"flash-lite"});
+  const recAI  = useClaudeAnalysis({systemPrompt:SYS_RECO,  agentId:"reco-v4",  modelTier:"flash-lite"});
+  const rolAI  = useClaudeAnalysis({systemPrompt:SYS_ROLES, agentId:"roles-v4", modelTier:"flash-lite"});
 
   const pText=()=>`
 COMPANY PROFILE (use ALL fields to customize your output):

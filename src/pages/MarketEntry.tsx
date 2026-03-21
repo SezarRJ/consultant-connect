@@ -200,8 +200,8 @@ export default function MarketEntry() {
     product: "", category: "", countryOfOrigin: "", description: "",
     targetPrice: "", businessType: "Manufacturer", annualCapacity: "", budget: "",
   });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({
-    systemPrompt: SYSTEM_PROMPT, agentId: "market-entry-v2",
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({
+    systemPrompt: SYSTEM_PROMPT, agentId: "market-entry-v2", modelTier: "flash", reasoningEffort: "medium",
   });
 
   const run = () => {
@@ -777,7 +777,7 @@ Cover all sections thoroughly. Use realistic 2025-2026 Iraq market data. Be spec
             </div>
           )}
 
-          {tokensUsed && <AIStatusBar tokensUsed={tokensUsed} />}
+          {tokensUsed && <AIStatusBar tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />}
         </div>
       )}
     </div>

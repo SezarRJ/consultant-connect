@@ -498,11 +498,11 @@ export default function ISOPreparation() {
   });
   const [contextSaved, setContextSaved] = useState(false);
 
-  const gapAI   = useClaudeAnalysis({systemPrompt:SYS_GAP,    agentId:`gap-${selectedStd.id}`});
-  const actAI   = useClaudeAnalysis({systemPrompt:SYS_ACTION,  agentId:`act-${selectedStd.id}`});
-  const docAI   = useClaudeAnalysis({systemPrompt:SYS_DOCS,    agentId:`doc-${selectedStd.id}`});
-  const riskAI  = useClaudeAnalysis({systemPrompt:SYS_RISKS,   agentId:`risk-${selectedStd.id}`});
-  const auditAI = useClaudeAnalysis({systemPrompt:SYS_AUDIT,   agentId:`audit-${selectedStd.id}`});
+  const gapAI   = useClaudeAnalysis({systemPrompt:SYS_GAP,    agentId:`gap-${selectedStd.id}`,   modelTier:"flash", reasoningEffort:"medium"});
+  const actAI   = useClaudeAnalysis({systemPrompt:SYS_ACTION,  agentId:`act-${selectedStd.id}`,   modelTier:"flash-lite"});
+  const docAI   = useClaudeAnalysis({systemPrompt:SYS_DOCS,    agentId:`doc-${selectedStd.id}`,   modelTier:"flash-lite"});
+  const riskAI  = useClaudeAnalysis({systemPrompt:SYS_RISKS,   agentId:`risk-${selectedStd.id}`,  modelTier:"flash-lite"});
+  const auditAI = useClaudeAnalysis({systemPrompt:SYS_AUDIT,   agentId:`audit-${selectedStd.id}`, modelTier:"flash-lite"});
 
   const contextText = () => `
 ISO Standard: ${selectedStd.code} — ${selectedStd.name}

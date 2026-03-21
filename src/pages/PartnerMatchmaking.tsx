@@ -52,7 +52,7 @@ const SYSTEM_PROMPT = `You are an Iraq business matchmaking expert. Respond ONLY
 
 export default function PartnerMatchmaking() {
   const [form, setForm] = useState({ product: "", category: "", city: "All Iraq", companySize: "SME", partnerType: "Distributor" });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "partner" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "partner", modelTier: "flash-lite" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -81,7 +81,7 @@ Match with verified Iraqi distributors, agents, and logistics providers. Provide
       </div>
 
 
-      <AIStatusBar agentName="Partner Matchmaking Agent" tokensUsed={tokensUsed} />
+      <AIStatusBar agentName="Partner Matchmaking Agent" tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />
       <WebSearchPanel label="Partner & distributor networks" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

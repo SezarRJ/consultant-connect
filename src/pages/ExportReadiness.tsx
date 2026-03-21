@@ -61,7 +61,7 @@ export default function ExportReadiness() {
     product: "", category: "", origin: "",
     hasArabicLabel: "No", targetPrice: "", packaging: ""
   });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "export" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "export", modelTier: "flash-lite" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -93,7 +93,7 @@ Check packaging compliance, Arabic labeling requirements, pricing competitivenes
       </div>
 
 
-      <AIStatusBar agentName="Export Readiness Agent" tokensUsed={tokensUsed} />
+      <AIStatusBar agentName="Export Readiness Agent" tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />
       <WebSearchPanel label="Export regulations & compliance" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

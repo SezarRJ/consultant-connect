@@ -56,7 +56,7 @@ const riskBg = (level: string) => level === "High" ? "red" : level === "Medium" 
 
 export default function RiskAssessment() {
   const [form, setForm] = useState({ product: "", origin: "", volume: "", paymentMethod: "Open Account" });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "risk" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "risk", modelTier: "flash", reasoningEffort: "medium" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -85,7 +85,7 @@ Provide realistic 2025-2026 Iraq risk assessment covering payment risk, logistic
       </div>
 
 
-      <AIStatusBar agentName="Risk Assessment Agent" tokensUsed={tokensUsed} />
+      <AIStatusBar agentName="Risk Assessment Agent" tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />
       <WebSearchPanel label="Regulatory & compliance updates" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

@@ -86,7 +86,7 @@ const CATEGORIES = [
 
 export default function CompetitorAnalysis() {
   const [form, setForm] = useState({ product: "", category: "", origin: "", targetPrice: "", yourAdvantage: "" });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "competitor-v2" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "competitor-v2", modelTier: "flash-lite" });
 
   const run = () => {
     if (!form.product.trim()) return;
@@ -341,7 +341,7 @@ Identify ALL competing brands with their strengths, weaknesses, pricing, distrib
             </div>
           )}
 
-          {tokensUsed && <AIStatusBar tokensUsed={tokensUsed} />}
+          {tokensUsed && <AIStatusBar tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />}
         </div>
       )}
     </div>

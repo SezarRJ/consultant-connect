@@ -30,7 +30,7 @@ const SYSTEM_PROMPT = `You are an Iraq market pricing expert. Respond ONLY with 
 
 export default function PricingIntelligence() {
   const [form, setForm] = useState({ product: "", category: "", currentPrice: "", origin: "" });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "pricing" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "pricing", modelTier: "flash-lite" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -58,7 +58,7 @@ Provide real-world accurate pricing data for Iraq market in 2025-2026.`);
       </div>
 
 
-      <AIStatusBar agentName="Pricing Agent" tokensUsed={tokensUsed} />
+      <AIStatusBar agentName="Pricing Agent" tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />
       <WebSearchPanel label="Live pricing & market rates" />
       {/* Form */}
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

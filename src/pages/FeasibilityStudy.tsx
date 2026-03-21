@@ -152,7 +152,7 @@ export default function FeasibilityStudy() {
     company:"", product:"", category:"", origin:"",
     targetPrice:"", annualCapacity:"", budget:"", timeline:"6 months", description:"",
   });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "feasibility-v2" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "feasibility-v2", modelTier: "flash", reasoningEffort: "high" });
 
   const run = () => {
     if (!form.product.trim()) return;
@@ -522,7 +522,7 @@ Be specific to Iraq market 2025-2026. Include real prices in USD and IQD, realis
             </div>
           )}
 
-          {tokensUsed && <AIStatusBar tokensUsed={tokensUsed}/>}
+          {tokensUsed && <AIStatusBar tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />}
         </div>
       )}
     </div>

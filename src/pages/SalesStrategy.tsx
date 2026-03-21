@@ -57,7 +57,7 @@ const SYSTEM_PROMPT = `You are an Iraq sales strategy expert specializing in FMC
 
 export default function SalesStrategy() {
   const [form, setForm] = useState({ product: "", category: "", budget: "Medium", existingChannels: "" });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "sales" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "sales", modelTier: "flash-lite" });
 
   const handleSubmit = () => {
     if (!form.product) return;
@@ -97,7 +97,7 @@ Focus on supermarket chains, wholesalers, cash van distribution, and e-commerce 
       </div>
 
 
-      <AIStatusBar agentName="Sales Strategy Agent" tokensUsed={tokensUsed} />
+      <AIStatusBar agentName="Sales Strategy Agent" tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />
       <WebSearchPanel label="Sales channels & distribution trends" />
 
       <div className="rounded-xl p-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

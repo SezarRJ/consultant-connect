@@ -57,6 +57,7 @@ function AgentTestPanel({ agent }: { agent: typeof AGENTS[0] }) {
   const { result, loading, error, analyze, rawText } = useClaudeAnalysis({
     systemPrompt: `You are the ${agent.name} for a consultancy platform. Specialization: ${agent.specialization}. Respond with structured JSON analysis.`,
     agentId: agent.id,
+    modelTier: "flash-lite",
   });
 
   const run = () => { if (prompt.trim()) analyze(prompt); };

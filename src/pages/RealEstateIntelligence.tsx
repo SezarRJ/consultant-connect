@@ -147,10 +147,10 @@ export default function RealEstateIntelligence() {
   const [projectInput, setProjectInput] = useState({ location: "", size: "", budget: "", scenario: "Mixed-use" as Scenario });
 
   // AI hooks for each engine
-  const locationAI    = useClaudeAnalysis({ systemPrompt: LOCATION_PROMPT,    agentId: "re-location"    });
-  const feasibilityAI = useClaudeAnalysis({ systemPrompt: FEASIBILITY_PROMPT, agentId: "re-feasibility" });
-  const sensitivityAI = useClaudeAnalysis({ systemPrompt: SENSITIVITY_PROMPT, agentId: "re-sensitivity" });
-  const decisionAI    = useClaudeAnalysis({ systemPrompt: DECISION_PROMPT,    agentId: "re-decision"    });
+  const locationAI    = useClaudeAnalysis({ systemPrompt: LOCATION_PROMPT,    agentId: "re-location",    modelTier: "flash-lite" });
+  const feasibilityAI = useClaudeAnalysis({ systemPrompt: FEASIBILITY_PROMPT, agentId: "re-feasibility", modelTier: "flash", reasoningEffort: "medium" });
+  const sensitivityAI = useClaudeAnalysis({ systemPrompt: SENSITIVITY_PROMPT, agentId: "re-sensitivity", modelTier: "flash" });
+  const decisionAI    = useClaudeAnalysis({ systemPrompt: DECISION_PROMPT,    agentId: "re-decision",    modelTier: "flash", reasoningEffort: "medium" });
 
   const runLocation = () => {
     if (!locationInput.trim()) return;
