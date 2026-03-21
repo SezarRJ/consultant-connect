@@ -61,7 +61,7 @@ export default function ExportReadiness() {
     product: "", category: "", origin: "",
     hasArabicLabel: "No", targetPrice: "", packaging: ""
   });
-  const { result, loading, error, analyze, tokensUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "export" });
+  const { result, loading, error, analyze, tokensUsed, responseTime, jsonValid, modelUsed } = useClaudeAnalysis({ systemPrompt: SYSTEM_PROMPT, agentId: "export", modelTier: "flash-lite" });
 
   const handleSubmit = () => {
     if (!form.product) return;
