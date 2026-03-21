@@ -463,7 +463,7 @@ export default function MarketIntelligence() {
             </div>
           )}
 
-          {tokensUsed && <AIStatusBar tokensUsed={tokensUsed}/>}
+          {tokensUsed && <AIStatusBar tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />}
         </div>
       )}
     </div>
