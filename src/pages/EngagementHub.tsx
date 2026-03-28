@@ -10,6 +10,7 @@ import {
   HealthStatus,
   Stakeholder,
 } from "@/store/engagementStore";
+import RequirementsPanel from "@/components/engagement/RequirementsPanel";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import {
   Briefcase, Users, Activity, FolderOpen, ClipboardList,
@@ -139,7 +140,7 @@ Produce a structured engagement brief with these sections:
 
 // ── Overview Tab ──────────────────────────────────────────────────
 function OverviewTab({ eng }: { eng: Engagement }) {
-  const { updateEngagement } = useEngagementStore();
+  const { updateEngagement, completePhase } = useEngagementStore();
   const [showBrief, setShowBrief] = useState(false);
   const phaseIdx = PHASES.indexOf(eng.phase);
 
@@ -199,6 +200,15 @@ function OverviewTab({ eng }: { eng: Engagement }) {
             <p className="text-xs font-medium" style={{ color: "hsl(210 40% 85%)" }}>{value || "—"}</p>
           </div>
         ))}
+      </div>
+
+      <RequirementsPanel eng={eng} />
+
+      <div className="flex justify-end">
+        <button onClick={() => completePhase(eng.id, eng.phase)} className="px-4 py-2 rounded-lg text-sm font-semibold"
+          style={{ background: "hsl(38 95% 52%)", color: "hsl(216 58% 6%)" }}>
+          Complete {eng.phase} and move forward
+        </button>
       </div>
 
       {/* Health + progress */}
@@ -359,7 +369,7 @@ function StakeholdersTab({ eng }: { eng: Engagement }) {
 
 // ── Tracker Tab ───────────────────────────────────────────────────
 function TrackerTab({ eng }: { eng: Engagement }) {
-  const { updateEngagement } = useEngagementStore();
+  const { updateEngagement, completePhase } = useEngagementStore();
   return (
     <div className="grid grid-cols-2 gap-4">
       {([

@@ -31,6 +31,7 @@ const BLANK: Omit<CRMContact, "id"|"createdAt"|"updatedAt"> = {
   estimatedBudget:"", urgency:"Medium", leadStatus:"New", nextActionDate:"",
   notes:"", tags:[], qualificationStatus:"Pending", qualificationNotes:"",
   clientNeed:"", businessProblem:"", decisionMaker:"", priorityLevel:"Medium", engagementId:null,
+  requestedOutputs:[], initialResourceNotes:[],
 };
 
 // ── Contact Card ──────────────────────────────────────────────────
@@ -141,6 +142,23 @@ function ContactDetail({ c, onEdit, onConvert, onDelete }: {
         </div>
       )}
 
+      {(c.requestedOutputs?.length || c.initialResourceNotes?.length) ? (
+        <div className="rounded-xl p-4 space-y-3" style={{ background: "hsl(216 45% 10%)", border: "1px solid hsl(216 45% 18%)" }}>
+          {c.requestedOutputs?.length ? <>
+            <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: "hsl(215 25% 40%)" }}>Requested Outputs</p>
+            <div className="flex flex-wrap gap-1.5">
+              {c.requestedOutputs.map((item) => <span key={item} className="text-[10px] px-2 py-1 rounded-full" style={{ background: "hsl(216 45% 16%)", color: "hsl(38 95% 60%)" }}>{item}</span>)}
+            </div>
+          </> : null}
+          {c.initialResourceNotes?.length ? <>
+            <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: "hsl(215 25% 40%)" }}>Initial Resources</p>
+            <div className="flex flex-wrap gap-1.5">
+              {c.initialResourceNotes.map((item) => <span key={item} className="text-[10px] px-2 py-1 rounded-full" style={{ background: "hsl(216 45% 16%)", color: "hsl(210 40% 78%)" }}>{item}</span>)}
+            </div>
+          </> : null}
+        </div>
+      ) : null}
+
       {c.notes && (
         <div className="rounded-xl p-4" style={{ background: "hsl(216 45% 10%)", border: "1px solid hsl(216 45% 18%)" }}>
           <p className="text-[10px] uppercase tracking-widest font-semibold mb-2" style={{ color: "hsl(215 25% 40%)" }}>Notes</p>
@@ -169,9 +187,11 @@ function ContactDetail({ c, onEdit, onConvert, onDelete }: {
 function ContactForm({ initial, onSave, onClose }: {
   initial?: Partial<CRMContact>; onSave: (d: any) => void; onClose: () => void;
 }) {
-  const [form, setForm] = useState({ ...BLANK, ...initial });
+  const [form, setForm] = useState({ ...BLANK, ...initial, requestedOutputs: initial?.requestedOutputs || [], initialResourceNotes: initial?.initialResourceNotes || [] });
   const f = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm((p) => ({ ...p, [k]: e.target.value }));
+  const arrayField = (k: "requestedOutputs" | "initialResourceNotes") => (e: React.ChangeEvent<HTMLTextAreaElement>) =>
+    setForm((p) => ({ ...p, [k]: e.target.value.split("\n").map((v) => v.trim()).filter(Boolean) }));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.7)" }}>
@@ -253,6 +273,26 @@ function ContactForm({ initial, onSave, onClose }: {
               style={{ background: "hsl(216 45% 12%)", color: "hsl(210 40% 88%)", border: "1px solid hsl(216 45% 22%)" }} />
           </div>
         ))}
+
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-[10px] font-semibold uppercase tracking-wider mb-1"
+              style={{ color: "hsl(215 25% 48%)" }}>Requested outputs / reports</label>
+            <textarea rows={4} value={(form.requestedOutputs || []).join("\n")} onChange={arrayField("requestedOutputs")}
+              placeholder="One per line: Sales Strategy&#10;Market Entry&#10;Executive Summary"
+              className="w-full rounded-md px-3 py-2 text-sm resize-none"
+              style={{ background: "hsl(216 45% 12%)", color: "hsl(210 40% 88%)", border: "1px solid hsl(216 45% 22%)" }} />
+          </div>
+          <div>
+            <label className="block text-[10px] font-semibold uppercase tracking-wider mb-1"
+              style={{ color: "hsl(215 25% 48%)" }}>Initial resources / documents</label>
+            <textarea rows={4} value={(form.initialResourceNotes || []).join("\n")} onChange={arrayField("initialResourceNotes")}
+              placeholder="One per line: company profile&#10;financial sheet&#10;previous market report"
+              className="w-full rounded-md px-3 py-2 text-sm resize-none"
+              style={{ background: "hsl(216 45% 12%)", color: "hsl(210 40% 88%)", border: "1px solid hsl(216 45% 22%)" }} />
+          </div>
+        </div>
 
         <div className="flex gap-2">
           <button onClick={() => onSave(form)}

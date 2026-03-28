@@ -2,7 +2,8 @@
  * AnalysisHub.tsx — 8 analysis tools with output chaining
  */
 import { useState } from "react";
-import { useEngagementStore, buildFullContext } from "@/store/engagementStore";
+import { useEngagementStore, buildFullContext, getEngagementReadiness } from "@/store/engagementStore";
+import RequirementsPanel from "@/components/engagement/RequirementsPanel";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import {
   TrendingUp, BarChart2, DollarSign, ShieldAlert,
@@ -78,6 +79,7 @@ function SubRunner({ sub }: { sub: Sub }) {
   const [saved,     setSaved]     = useState(false);
 
   const existing = eng?.outputs?.[sub.id];
+  const readiness = getEngagementReadiness(eng, eng?.phase);
   const priorAvailable = eng ? sub.priorTools.filter((id) => !!eng.outputs?.[id]) : [];
 
   const { analyze, loading, rawText } = useClaudeAnalysis({
@@ -101,6 +103,7 @@ Format:
   );
 
   const run = () => {
+    if (readiness === "Not Ready") return;
     const extrasStr = Object.entries(extras)
       .map(([k, v]) => v ? `${k}: ${v}` : "").filter(Boolean).join(". ");
     analyze(`Run ${sub.label} for this engagement. ${extrasStr} ${customCtx}`);
@@ -126,6 +129,8 @@ Format:
         )}
       </div>
 
+      <RequirementsPanel eng={eng} compact />
+
       <div className="rounded-xl p-4 space-y-3" style={{ background: "hsl(216 45% 10%)", border: "1px solid hsl(216 45% 18%)" }}>
         {sub.extraFields?.map((f) => (
           <div key={f.key}>
@@ -145,7 +150,7 @@ Format:
             style={{ background: "hsl(216 45% 14%)", color: "hsl(210 40% 88%)", border: "1px solid hsl(216 45% 22%)" }} />
         </div>
         <div className="flex gap-2">
-          <button onClick={run} disabled={loading}
+          <button onClick={run} disabled={loading || readiness === "Not Ready"}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
             style={{ background: "hsl(38 95% 52%)", color: "hsl(216 58% 6%)" }}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <sub.icon className="h-4 w-4" />}

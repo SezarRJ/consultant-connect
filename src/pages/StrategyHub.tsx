@@ -2,7 +2,8 @@
  * StrategyHub.tsx — Strategy tools that consume Analysis outputs
  */
 import { useState } from "react";
-import { useEngagementStore, buildFullContext } from "@/store/engagementStore";
+import { useEngagementStore, buildFullContext, getEngagementReadiness } from "@/store/engagementStore";
+import RequirementsPanel from "@/components/engagement/RequirementsPanel";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import {
   Lightbulb, BarChart2, Zap, Handshake, BookOpen,
@@ -53,6 +54,7 @@ function SubRunner({ sub }: { sub: typeof SUBS[0] }) {
 
   const priorAvailable = eng ? sub.priorTools.filter((id) => !!eng.outputs?.[id]) : [];
   const existing = eng?.outputs?.[sub.id];
+  const readiness = getEngagementReadiness(eng, eng?.phase);
 
   const { analyze, loading, rawText } = useClaudeAnalysis({
     modelTier: sub.tier,
@@ -76,6 +78,7 @@ Produce a structured strategic output with:
   );
 
   const run = () => {
+    if (readiness === "Not Ready") return;
     const fw = sub.id === "workshop" ? `Use the ${framework} framework. ` : "";
     analyze(`${fw}${sub.label} for this engagement. ${extra}`);
     setSaved(false);
@@ -101,6 +104,8 @@ Produce a structured strategic output with:
           </span>
         )}
       </div>
+
+      <RequirementsPanel eng={eng} compact />
 
       <div className="rounded-xl p-4 space-y-3"
         style={{ background: "hsl(216 45% 10%)", border: "1px solid hsl(216 45% 18%)" }}>
@@ -130,7 +135,7 @@ Produce a structured strategic output with:
             style={{ background: "hsl(216 45% 14%)", color: "hsl(210 40% 88%)", border: "1px solid hsl(216 45% 22%)" }} />
         </div>
         <div className="flex gap-2">
-          <button onClick={run} disabled={loading}
+          <button onClick={run} disabled={loading || readiness === "Not Ready"}
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-50"
             style={{ background: "hsl(38 95% 52%)", color: "hsl(216 58% 6%)" }}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <sub.icon className="h-4 w-4" />}
