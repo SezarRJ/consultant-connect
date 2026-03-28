@@ -1,5 +1,6 @@
 /**
  * App.tsx — ConsultAI Pro v2
+ * GitHub sync verified: 2026-03-28
  * ─────────────────────────────────────────────────────────────────
  * Full routing:
  *   / Workflow hubs (CRM → Engagement → Analysis → Strategy → Deliverables)
