@@ -1,3 +1,11 @@
+/**
+ * App.tsx
+ * ─────────────────────────────────────────────────────────────────
+ * Redesigned routing: 5 hub pages replace 30+ scattered routes.
+ * Legacy deep-link pages are kept for backward compatibility and
+ * are reachable via Practice Ops hub jump links.
+ * ─────────────────────────────────────────────────────────────────
+ */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -6,55 +14,31 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { I18nProvider } from "@/lib/i18n";
 import { AppLayout } from "@/components/layout/AppLayout";
 
-// ── Core Pages ────────────────────────────────────────────────────────────────
-import Dashboard from "./pages/Dashboard";
-import Settings from "./pages/Settings";
-import NotFound from "./pages/NotFound";
+// ── Hub pages (new architecture) ──────────────────────────────────
+import Dashboard      from "./pages/Dashboard";
+import EngagementHub  from "./pages/EngagementHub";
+import AnalysisHub    from "./pages/AnalysisHub";
+import StrategyHub    from "./pages/StrategyHub";
+import DeliverablesHub from "./pages/DeliverablesHub";
+import PracticeOpsHub from "./pages/PracticeOpsHub";
 
-// ── Client & Project Management ───────────────────────────────────────────────
-import Projects from "./pages/Projects";
-import Tasks from "./pages/Tasks";
-import CRM from "./pages/CRM";
-import DocumentHub from "./pages/DocumentHub";
-import Deliverables from "./pages/Deliverables";
+// ── Legacy pages kept for deep-link compatibility ─────────────────
+import CRM                   from "./pages/CRM";
+import Projects              from "./pages/Projects";
+import Tasks                 from "./pages/Tasks";
+import FinancialOverview     from "./pages/FinancialOverview";
+import Settings              from "./pages/Settings";
+import DocumentHub           from "./pages/DocumentHub";
+import AIAssistant           from "./pages/AIAssistant";
+import Agents                from "./pages/Agents";
 
-// ── Advisory Services (AI Agents) ─────────────────────────────────────────────
-import MarketEntry from "./pages/MarketEntry";
-import DistributorFinder from "./pages/DistributorFinder";
-import CompetitorAnalysis from "./pages/CompetitorAnalysis";
-import PricingIntelligence from "./pages/PricingIntelligence";
-import RiskAssessment from "./pages/RiskAssessment";
-import PartnerMatchmaking from "./pages/PartnerMatchmaking";
-import SalesStrategy from "./pages/SalesStrategy";
-import ExportReadiness from "./pages/ExportReadiness";
-import FeasibilityStudy from "./pages/FeasibilityStudy";
-
-// ── Intelligence & Research ───────────────────────────────────────────────────
-import MarketIntelligence from "./pages/MarketIntelligence";
-import AIAssistant from "./pages/AIAssistant";
-import Agents from "./pages/Agents";
-import Knowledge from "./pages/Knowledge";
-
-// ── Revenue & Business Dev ────────────────────────────────────────────────────
-import ProposalBuilder from "./pages/ProposalBuilder";
-import FinancialOverview from "./pages/FinancialOverview";
-import ReportGenerator from "./pages/ReportGenerator";
-
-// ── Premium Modules ───────────────────────────────────────────────────────────
+// ── Optional specialist modules (hidden from main nav) ────────────
 import RealEstateIntelligence from "./pages/RealEstateIntelligence";
-import ServiceModules from "./pages/ServiceModules";
-import CompanyDevelopment from "./pages/CompanyDevelopment";
-import ISOPreparation from "./pages/ISOPreparation";
+import ISOPreparation         from "./pages/ISOPreparation";
+import CompanyDevelopment     from "./pages/CompanyDevelopment";
+import ServiceModules         from "./pages/ServiceModules";
 
-// ── NEW: Enhanced Consultancy Pages ───────────────────────────────────────────
-import EngagementTracker from "./pages/EngagementTracker";
-import ClientBriefing from "./pages/ClientBriefing";
-import StrategyWorkshop from "./pages/StrategyWorkshop";
-import BenchmarkingTool from "./pages/BenchmarkingTool";
-import StakeholderMapper from "./pages/StakeholderMapper";
-import ExecutiveDashboard from "./pages/ExecutiveDashboard";
-import InsightsFeed from "./pages/InsightsFeed";
-import PlaybookLibrary from "./pages/PlaybookLibrary";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -72,63 +56,49 @@ const App = () => (
           <Routes>
             <Route element={<AppLayout />}>
 
-              {/* ── Core ── */}
-              <Route path="/"                           element={<Dashboard />} />
-              <Route path="/executive"                  element={<ExecutiveDashboard />} />
-              <Route path="/settings"                   element={<Settings />} />
+              {/* ── Main workspace ── */}
+              <Route path="/"               element={<Dashboard />} />
 
-              {/* ── Client & Engagement Management ── */}
-              <Route path="/projects"                   element={<Projects />} />
-              <Route path="/tasks"                      element={<Tasks />} />
-              <Route path="/crm"                        element={<CRM />} />
-              <Route path="/documents"                  element={<DocumentHub />} />
-              <Route path="/deliverables"               element={<Deliverables />} />
-              <Route path="/engagement-tracker"         element={<EngagementTracker />} />
-              <Route path="/client-briefing"            element={<ClientBriefing />} />
+              {/* ── 5 Service hubs ── */}
+              <Route path="/engagement"     element={<EngagementHub />} />
+              <Route path="/analysis"       element={<AnalysisHub />} />
+              <Route path="/strategy"       element={<StrategyHub />} />
+              <Route path="/deliverables"   element={<DeliverablesHub />} />
+              <Route path="/practice-ops"   element={<PracticeOpsHub />} />
 
-              {/* ── Advisory Services (AI Agents) ── */}
-              <Route path="/market-entry"               element={<MarketEntry />} />
-              <Route path="/distributor-finder"         element={<DistributorFinder />} />
-              <Route path="/competitor-analysis"        element={<CompetitorAnalysis />} />
-              <Route path="/pricing-intelligence"       element={<PricingIntelligence />} />
-              <Route path="/risk-assessment"            element={<RiskAssessment />} />
-              <Route path="/partner-matchmaking"        element={<PartnerMatchmaking />} />
-              <Route path="/sales-strategy"             element={<SalesStrategy />} />
-              <Route path="/export-readiness"           element={<ExportReadiness />} />
-              <Route path="/feasibility-study"          element={<FeasibilityStudy />} />
+              {/* ── Practice ops deep links ── */}
+              <Route path="/crm"            element={<CRM />} />
+              <Route path="/projects"       element={<Projects />} />
+              <Route path="/tasks"          element={<Tasks />} />
+              <Route path="/financial"      element={<FinancialOverview />} />
+              <Route path="/documents"      element={<DocumentHub />} />
 
-              {/* ── Intelligence & Research ── */}
-              <Route path="/market-intelligence"        element={<MarketIntelligence />} />
-              <Route path="/ai-assistant"               element={<AIAssistant />} />
-              <Route path="/agents"                     element={<Agents />} />
-              <Route path="/knowledge"                  element={<Knowledge />} />
-              <Route path="/insights"                   element={<InsightsFeed />} />
+              {/* ── Intelligence / tools ── */}
+              <Route path="/ai-assistant"   element={<AIAssistant />} />
+              <Route path="/agents"         element={<Agents />} />
 
-              {/* ── Strategy & Frameworks ── */}
-              <Route path="/strategy-workshop"          element={<StrategyWorkshop />} />
-              <Route path="/benchmarking"               element={<BenchmarkingTool />} />
-              <Route path="/stakeholder-mapper"         element={<StakeholderMapper />} />
-              <Route path="/playbooks"                  element={<PlaybookLibrary />} />
+              {/* ── System ── */}
+              <Route path="/settings"       element={<Settings />} />
 
-              {/* ── Revenue & Business Dev ── */}
-              <Route path="/proposals"                  element={<ProposalBuilder />} />
-              <Route path="/financial"                  element={<FinancialOverview />} />
-              <Route path="/reports"                    element={<ReportGenerator />} />
+              {/* ── Optional specialist modules (not in sidebar) ── */}
+              <Route path="/real-estate-intelligence" element={<RealEstateIntelligence />} />
+              <Route path="/iso-preparation"          element={<ISOPreparation />} />
+              <Route path="/company-development"      element={<CompanyDevelopment />} />
+              <Route path="/service-modules"          element={<ServiceModules />} />
 
-              {/* ── Premium Modules ── */}
-              <Route path="/real-estate-intelligence"   element={<RealEstateIntelligence />} />
-              <Route path="/service-modules"            element={<ServiceModules />} />
-              <Route path="/company-development"        element={<CompanyDevelopment />} />
-              <Route path="/iso-preparation"            element={<ISOPreparation />} />
-
-              {/* ── Service Module Deep Links ── */}
-              <Route path="/fmcg-intelligence"          element={<ServiceModules />} />
-              <Route path="/sales-distribution"         element={<ServiceModules />} />
-              <Route path="/fb-consulting"              element={<ServiceModules />} />
-              <Route path="/marketing-intelligence"     element={<ServiceModules />} />
-              <Route path="/manufacturing-module"       element={<ServiceModules />} />
-              <Route path="/telecom-module"             element={<ServiceModules />} />
-              <Route path="/business-development"       element={<ServiceModules />} />
+              {/* ── Legacy advisory routes (redirect traffic from old bookmarks) ── */}
+              <Route path="/market-entry"         element={<AnalysisHub />} />
+              <Route path="/competitor-analysis"  element={<AnalysisHub />} />
+              <Route path="/pricing-intelligence" element={<AnalysisHub />} />
+              <Route path="/risk-assessment"      element={<AnalysisHub />} />
+              <Route path="/distributor-finder"   element={<AnalysisHub />} />
+              <Route path="/export-readiness"     element={<AnalysisHub />} />
+              <Route path="/feasibility-study"    element={<AnalysisHub />} />
+              <Route path="/market-intelligence"  element={<AnalysisHub />} />
+              <Route path="/sales-strategy"       element={<StrategyHub />} />
+              <Route path="/partner-matchmaking"  element={<StrategyHub />} />
+              <Route path="/proposals"            element={<DeliverablesHub />} />
+              <Route path="/reports"              element={<DeliverablesHub />} />
 
             </Route>
             <Route path="*" element={<NotFound />} />
