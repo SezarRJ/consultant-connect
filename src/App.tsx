@@ -1,44 +1,51 @@
 /**
- * App.tsx
+ * App.tsx — ConsultAI Pro v2
  * ─────────────────────────────────────────────────────────────────
- * Redesigned routing: 5 hub pages replace 30+ scattered routes.
- * Legacy deep-link pages are kept for backward compatibility and
- * are reachable via Practice Ops hub jump links.
+ * Full routing:
+ *   / Workflow hubs (CRM → Engagement → Analysis → Strategy → Deliverables)
+ *   / Domain modules (/domain/:domain)
+ *   / Practice Ops (CRM, Projects, Tasks, Financial, Documents)
+ *   / Specialist modules (ISO, Company Dev, Real Estate, Service Modules)
+ *   / Intelligence tools (AI Assistant, Agents)
+ *   / Legacy routes → redirect to correct hub (backward compat)
  * ─────────────────────────────────────────────────────────────────
  */
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { I18nProvider } from "@/lib/i18n";
 import { AppLayout } from "@/components/layout/AppLayout";
 
-// ── Hub pages (new architecture) ──────────────────────────────────
-import Dashboard      from "./pages/Dashboard";
-import EngagementHub  from "./pages/EngagementHub";
-import AnalysisHub    from "./pages/AnalysisHub";
-import StrategyHub    from "./pages/StrategyHub";
+// ── New hub pages ──────────────────────────────────────────────────
+import Dashboard       from "./pages/Dashboard";
+import CRMPage         from "./pages/CRM";
+import EngagementHub   from "./pages/EngagementHub";
+import AnalysisHub     from "./pages/AnalysisHub";
+import StrategyHub     from "./pages/StrategyHub";
 import DeliverablesHub from "./pages/DeliverablesHub";
-import PracticeOpsHub from "./pages/PracticeOpsHub";
+import DomainHub       from "./pages/DomainHub";
 
-// ── Legacy pages kept for deep-link compatibility ─────────────────
-import CRM                   from "./pages/CRM";
-import Projects              from "./pages/Projects";
-import Tasks                 from "./pages/Tasks";
-import FinancialOverview     from "./pages/FinancialOverview";
-import Settings              from "./pages/Settings";
-import DocumentHub           from "./pages/DocumentHub";
-import AIAssistant           from "./pages/AIAssistant";
-import Agents                from "./pages/Agents";
+// ── Practice Ops (kept as standalone full pages) ────────────────────
+import Projects        from "./pages/Projects";
+import Tasks           from "./pages/Tasks";
+import FinancialOverview from "./pages/FinancialOverview";
+import DocumentHub     from "./pages/DocumentHub";
 
-// ── Optional specialist modules (hidden from main nav) ────────────
+// ── Intelligence ────────────────────────────────────────────────────
+import AIAssistant     from "./pages/AIAssistant";
+import Agents          from "./pages/Agents";
+
+// ── Specialist modules ──────────────────────────────────────────────
+import ISOPreparation      from "./pages/ISOPreparation";
+import CompanyDevelopment  from "./pages/CompanyDevelopment";
 import RealEstateIntelligence from "./pages/RealEstateIntelligence";
-import ISOPreparation         from "./pages/ISOPreparation";
-import CompanyDevelopment     from "./pages/CompanyDevelopment";
-import ServiceModules         from "./pages/ServiceModules";
+import ServiceModules      from "./pages/ServiceModules";
 
-import NotFound from "./pages/NotFound";
+// ── System ──────────────────────────────────────────────────────────
+import Settings        from "./pages/Settings";
+import NotFound        from "./pages/NotFound";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -56,49 +63,59 @@ const App = () => (
           <Routes>
             <Route element={<AppLayout />}>
 
-              {/* ── Main workspace ── */}
-              <Route path="/"               element={<Dashboard />} />
+              {/* ── Dashboard ── */}
+              <Route path="/"              element={<Dashboard />} />
 
-              {/* ── 5 Service hubs ── */}
-              <Route path="/engagement"     element={<EngagementHub />} />
-              <Route path="/analysis"       element={<AnalysisHub />} />
-              <Route path="/strategy"       element={<StrategyHub />} />
-              <Route path="/deliverables"   element={<DeliverablesHub />} />
-              <Route path="/practice-ops"   element={<PracticeOpsHub />} />
+              {/* ── Core workflow hubs ── */}
+              <Route path="/crm"           element={<CRMPage />} />
+              <Route path="/engagement"    element={<EngagementHub />} />
+              <Route path="/analysis"      element={<AnalysisHub />} />
+              <Route path="/strategy"      element={<StrategyHub />} />
+              <Route path="/deliverables"  element={<DeliverablesHub />} />
 
-              {/* ── Practice ops deep links ── */}
-              <Route path="/crm"            element={<CRM />} />
-              <Route path="/projects"       element={<Projects />} />
-              <Route path="/tasks"          element={<Tasks />} />
-              <Route path="/financial"      element={<FinancialOverview />} />
-              <Route path="/documents"      element={<DocumentHub />} />
+              {/* ── Domain modules ── */}
+              <Route path="/domain/:domain" element={<DomainHub />} />
 
-              {/* ── Intelligence / tools ── */}
-              <Route path="/ai-assistant"   element={<AIAssistant />} />
-              <Route path="/agents"         element={<Agents />} />
+              {/* ── Practice Ops ── */}
+              <Route path="/projects"      element={<Projects />} />
+              <Route path="/tasks"         element={<Tasks />} />
+              <Route path="/financial"     element={<FinancialOverview />} />
+              <Route path="/documents"     element={<DocumentHub />} />
 
-              {/* ── System ── */}
-              <Route path="/settings"       element={<Settings />} />
+              {/* ── Intelligence tools ── */}
+              <Route path="/ai-assistant"  element={<AIAssistant />} />
+              <Route path="/agents"        element={<Agents />} />
 
-              {/* ── Optional specialist modules (not in sidebar) ── */}
-              <Route path="/real-estate-intelligence" element={<RealEstateIntelligence />} />
+              {/* ── Specialist modules (not in main nav) ── */}
               <Route path="/iso-preparation"          element={<ISOPreparation />} />
               <Route path="/company-development"      element={<CompanyDevelopment />} />
+              <Route path="/real-estate-intelligence"  element={<RealEstateIntelligence />} />
               <Route path="/service-modules"          element={<ServiceModules />} />
 
-              {/* ── Legacy advisory routes (redirect traffic from old bookmarks) ── */}
-              <Route path="/market-entry"         element={<AnalysisHub />} />
-              <Route path="/competitor-analysis"  element={<AnalysisHub />} />
-              <Route path="/pricing-intelligence" element={<AnalysisHub />} />
-              <Route path="/risk-assessment"      element={<AnalysisHub />} />
-              <Route path="/distributor-finder"   element={<AnalysisHub />} />
-              <Route path="/export-readiness"     element={<AnalysisHub />} />
-              <Route path="/feasibility-study"    element={<AnalysisHub />} />
-              <Route path="/market-intelligence"  element={<AnalysisHub />} />
-              <Route path="/sales-strategy"       element={<StrategyHub />} />
-              <Route path="/partner-matchmaking"  element={<StrategyHub />} />
-              <Route path="/proposals"            element={<DeliverablesHub />} />
-              <Route path="/reports"              element={<DeliverablesHub />} />
+              {/* ── System ── */}
+              <Route path="/settings"      element={<Settings />} />
+
+              {/* ── Legacy redirects (old deep-link bookmarks → correct hub) ── */}
+              <Route path="/market-entry"         element={<Navigate to="/analysis" replace />} />
+              <Route path="/competitor-analysis"  element={<Navigate to="/analysis" replace />} />
+              <Route path="/pricing-intelligence" element={<Navigate to="/analysis" replace />} />
+              <Route path="/risk-assessment"      element={<Navigate to="/analysis" replace />} />
+              <Route path="/distributor-finder"   element={<Navigate to="/analysis" replace />} />
+              <Route path="/export-readiness"     element={<Navigate to="/analysis" replace />} />
+              <Route path="/feasibility-study"    element={<Navigate to="/analysis" replace />} />
+              <Route path="/market-intelligence"  element={<Navigate to="/analysis" replace />} />
+              <Route path="/sales-strategy"       element={<Navigate to="/strategy" replace />} />
+              <Route path="/partner-matchmaking"  element={<Navigate to="/strategy" replace />} />
+              <Route path="/proposals"            element={<Navigate to="/deliverables" replace />} />
+              <Route path="/reports"              element={<Navigate to="/deliverables" replace />} />
+              <Route path="/practice-ops"         element={<Navigate to="/" replace />} />
+              <Route path="/fmcg-intelligence"    element={<Navigate to="/domain/fmcg" replace />} />
+              <Route path="/sales-distribution"   element={<Navigate to="/domain/sales" replace />} />
+              <Route path="/fb-consulting"        element={<Navigate to="/domain/fnb" replace />} />
+              <Route path="/marketing-intelligence" element={<Navigate to="/domain/marketing" replace />} />
+              <Route path="/manufacturing-module" element={<Navigate to="/domain/fmcg" replace />} />
+              <Route path="/telecom-module"       element={<Navigate to="/domain/telecom" replace />} />
+              <Route path="/business-development" element={<Navigate to="/domain/bizdev" replace />} />
 
             </Route>
             <Route path="*" element={<NotFound />} />
