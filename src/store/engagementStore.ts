@@ -50,7 +50,22 @@ export interface Engagement {
 }
 
 // ── Sample CRM data ────────────────────────────────────────────────
+const SEEDED_CONTACT_ID = "c_demo";
+const SEEDED_ENGAGEMENT_ID = "eng_demo";
+
 const SAMPLE_CONTACTS: CRMContact[] = [
+  { id:SEEDED_CONTACT_ID, fullName:"Razan Al-Hadithi", jobTitle:"Commercial Director", email:"razan@mesopotamiafoods.iq",
+    phone:"+964 780 555 0101", country:"Iraq", companyName:"Mesopotamia Foods Co.",
+    industry:"Food & Beverage", sector:"FMCG Distribution", leadSource:"Referral",
+    interestedService:"Sales Strategy", estimatedBudget:"$35,000", urgency:"High",
+    leadStatus:"Active Client", nextActionDate:"2026-04-05",
+    notes:"Seeded test contact for AI workflow QA. Use this record to test Sales Strategy, Market Entry, Competitor Analysis, and engagement-dependent deliverables.",
+    tags:["Demo","QA","FMCG","Iraq"], qualificationStatus:"Qualified",
+    qualificationNotes:"Approved for internal testing. Treat as a live commercial expansion engagement.",
+    clientNeed:"Expand modern trade coverage in Baghdad, Basra, and Erbil while preparing for selective GCC export opportunities.",
+    businessProblem:"Low supermarket penetration, fragmented distributor coverage, and inconsistent channel strategy across Iraq.",
+    decisionMaker:"Razan Al-Hadithi", priorityLevel:"High", engagementId:SEEDED_ENGAGEMENT_ID,
+    createdAt:"2026-03-20", updatedAt:"2026-03-28" },
   { id:"c1", fullName:"James Mitchell", jobTitle:"VP Sales MENA", email:"j.mitchell@unilever.com",
     phone:"+964 770 100 0001", country:"Iraq", companyName:"Unilever Iraq",
     industry:"FMCG", sector:"Consumer Goods", leadSource:"Referral",
@@ -92,6 +107,76 @@ const SAMPLE_CONTACTS: CRMContact[] = [
     priorityLevel:"Low", engagementId:null, createdAt:"2025-09-10", updatedAt:"2026-02-01" },
 ];
 
+const SEEDED_ENGAGEMENT: Engagement = {
+  id: SEEDED_ENGAGEMENT_ID,
+  name: "Mesopotamia Foods — Iraq Growth Sprint",
+  contactId: SEEDED_CONTACT_ID,
+  clientName: "Razan Al-Hadithi",
+  companyName: "Mesopotamia Foods Co.",
+  industry: "Food & Beverage",
+  sector: "FMCG Distribution",
+  market: "Iraq",
+  serviceType: "Sales Strategy",
+  budget: "$35,000",
+  startDate: "2026-03-28",
+  endDate: "2026-06-30",
+  timeline: "90-day commercial acceleration sprint",
+  objectives: "Increase modern trade listings, rationalise channel coverage, define an Iraq go-to-market plan, and prepare for selective GCC export readiness.",
+  scope: "Baghdad, Basra, Erbil and selected Iraq-wide distributor channels with export-readiness review for UAE and Kuwait.",
+  constraints: "Limited field sales team, uneven distributor performance, price pressure from regional competitors, and tight launch calendar before summer season.",
+  risks: "Channel conflict, distributor concentration risk, promotional overspend, and delayed retail onboarding.",
+  internalNotes: "Seeded from CRM to support QA across engagement-driven tools.",
+  priority: "High",
+  phase: "Analysis",
+  status: "Active",
+  health: "On Track",
+  progress: 35,
+  stakeholders: [
+    {
+      id: "sh_demo_1",
+      name: "Razan Al-Hadithi",
+      position: "Commercial Director",
+      company: "Mesopotamia Foods Co.",
+      role: "Decision Maker",
+      influence: "High",
+      stance: "Champion",
+      contactDetails: "razan@mesopotamiafoods.iq | +964 780 555 0101",
+      notes: "Owns go-to-market decisions and trade budget approval.",
+      nextStep: "Review first-pass sales strategy and approve priority channels."
+    },
+    {
+      id: "sh_demo_2",
+      name: "Ahmed Al-Samarrai",
+      position: "National Sales Manager",
+      company: "Mesopotamia Foods Co.",
+      role: "Champion",
+      influence: "High",
+      stance: "Supporter",
+      contactDetails: "Internal stakeholder",
+      notes: "Provides field coverage and distributor performance data.",
+      nextStep: "Validate territory plan and city-by-city rollout assumptions."
+    }
+  ],
+  outputs: {
+    briefing: {
+      toolId: "briefing",
+      toolLabel: "Client Briefing",
+      phase: "Discovery",
+      createdAt: "2026-03-28T08:00:00.000Z",
+      content: "Client context: Mesopotamia Foods Co. is an Iraq-focused FMCG player seeking stronger supermarket penetration and a more disciplined channel strategy across Baghdad, Basra, and Erbil. The engagement should prioritise route-to-market design, modern trade listing strategy, distributor rationalisation, and export-readiness for selective GCC markets."
+    },
+    intelligence: {
+      toolId: "intelligence",
+      toolLabel: "Market Intelligence",
+      phase: "Analysis",
+      createdAt: "2026-03-28T08:30:00.000Z",
+      content: "Initial market signal: premium and convenience food categories continue to benefit from urban retail modernisation in Iraq, but execution depends on reliable distributor coverage, shelf visibility, and disciplined trade promotions. Decision support should compare direct modern trade expansion versus hybrid distributor-led coverage."
+    }
+  },
+  createdAt: "2026-03-28T07:45:00.000Z",
+  updatedAt: "2026-03-28T08:30:00.000Z",
+};
+
 // ── Store ─────────────────────────────────────────────────────────
 interface StoreType {
   contacts: CRMContact[];
@@ -119,8 +204,8 @@ export const useEngagementStore = create<StoreType>()(
   persist(
     (set, get) => ({
       contacts: SAMPLE_CONTACTS,
-      engagements: [],
-      activeEngagementId: null,
+      engagements: [SEEDED_ENGAGEMENT],
+      activeEngagementId: SEEDED_ENGAGEMENT_ID,
 
       createContact: (d) => {
         const id = `c_${Date.now()}`;
@@ -214,7 +299,30 @@ export const useEngagementStore = create<StoreType>()(
         return Object.values(eng?.outputs ?? {}).filter((o) => o.phase===phase);
       },
     }),
-    { name:"consultai-v2" }
+    {
+      name:"consultai-v2",
+      merge: (persistedState, currentState) => {
+        const persisted = (persistedState as Partial<StoreType>) || {};
+        const persistedContacts = Array.isArray(persisted.contacts) ? persisted.contacts : currentState.contacts;
+        const persistedEngagements = Array.isArray(persisted.engagements) ? persisted.engagements : currentState.engagements;
+
+        const contacts = persistedContacts.some((c) => c.id === SEEDED_CONTACT_ID)
+          ? persistedContacts
+          : [...persistedContacts, currentState.contacts.find((c) => c.id === SEEDED_CONTACT_ID)!];
+
+        const engagements = persistedEngagements.some((e) => e.id === SEEDED_ENGAGEMENT_ID)
+          ? persistedEngagements
+          : [...persistedEngagements, SEEDED_ENGAGEMENT];
+
+        return {
+          ...currentState,
+          ...persisted,
+          contacts,
+          engagements,
+          activeEngagementId: persisted.activeEngagementId || SEEDED_ENGAGEMENT_ID,
+        };
+      },
+    }
   )
 );
 
