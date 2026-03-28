@@ -303,7 +303,7 @@ export default function Settings() {
       const newCfg = { ...aiCfg, anthropicKey: entry.key };
       setAiCfg(newCfg);
       saveAIConfig(newCfg);
-      toast.success(`"${entry.name}" applied as active Anthropic key`);
+      toast.success(`"${entry.name}" applied as the primary AI runtime`);
     } else if (entry.provider === "perplexity") {
       const newCfg = { ...aiCfg, perplexityKey: entry.key };
       setAiCfg(newCfg);
@@ -361,7 +361,7 @@ export default function Settings() {
   };
 
   const PROVIDER_OPTIONS = [
-    { value:"anthropic",      label:"Anthropic Claude"   },
+    { value:"anthropic",      label:"Gemini via Lovable"   },
     { value:"perplexity",     label:"Perplexity AI"       },
     { value:"tavily",         label:"Tavily Search"       },
     { value:"openai",         label:"OpenAI"              },
@@ -374,7 +374,7 @@ export default function Settings() {
   ];
 
   const tabs: { key: Tab; label: string; icon: React.ElementType; highlight?: boolean; badge?: string }[] = [
-    { key:"ai_keys",      label:"AI & Keys",    icon:Cpu,       highlight:!aiCfg.anthropicKey, badge: apiKeys.length > 0 ? String(apiKeys.length) : undefined },
+    { key:"ai_keys",      label:"AI & Keys",    icon:Cpu,       highlight:false, badge: apiKeys.length > 0 ? String(apiKeys.length) : undefined },
     { key:"re_tools",     label:"RE Tools",     icon:Building2, badge: reTools.filter(t => t.status === "connected" || t.status === "configured").length > 0 ? "✓" : undefined },
     { key:"language",     label:t.tab_language, icon:Languages  },
     { key:"integrations", label:"Integrations", icon:Plug       },
@@ -440,18 +440,18 @@ export default function Settings() {
             <div className="flex items-center gap-2">
               <Star className="h-5 w-5" style={{ color:"hsl(38 95% 52%)" }}/>
               <div>
-                <h2 className="text-base font-bold font-display" style={{ color:"hsl(210 40% 90%)" }}>Primary AI Engine</h2>
+                <h2 className="text-base font-bold font-display" style={{ color:"hsl(210 40% 90%)" }}>Primary AI Runtime</h2>
                 <p className="text-xs mt-0.5" style={{ color:"hsl(215 25% 55%)" }}>
-                  Choose the main AI model that powers all agents and analyses. Configure API keys, models, and sub-tools below.
+                  Review the actual AI runtime used by the app. Advisory agents run through the Lovable AI Gateway with Gemini model tiers, while optional external tools can still be configured below.
                 </p>
               </div>
             </div>
 
             {/* Provider cards */}
             {[
-              { id:"anthropic" as const, icon:"🧠", name:"Anthropic Claude", color:"hsl(38 95% 60%)",
-                desc:"Primary AI engine for all 9 advisory agents. Best for structured outputs, JSON analysis and complex reasoning.",
-                kField:"anthropicKey" as keyof AIConfig, kp:"sk-ant-api03-...", docs:"https://console.anthropic.com/",
+              { id:"anthropic" as const, icon:"✨", name:"Gemini via Lovable AI Gateway", color:"hsl(38 95% 60%)",
+                desc:"Actual in-app runtime. Supabase edge functions call the Lovable AI Gateway, which routes advisory workloads to Gemini flash-lite, flash, and pro tiers.",
+                kField:"anthropicKey" as keyof AIConfig, kp:"Managed server-side", docs:"https://lovable.dev/",
                 models:ANTHROPIC_MODELS, activeM: aiCfg.anthropicModel, setM:(id:string)=>updateAiCfg({anthropicModel:id as AnthropicModel}) },
               { id:"openai" as const, icon:"🤖", name:"OpenAI GPT-4o", color:"hsl(158 64% 55%)",
                 desc:"Alternative primary engine. Excellent for vision tasks, code generation and broad reasoning.",
@@ -468,8 +468,9 @@ export default function Settings() {
                 kField:"" as keyof AIConfig, kp:"", docs:"", models:[], activeM:"", setM:(_:string)=>{} },
             ].map(prov => {
               const isMain = ((aiCfg as any).primaryProvider||"anthropic") === prov.id;
+              const isManagedGateway = prov.id === "anthropic";
               const kv = prov.kField ? ((aiCfg[prov.kField] as string)||"") : "";
-              const hasKey = prov.id==="custom" ? !!(aiCfg as any).customProviderName : !!kv;
+              const hasKey = prov.id==="custom" ? !!(aiCfg as any).customProviderName : (isManagedGateway ? true : !!kv);
               return (
                 <div key={prov.id} className="rounded-xl overflow-hidden"
                   style={{ border:`2px solid ${isMain?prov.color+"55":"hsl(var(--border))"}`, background:isMain?prov.color+"06":"hsl(216 45% 11%)" }}>
@@ -480,7 +481,7 @@ export default function Settings() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-bold text-sm" style={{ color:"hsl(210 40% 92%)" }}>{prov.name}</span>
                         {isMain && <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background:prov.color+"20", color:prov.color }}>★ PRIMARY</span>}
-                        {hasKey && <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background:"hsl(158 64% 40%/0.15)", color:"hsl(158 64% 55%)" }}>✓ Key set</span>}
+                        {hasKey && <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background:"hsl(158 64% 40%/0.15)", color:"hsl(158 64% 55%)" }}>{isManagedGateway ? "✓ Managed" : "✓ Key set"}</span>}
                       </div>
                       <p className="text-xs mt-0.5" style={{ color:"hsl(215 25% 55%)" }}>{prov.desc}</p>
                     </div>
@@ -497,24 +498,23 @@ export default function Settings() {
                     <div className="px-5 pb-5 space-y-4" style={{ borderTop:"1px solid hsl(var(--border))" }}>
                       <div className="pt-4">
                         <div className="flex items-center justify-between mb-1.5">
-                          <label className="text-[11px] font-semibold uppercase tracking-wider" style={{ color:"hsl(215 25% 50%)" }}>API Key</label>
-                          {prov.docs && <a href={prov.docs} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[10px]" style={{ color:"hsl(217 91% 65%)" }}>Get key <ExternalLink className="h-2.5 w-2.5"/></a>}
+                          <label className="text-[11px] font-semibold uppercase tracking-wider" style={{ color:"hsl(215 25% 50%)" }}>{isManagedGateway ? "Runtime Status" : "API Key"}</label>
+                          {prov.docs && <a href={prov.docs} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-[10px]" style={{ color:"hsl(217 91% 65%)" }}>{isManagedGateway ? "View integration" : "Get key"} <ExternalLink className="h-2.5 w-2.5"/></a>}
                         </div>
-                        <div className="relative">
-                          <input type="password" value={kv}
-                            onChange={e => { const pt:Partial<AIConfig>={}; if(prov.kField)(pt as any)[prov.kField]=e.target.value; updateAiCfg(pt); }}
-                            placeholder={prov.kp}
-                            className="w-full px-3 py-2.5 pr-10 rounded-lg text-sm font-mono"
-                            style={{ background:"hsl(216 45% 10%)", border:`1px solid ${kv?"hsl(158 64% 40%/0.5)":"hsl(var(--border))"}`, color:"hsl(210 40% 85%)" }}/>
-                          {kv && <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color:"hsl(158 64% 55%)" }}/>}
-                        </div>
-                        {prov.id==="anthropic" && (
-                          <button onClick={testApiKey} disabled={testStatus==="testing"||!aiCfg.anthropicKey}
-                            className="mt-2 flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold disabled:opacity-50"
-                            style={{ background:"hsl(38 95% 52%/0.12)", color:"hsl(38 95% 60%)", border:"1px solid hsl(38 95% 52%/0.3)" }}>
-                            {testStatus==="testing"?<RefreshCw className="h-3.5 w-3.5 animate-spin"/>:<Wifi className="h-3.5 w-3.5"/>}
-                            {testStatus==="testing"?"Testing...":testStatus==="ok"?"✓ Valid":testStatus==="fail"?"✗ Invalid":"Test Connection"}
-                          </button>
+                        {isManagedGateway ? (
+                          <div className="rounded-lg px-3 py-3 text-sm" style={{ background:"hsl(216 45% 10%)", border:"1px solid hsl(158 64% 40%/0.35)", color:"hsl(210 40% 82%)" }}>
+                            <p className="font-medium" style={{ color:"hsl(158 64% 60%)" }}>Managed by Supabase + Lovable Gateway</p>
+                            <p className="mt-1 text-xs" style={{ color:"hsl(215 25% 58%)" }}>This app does not call Anthropic directly from the Settings page. Gemini model tiers are selected in the backend edge function and shown here for transparency.</p>
+                          </div>
+                        ) : (
+                          <div className="relative">
+                            <input type="password" value={kv}
+                              onChange={e => { const pt:Partial<AIConfig>={}; if(prov.kField)(pt as any)[prov.kField]=e.target.value; updateAiCfg(pt); }}
+                              placeholder={prov.kp}
+                              className="w-full px-3 py-2.5 pr-10 rounded-lg text-sm font-mono"
+                              style={{ background:"hsl(216 45% 10%)", border:`1px solid ${kv?"hsl(158 64% 40%/0.5)":"hsl(var(--border))"}`, color:"hsl(210 40% 85%)" }}/>
+                            {kv && <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color:"hsl(158 64% 55%)" }}/>}
+                          </div>
                         )}
                       </div>
                       {prov.models.length>0 && (
