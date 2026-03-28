@@ -5,7 +5,20 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { I18nProvider } from "@/lib/i18n";
 import { AppLayout } from "@/components/layout/AppLayout";
+
+// ── Core Pages ────────────────────────────────────────────────────────────────
 import Dashboard from "./pages/Dashboard";
+import Settings from "./pages/Settings";
+import NotFound from "./pages/NotFound";
+
+// ── Client & Project Management ───────────────────────────────────────────────
+import Projects from "./pages/Projects";
+import Tasks from "./pages/Tasks";
+import CRM from "./pages/CRM";
+import DocumentHub from "./pages/DocumentHub";
+import Deliverables from "./pages/Deliverables";
+
+// ── Advisory Services (AI Agents) ─────────────────────────────────────────────
 import MarketEntry from "./pages/MarketEntry";
 import DistributorFinder from "./pages/DistributorFinder";
 import CompetitorAnalysis from "./pages/CompetitorAnalysis";
@@ -15,25 +28,38 @@ import PartnerMatchmaking from "./pages/PartnerMatchmaking";
 import SalesStrategy from "./pages/SalesStrategy";
 import ExportReadiness from "./pages/ExportReadiness";
 import FeasibilityStudy from "./pages/FeasibilityStudy";
-import DocumentHub from "./pages/DocumentHub";
-import Settings from "./pages/Settings";
-import Agents from "./pages/Agents";
-import CRM from "./pages/CRM";
-import Projects from "./pages/Projects";
-import Tasks from "./pages/Tasks";
-import FinancialOverview from "./pages/FinancialOverview";
+
+// ── Intelligence & Research ───────────────────────────────────────────────────
 import MarketIntelligence from "./pages/MarketIntelligence";
+import AIAssistant from "./pages/AIAssistant";
+import Agents from "./pages/Agents";
+import Knowledge from "./pages/Knowledge";
+
+// ── Revenue & Business Dev ────────────────────────────────────────────────────
 import ProposalBuilder from "./pages/ProposalBuilder";
+import FinancialOverview from "./pages/FinancialOverview";
+import ReportGenerator from "./pages/ReportGenerator";
+
+// ── Premium Modules ───────────────────────────────────────────────────────────
 import RealEstateIntelligence from "./pages/RealEstateIntelligence";
 import ServiceModules from "./pages/ServiceModules";
-import AIAssistant from "./pages/AIAssistant";
-import ReportGenerator from "./pages/ReportGenerator";
-import NotFound from "./pages/NotFound";
 import CompanyDevelopment from "./pages/CompanyDevelopment";
 import ISOPreparation from "./pages/ISOPreparation";
 
+// ── NEW: Enhanced Consultancy Pages ───────────────────────────────────────────
+import EngagementTracker from "./pages/EngagementTracker";
+import ClientBriefing from "./pages/ClientBriefing";
+import StrategyWorkshop from "./pages/StrategyWorkshop";
+import BenchmarkingTool from "./pages/BenchmarkingTool";
+import StakeholderMapper from "./pages/StakeholderMapper";
+import ExecutiveDashboard from "./pages/ExecutiveDashboard";
+import InsightsFeed from "./pages/InsightsFeed";
+import PlaybookLibrary from "./pages/PlaybookLibrary";
+
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1, staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false } },
+  defaultOptions: {
+    queries: { retry: 1, staleTime: 5 * 60 * 1000, refetchOnWindowFocus: false },
+  },
 });
 
 const App = () => (
@@ -45,7 +71,22 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route element={<AppLayout />}>
+
+              {/* ── Core ── */}
               <Route path="/"                           element={<Dashboard />} />
+              <Route path="/executive"                  element={<ExecutiveDashboard />} />
+              <Route path="/settings"                   element={<Settings />} />
+
+              {/* ── Client & Engagement Management ── */}
+              <Route path="/projects"                   element={<Projects />} />
+              <Route path="/tasks"                      element={<Tasks />} />
+              <Route path="/crm"                        element={<CRM />} />
+              <Route path="/documents"                  element={<DocumentHub />} />
+              <Route path="/deliverables"               element={<Deliverables />} />
+              <Route path="/engagement-tracker"         element={<EngagementTracker />} />
+              <Route path="/client-briefing"            element={<ClientBriefing />} />
+
+              {/* ── Advisory Services (AI Agents) ── */}
               <Route path="/market-entry"               element={<MarketEntry />} />
               <Route path="/distributor-finder"         element={<DistributorFinder />} />
               <Route path="/competitor-analysis"        element={<CompetitorAnalysis />} />
@@ -55,20 +96,32 @@ const App = () => (
               <Route path="/sales-strategy"             element={<SalesStrategy />} />
               <Route path="/export-readiness"           element={<ExportReadiness />} />
               <Route path="/feasibility-study"          element={<FeasibilityStudy />} />
-              <Route path="/crm"                        element={<CRM />} />
-              <Route path="/agents"                     element={<Agents />} />
-              <Route path="/documents"                  element={<DocumentHub />} />
-              <Route path="/settings"                   element={<Settings />} />
-              <Route path="/projects"                   element={<Projects />} />
-              <Route path="/tasks"                      element={<Tasks />} />
-              <Route path="/financial"                  element={<FinancialOverview />} />
+
+              {/* ── Intelligence & Research ── */}
               <Route path="/market-intelligence"        element={<MarketIntelligence />} />
+              <Route path="/ai-assistant"               element={<AIAssistant />} />
+              <Route path="/agents"                     element={<Agents />} />
+              <Route path="/knowledge"                  element={<Knowledge />} />
+              <Route path="/insights"                   element={<InsightsFeed />} />
+
+              {/* ── Strategy & Frameworks ── */}
+              <Route path="/strategy-workshop"          element={<StrategyWorkshop />} />
+              <Route path="/benchmarking"               element={<BenchmarkingTool />} />
+              <Route path="/stakeholder-mapper"         element={<StakeholderMapper />} />
+              <Route path="/playbooks"                  element={<PlaybookLibrary />} />
+
+              {/* ── Revenue & Business Dev ── */}
               <Route path="/proposals"                  element={<ProposalBuilder />} />
+              <Route path="/financial"                  element={<FinancialOverview />} />
+              <Route path="/reports"                    element={<ReportGenerator />} />
+
+              {/* ── Premium Modules ── */}
               <Route path="/real-estate-intelligence"   element={<RealEstateIntelligence />} />
               <Route path="/service-modules"            element={<ServiceModules />} />
-              <Route path="/ai-assistant"               element={<AIAssistant />} />
-              <Route path="/reports"                    element={<ReportGenerator />} />
-              {/* Service module deep links from Projects workspace */}
+              <Route path="/company-development"        element={<CompanyDevelopment />} />
+              <Route path="/iso-preparation"            element={<ISOPreparation />} />
+
+              {/* ── Service Module Deep Links ── */}
               <Route path="/fmcg-intelligence"          element={<ServiceModules />} />
               <Route path="/sales-distribution"         element={<ServiceModules />} />
               <Route path="/fb-consulting"              element={<ServiceModules />} />
@@ -76,8 +129,7 @@ const App = () => (
               <Route path="/manufacturing-module"       element={<ServiceModules />} />
               <Route path="/telecom-module"             element={<ServiceModules />} />
               <Route path="/business-development"       element={<ServiceModules />} />
-              <Route path="/company-development"         element={<CompanyDevelopment />} />
-              <Route path="/iso-preparation"             element={<ISOPreparation />} />
+
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
@@ -88,4 +140,3 @@ const App = () => (
 );
 
 export default App;
-// This file is auto-generated - imports added below
