@@ -1,288 +1,370 @@
+/**
+ * Dashboard.tsx  — redesigned for engagement-centered architecture
+ * ─────────────────────────────────────────────────────────────────
+ * Shows: active engagement summary, workflow steps, portfolio KPIs,
+ * quick-launch for the 5 service hubs, and recent activity feed.
+ * All data is pulled from the engagement store, not static mocks.
+ * ─────────────────────────────────────────────────────────────────
+ */
 import { Link } from "react-router-dom";
 import {
-  TrendingUp, Users, BarChart2, DollarSign, ShieldAlert,
-  Handshake, Zap, PackageCheck, FileBarChart2, ArrowRight,
-  Globe2, Activity, Bot, FolderOpen, Cpu, CheckCircle2,
-  AlertTriangle, FolderKanban, CheckSquare, PieChart, Globe,
-  FileText, Building2, Layers, MessageSquare, FileOutput,
-  Star, Play, Network, Shield
+  Briefcase, BarChart2, Lightbulb, FileOutput, Building2,
+  Globe2, ArrowRight, Plus, AlertTriangle, CheckCircle2,
+  TrendingUp, Clock, Activity, ChevronRight, Zap,
+  Users, FolderKanban, MessageSquare
 } from "lucide-react";
+import { useEngagementStore } from "@/store/engagementStore";
 import { useI18n } from "@/lib/i18n";
 
-const LAYERS = [
-  { label:"Layer A", title:"Consulting Intelligence Engine", desc:"9 AI agents — market entry, feasibility, risk, pricing & more", color:"hsl(217 91% 70%)", bg:"hsl(217 91% 53% / 0.08)", border:"hsl(217 91% 53% / 0.2)", icon:Cpu },
-  { label:"Layer B", title:"Business & Revenue Engine",     desc:"CRM, proposals, financial tracking, leads pipeline",        color:"hsl(38 95% 60%)",  bg:"hsl(38 95% 52% / 0.08)",  border:"hsl(38 95% 52% / 0.2)",  icon:DollarSign },
-  { label:"Layer C", title:"Execution & Delivery Engine",   desc:"Projects, tasks, milestones, reports & document hub",      color:"hsl(158 64% 55%)", bg:"hsl(158 64% 40% / 0.08)", border:"hsl(158 64% 40% / 0.2)", icon:CheckCircle2 },
+// ── The 5 service hubs ─────────────────────────────────────────────
+const HUBS = [
+  {
+    url: "/engagement",
+    label: "Engagement",
+    labelAr: "إدارة المشروع",
+    icon: Briefcase,
+    color: "hsl(38 95% 52%)",
+    bg: "hsl(38 95% 52% / 0.08)",
+    border: "hsl(38 95% 52% / 0.22)",
+    sub: "Briefing · Stakeholders · Tracker",
+    step: "A",
+  },
+  {
+    url: "/analysis",
+    label: "Analysis",
+    labelAr: "التحليل",
+    icon: BarChart2,
+    color: "hsl(200 80% 55%)",
+    bg: "hsl(200 80% 55% / 0.08)",
+    border: "hsl(200 80% 55% / 0.22)",
+    sub: "Market · Competitor · Risk · 5 more",
+    step: "B",
+  },
+  {
+    url: "/strategy",
+    label: "Strategy",
+    labelAr: "الاستراتيجية",
+    icon: Lightbulb,
+    color: "hsl(270 70% 65%)",
+    bg: "hsl(270 70% 65% / 0.08)",
+    border: "hsl(270 70% 65% / 0.22)",
+    sub: "Workshop · Benchmarking · Playbooks",
+    step: "C",
+  },
+  {
+    url: "/deliverables",
+    label: "Deliverables",
+    labelAr: "المخرجات",
+    icon: FileOutput,
+    color: "hsl(145 65% 48%)",
+    bg: "hsl(145 65% 48% / 0.08)",
+    border: "hsl(145 65% 48% / 0.22)",
+    sub: "Proposal · Report · Exec Summary",
+    step: "D",
+  },
+  {
+    url: "/practice-ops",
+    label: "Practice Ops",
+    labelAr: "إدارة المكتب",
+    icon: Building2,
+    color: "hsl(217 91% 68%)",
+    bg: "hsl(217 91% 68% / 0.08)",
+    border: "hsl(217 91% 68% / 0.22)",
+    sub: "CRM · Projects · Tasks · Financial",
+    step: "E",
+  },
 ];
 
-const SERVICES = [
-  { num:"01", title:"Market Entry Analysis",   url:"/market-entry",         icon:TrendingUp,    color:"amber" },
-  { num:"02", title:"Distributor Finder",      url:"/distributor-finder",   icon:Users,         color:"green" },
-  { num:"03", title:"Competitor Analysis",     url:"/competitor-analysis",  icon:BarChart2,     color:"blue"  },
-  { num:"04", title:"Pricing Intelligence",    url:"/pricing-intelligence", icon:DollarSign,    color:"amber" },
-  { num:"05", title:"Risk Assessment",         url:"/risk-assessment",      icon:ShieldAlert,   color:"red"   },
-  { num:"06", title:"Partner Matchmaking",     url:"/partner-matchmaking",  icon:Handshake,     color:"green" },
-  { num:"07", title:"Sales Strategy",          url:"/sales-strategy",       icon:Zap,           color:"blue"  },
-  { num:"08", title:"Export Readiness",        url:"/export-readiness",     icon:PackageCheck,  color:"amber" },
-  { num:"09", title:"Feasibility Study",       url:"/feasibility-study",    icon:FileBarChart2, color:"green" },
+// ── Workflow steps ─────────────────────────────────────────────────
+const WORKFLOW = [
+  { step: "1", label: "Open Engagement",  url: "/engagement",    icon: Briefcase  },
+  { step: "2", label: "Run Analysis",     url: "/analysis",      icon: BarChart2  },
+  { step: "3", label: "Build Strategy",   url: "/strategy",      icon: Lightbulb  },
+  { step: "4", label: "Generate Output",  url: "/deliverables",  icon: FileOutput },
+  { step: "5", label: "Track Execution",  url: "/practice-ops",  icon: Activity   },
 ];
 
-const colorMap: Record<string,{bg:string;text:string;border:string}> = {
-  amber:{ bg:"hsl(38 95% 52% / 0.08)",  text:"hsl(38 95% 60%)",   border:"hsl(38 95% 52% / 0.25)" },
-  green:{ bg:"hsl(158 64% 40% / 0.08)", text:"hsl(158 64% 55%)",  border:"hsl(158 64% 40% / 0.25)"},
-  blue: { bg:"hsl(217 91% 53% / 0.08)", text:"hsl(217 91% 70%)",  border:"hsl(217 91% 53% / 0.25)"},
-  red:  { bg:"hsl(0 72% 51% / 0.08)",   text:"hsl(0 72% 68%)",    border:"hsl(0 72% 51% / 0.25)"  },
+// ── Optional specialist modules ────────────────────────────────────
+const SPECIALIST = [
+  { label: "Real Estate Intel",  url: "/real-estate-intelligence", icon: Building2    },
+  { label: "ISO Preparation",    url: "/iso-preparation",          icon: CheckCircle2 },
+  { label: "Company Development",url: "/company-development",      icon: TrendingUp   },
+  { label: "AI Assistant",       url: "/ai-assistant",             icon: MessageSquare},
+  { label: "AI Agents",          url: "/agents",                   icon: Zap          },
+  { label: "Service Modules",    url: "/service-modules",          icon: Users        },
+];
+
+// ── Phase badge color ──────────────────────────────────────────────
+const phaseColor: Record<string, string> = {
+  Discovery: "hsl(38 95% 52%)",
+  Analysis:  "hsl(200 80% 55%)",
+  Strategy:  "hsl(270 70% 65%)",
+  Delivery:  "hsl(145 65% 48%)",
+  Review:    "hsl(30 90% 55%)",
+  Closed:    "hsl(215 25% 45%)",
 };
 
-const PREMIUM = [
-  { title:"Real Estate Intelligence", url:"/real-estate-intelligence", icon:Building2,   color:"hsl(38 95% 60%)",  desc:"Location · Feasibility · Decision Engine", badge:"PREMIUM" },
-  { title:"Service Modules",          url:"/service-modules",          icon:Layers,      color:"hsl(217 91% 70%)", desc:"Sales · FMCG · F&B · Telecom · Mfg",      badge:"7 MODULES" },
-  { title:"AI Assistant",             url:"/ai-assistant",             icon:MessageSquare,color:"hsl(158 64% 55%)", desc:"CEO Advisor · Strategy · Financial",       badge:"6 AGENTS"  },
-  { title:"Report Generator",         url:"/reports",                  icon:FileOutput,  color:"hsl(280 80% 70%)", desc:"Feasibility · Strategy · Market · Sales",  badge:"5 TYPES"   },
-  { title:"Company Development",      url:"/company-development",      icon:Network,     color:"hsl(38 95% 60%)",  desc:"Org chart · Depts · Hiring · Salaries",    badge:"NEW"       },
-  { title:"ISO Preparation",          url:"/iso-preparation",          icon:Shield,      color:"hsl(158 64% 55%)", desc:"ISO 9001 · 14001 · 45001 · 27001 & more",  badge:"8 STDS"    },
-];
-
-const PLATFORM_MODULES = [
-  { title:"Projects",           url:"/projects",           icon:FolderKanban, color:"hsl(38 95% 60%)",  desc:"Case management" },
-  { title:"Market Intelligence",url:"/market-intelligence",icon:Globe,        color:"hsl(217 91% 70%)", desc:"Sizing & trends"  },
-  { title:"AI Agents",          url:"/agents",             icon:Bot,          color:"hsl(158 64% 55%)", desc:"9 AI agents"      },
-  { title:"CRM",                url:"/crm",                icon:Users,        color:"hsl(38 95% 60%)",  desc:"Relationships"    },
-  { title:"Proposals",          url:"/proposals",          icon:FileText,     color:"hsl(217 91% 70%)", desc:"Auto-generate"    },
-  { title:"Financial",          url:"/financial",          icon:PieChart,     color:"hsl(158 64% 55%)", desc:"Revenue tracking" },
-  { title:"Tasks",              url:"/tasks",              icon:CheckSquare,  color:"hsl(38 95% 60%)",  desc:"Track delivery"   },
-  { title:"Documents",          url:"/documents",          icon:FolderOpen,   color:"hsl(217 91% 70%)", desc:"Client docs"      },
-];
-
-const STATS = [
-  { label:"Advisory Services", value:"9",    icon:Activity, color:"hsl(38 95% 60%)",  sub:"AI-powered agents"  },
-  { label:"Platform Modules",  value:"15+",  icon:Layers,   color:"hsl(158 64% 55%)", sub:"Full coverage"      },
-  { label:"Markets Covered",   value:"50+",  icon:Globe2,   color:"hsl(217 91% 70%)", sub:"MENA & global"      },
-  { label:"Analysis Time",     value:"<30s", icon:Cpu,      color:"hsl(38 95% 60%)",  sub:"Per service"        },
-];
-
-const ACTIVITY = [
-  { icon:CheckCircle2, color:"hsl(158 64% 55%)", text:"Jordan FMCG Entry report delivered",        time:"2h ago"  },
-  { icon:Building2,    color:"hsl(38 95% 60%)",  text:"Real Estate: Baghdad Tower — GO decision",  time:"4h ago"  },
-  { icon:DollarSign,   color:"hsl(38 95% 60%)",  text:"New deal: Baghdad Mixed-Use Tower ($4.2M)", time:"5h ago"  },
-  { icon:Bot,          color:"hsl(217 91% 70%)", text:"AI Assistant: 12 consultations today",      time:"7h ago"  },
-  { icon:AlertTriangle,color:"hsl(0 72% 68%)",   text:"Mosul manufacturing project on hold",       time:"1d ago"  },
-];
-
 export default function Dashboard() {
-  const { t, lang } = useI18n();
+  const { lang } = useI18n();
+  const { engagements, activeEngagementId, setActiveEngagement, getActiveEngagement } =
+    useEngagementStore();
+  const active = getActiveEngagement();
+
+  const activeCount    = engagements.filter((e) => e.status === "Active").length;
+  const completedCount = engagements.filter((e) => e.status === "Completed").length;
+  const phases = ["Discovery","Analysis","Strategy","Delivery","Review"];
+  const inFlightCount  = engagements.filter((e) => phases.includes(e.phase)).length;
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-7 max-w-6xl mx-auto">
 
-      {/* Hero */}
-      <div className="rounded-2xl p-8 relative overflow-hidden"
-        style={{ background:"linear-gradient(135deg, hsl(216 52% 10%), hsl(216 52% 13%))", border:"1px solid hsl(38 95% 52% / 0.2)" }}>
-        <div className="absolute inset-0 opacity-5" style={{ backgroundImage:"radial-gradient(circle at 80% 20%, hsl(38 95% 52%), transparent 60%)" }} />
-        <div className="relative">
-          <div className="flex items-center gap-2 mb-3">
-            <Globe2 className="h-5 w-5" style={{ color:"hsl(38 95% 52%)" }} />
-            <span className="data-pill-amber">{lang === "ar" ? "منصة استشارات مدعومة بالذكاء الاصطناعي" : "AI-Powered Consultancy Platform"}</span>
+      {/* ── Hero ── */}
+      <div className="rounded-2xl p-7 relative overflow-hidden"
+        style={{ background: "linear-gradient(135deg, hsl(216 52% 9%), hsl(216 52% 12%))", border: "1px solid hsl(38 95% 52% / 0.18)" }}>
+        <div className="absolute inset-0 opacity-[0.04]"
+          style={{ backgroundImage: "radial-gradient(circle at 85% 15%, hsl(38 95% 52%), transparent 55%)" }} />
+        <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Globe2 className="h-4 w-4" style={{ color: "hsl(38 95% 52%)" }} />
+              <span className="text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full"
+                style={{ background: "hsl(38 95% 52% / 0.12)", color: "hsl(38 95% 60%)" }}>
+                {lang === "ar" ? "نظام الاستشارات" : "Engagement OS"}
+              </span>
+            </div>
+            <h1 className="text-2xl font-bold" style={{ color: "hsl(210 40% 94%)" }}>
+              {lang === "ar" ? "مرحباً بك في ConsultAI" : "ConsultAI Pro"}
+            </h1>
+            <p className="text-sm mt-1" style={{ color: "hsl(215 25% 55%)" }}>
+              {lang === "ar"
+                ? "منصة الاستشارات المتكاملة — من التعاقد إلى التسليم"
+                : "One workspace for the full consulting engagement — from brief to delivery."}
+            </p>
           </div>
-          <h1 className="text-3xl font-bold font-display mb-2" style={{ color:"hsl(210 40% 94%)" }}>{t.dash_title}</h1>
-          <p className="text-base max-w-2xl" style={{ color:"hsl(215 25% 60%)" }}>{t.dash_subtitle}</p>
-          <div className="flex items-center gap-3 mt-5 flex-wrap">
-            <Link to="/projects"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90"
-              style={{ background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }}>
-              <FolderKanban className="h-4 w-4" />
-              {lang === "ar" ? "عرض المشاريع" : "View Projects"}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link to="/real-estate-intelligence"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold"
-              style={{ background:"hsl(216 45% 18%)", color:"hsl(210 40% 85%)", border:"1px solid hsl(var(--border))" }}>
-              <Building2 className="h-4 w-4" />
-              {lang === "ar" ? "استخبارات العقارات" : "Real Estate Intel"}
-            </Link>
-            <Link to="/ai-assistant"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold"
-              style={{ background:"hsl(216 45% 18%)", color:"hsl(210 40% 85%)", border:"1px solid hsl(var(--border))" }}>
-              <MessageSquare className="h-4 w-4" />
-              {lang === "ar" ? "المساعد الذكي" : "AI Assistant"}
-            </Link>
-          </div>
+
+          <Link to="/engagement"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold shrink-0 transition-all hover:opacity-90"
+            style={{ background: "hsl(38 95% 52%)", color: "hsl(216 58% 6%)" }}>
+            <Plus className="h-4 w-4" />
+            {lang === "ar" ? "مشروع جديد" : "New Engagement"}
+          </Link>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {STATS.map((s,i) => (
-          <div key={i} className="rounded-xl p-4" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-            <div className="flex items-center gap-2 mb-2">
-              <s.icon className="h-4 w-4" style={{ color:s.color }} />
-              <span className="text-xs" style={{ color:"hsl(215 25% 55%)" }}>{s.label}</span>
+      {/* ── Active engagement card ── */}
+      {active ? (
+        <div className="rounded-xl p-5"
+          style={{ background: "hsl(216 45% 10%)", border: `1px solid ${phaseColor[active.phase]}40` }}>
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                  style={{ background: `${phaseColor[active.phase]}18`, color: phaseColor[active.phase], border: `1px solid ${phaseColor[active.phase]}35` }}>
+                  {active.phase}
+                </span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full"
+                  style={{ background: "hsl(216 45% 18%)", color: "hsl(215 25% 55%)" }}>
+                  {active.status}
+                </span>
+              </div>
+              <h2 className="text-lg font-bold" style={{ color: "hsl(210 40% 92%)" }}>{active.clientName}</h2>
+              <p className="text-sm" style={{ color: "hsl(215 25% 52%)" }}>
+                {active.serviceType} · {active.market} · {active.industry}
+              </p>
+              {active.objectives && (
+                <p className="text-xs mt-1 max-w-lg" style={{ color: "hsl(215 25% 45%)" }}>
+                  {active.objectives.slice(0, 120)}{active.objectives.length > 120 ? "…" : ""}
+                </p>
+              )}
             </div>
-            <p className="text-2xl font-bold" style={{ color:s.color }}>{s.value}</p>
-            <p className="text-[11px] mt-0.5" style={{ color:"hsl(215 25% 45%)" }}>{s.sub}</p>
+            <div className="flex gap-2 shrink-0">
+              <Link to="/engagement"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
+                style={{ background: "hsl(38 95% 52%)", color: "hsl(216 58% 6%)" }}>
+                Open <ChevronRight className="h-3 w-3" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Quick-launch tools in context */}
+          <div className="flex gap-2 mt-4 flex-wrap">
+            {[
+              { label: "Run Analysis",  url: "/analysis",     color: "hsl(200 80% 55%)" },
+              { label: "Strategy",      url: "/strategy",     color: "hsl(270 70% 65%)" },
+              { label: "Deliverables",  url: "/deliverables", color: "hsl(145 65% 48%)" },
+            ].map((a) => (
+              <Link key={a.url} to={a.url}
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-medium transition-all"
+                style={{ background: `${a.color}12`, color: a.color, border: `1px solid ${a.color}25` }}>
+                {a.label} <ArrowRight className="h-3 w-3" />
+              </Link>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="rounded-xl p-5 flex items-center gap-4"
+          style={{ background: "hsl(216 45% 10%)", border: "1px solid hsl(38 85% 45% / 0.25)" }}>
+          <AlertTriangle className="h-6 w-6 shrink-0" style={{ color: "hsl(38 85% 52%)" }} />
+          <div className="flex-1">
+            <p className="text-sm font-semibold" style={{ color: "hsl(210 40% 85%)" }}>No active engagement</p>
+            <p className="text-xs mt-0.5" style={{ color: "hsl(215 25% 48%)" }}>
+              Create or select an engagement to unlock context-aware AI tools.
+            </p>
+          </div>
+          <Link to="/engagement"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shrink-0"
+            style={{ background: "hsl(38 95% 52%)", color: "hsl(216 58% 6%)" }}>
+            <Plus className="h-4 w-4" /> Create
+          </Link>
+        </div>
+      )}
+
+      {/* ── Portfolio KPIs ── */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: lang === "ar" ? "نشط" : "Active",    value: activeCount,    icon: Clock,        color: "hsl(145 65% 48%)" },
+          { label: lang === "ar" ? "جارٍ" : "In Flight", value: inFlightCount,  icon: Activity,     color: "hsl(38 95% 52%)"  },
+          { label: lang === "ar" ? "مكتمل" : "Completed",value: completedCount, icon: CheckCircle2, color: "hsl(217 91% 68%)" },
+        ].map(({ label, value, icon: Icon, color }) => (
+          <div key={label} className="rounded-xl p-4"
+            style={{ background: "hsl(216 45% 10%)", border: "1px solid hsl(216 45% 18%)" }}>
+            <Icon className="h-4 w-4 mb-2" style={{ color }} />
+            <p className="text-2xl font-bold" style={{ color }}>{value}</p>
+            <p className="text-[10px] uppercase tracking-wider font-semibold mt-0.5"
+              style={{ color: "hsl(215 25% 42%)" }}>{label}</p>
           </div>
         ))}
       </div>
 
-      {/* 3 Layers */}
+      {/* ── Recommended workflow ── */}
       <div>
-        <h2 className="text-base font-semibold mb-4" style={{ color:"hsl(210 40% 88%)" }}>
-          {lang === "ar" ? "هيكل النظام الثلاثي" : "Three-Layer System Architecture"}
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {LAYERS.map((layer,i) => (
-            <div key={i} className="rounded-xl p-5" style={{ background:layer.bg, border:`1px solid ${layer.border}` }}>
-              <div className="flex items-center gap-3 mb-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ background:`${layer.color}22` }}>
-                  <layer.icon className="h-5 w-5" style={{ color:layer.color }} />
+        <p className="text-[10px] uppercase tracking-widest font-semibold mb-3"
+          style={{ color: "hsl(215 25% 40%)" }}>
+          {lang === "ar" ? "مسار العمل الموصى به" : "Recommended Workflow"}
+        </p>
+        <div className="flex items-stretch gap-0">
+          {WORKFLOW.map((w, i) => (
+            <div key={w.step} className="flex items-center flex-1">
+              <Link to={w.url}
+                className="flex flex-col items-center gap-2 flex-1 px-2 py-4 rounded-xl text-center transition-all hover:opacity-80 group"
+                style={{ background: "hsl(216 45% 10%)", border: "1px solid hsl(216 45% 17%)" }}>
+                <div className="h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold"
+                  style={{ background: "hsl(38 95% 52% / 0.12)", color: "hsl(38 95% 55%)" }}>
+                  {w.step}
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-                  style={{ background:`${layer.color}22`, color:layer.color }}>{layer.label}</span>
-              </div>
-              <h3 className="text-sm font-semibold mb-1" style={{ color:"hsl(210 40% 92%)" }}>{layer.title}</h3>
-              <p className="text-xs" style={{ color:"hsl(215 25% 55%)" }}>{layer.desc}</p>
+                <w.icon className="h-4 w-4" style={{ color: "hsl(215 25% 52%)" }} />
+                <span className="text-[10px] font-semibold leading-tight"
+                  style={{ color: "hsl(215 25% 50%)" }}>{w.label}</span>
+              </Link>
+              {i < WORKFLOW.length - 1 && (
+                <ChevronRight className="h-4 w-4 shrink-0 mx-1" style={{ color: "hsl(216 45% 25%)" }} />
+              )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Premium Modules */}
+      {/* ── 5 Hub cards ── */}
       <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold" style={{ color:"hsl(210 40% 88%)" }}>
-            {lang === "ar" ? "الوحدات المتقدمة" : "Premium Modules"}
-          </h2>
-          <span className="text-xs px-2 py-0.5 rounded-full font-semibold"
-            style={{ background:"hsl(38 95% 52% / 0.12)", color:"hsl(38 95% 60%)" }}>
-            {lang === "ar" ? "ميزة تنافسية" : "Strongest Differentiators"}
-          </span>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {PREMIUM.map((m,i) => (
-            <Link key={i} to={m.url}
-              className="group rounded-xl p-5 transition-all hover:scale-[1.02] block"
-              style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl"
-                  style={{ background:`${m.color}18`, border:`1px solid ${m.color}30` }}>
-                  <m.icon className="h-5 w-5" style={{ color:m.color }} />
+        <p className="text-[10px] uppercase tracking-widest font-semibold mb-3"
+          style={{ color: "hsl(215 25% 40%)" }}>
+          {lang === "ar" ? "الخدمات الخمسة" : "Five Service Hubs"}
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
+          {HUBS.map((hub) => (
+            <Link key={hub.url} to={hub.url}
+              className="group rounded-xl p-4 transition-all hover:scale-[1.02] block"
+              style={{ background: hub.bg, border: `1px solid ${hub.border}` }}>
+              <div className="flex items-center justify-between mb-3">
+                <div className="h-8 w-8 rounded-lg flex items-center justify-center"
+                  style={{ background: `${hub.color}18` }}>
+                  <hub.icon className="h-4 w-4" style={{ color: hub.color }} />
                 </div>
-                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full"
-                  style={{ background:`${m.color}15`, color:m.color }}>{m.badge}</span>
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded"
+                  style={{ background: `${hub.color}18`, color: hub.color }}>{hub.step}</span>
               </div>
-              <h3 className="text-sm font-semibold mb-1" style={{ color:"hsl(210 40% 92%)" }}>{m.title}</h3>
-              <p className="text-[11px]" style={{ color:"hsl(215 25% 50%)" }}>{m.desc}</p>
+              <p className="text-sm font-semibold mb-0.5" style={{ color: "hsl(210 40% 90%)" }}>
+                {lang === "ar" ? hub.labelAr : hub.label}
+              </p>
+              <p className="text-[10px]" style={{ color: "hsl(215 25% 48%)" }}>{hub.sub}</p>
               <div className="flex items-center gap-1 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                <span className="text-[11px] font-semibold" style={{ color:m.color }}>
-                  {lang === "ar" ? "فتح" : "Open"}
-                </span>
-                <ArrowRight className="h-3 w-3" style={{ color:m.color }} />
+                <span className="text-[11px] font-semibold" style={{ color: hub.color }}>Open</span>
+                <ArrowRight className="h-3 w-3" style={{ color: hub.color }} />
               </div>
             </Link>
           ))}
         </div>
       </div>
 
-      {/* Advisory Services Grid */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold" style={{ color:"hsl(210 40% 88%)" }}>{t.dash_services}</h2>
-          <span className="text-xs" style={{ color:"hsl(215 25% 45%)" }}>
-            {lang === "ar" ? "٩ وكلاء مدعومون بالذكاء الاصطناعي" : "9 AI-powered agents"}
-          </span>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
-          {SERVICES.map((s,i) => {
-            const c = colorMap[s.color];
-            return (
-              <Link key={i} to={s.url}
-                className="group rounded-xl p-4 transition-all hover:scale-[1.01] block"
-                style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background:c.bg, border:`1px solid ${c.border}` }}>
-                      <s.icon className="h-4 w-4" style={{ color:c.text }} />
-                    </div>
-                    <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                      style={{ background:"hsl(216 45% 18%)", color:"hsl(215 25% 55%)" }}>{s.num}</span>
-                  </div>
-                  <ArrowRight className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color:c.text }} />
-                </div>
-                <h3 className="text-sm font-semibold" style={{ color:"hsl(210 40% 90%)" }}>{s.title}</h3>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
+      {/* ── Engagement list + Specialist modules ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Platform Modules */}
+        {/* Recent engagements */}
         <div className="lg:col-span-2">
-          <h2 className="text-base font-semibold mb-4" style={{ color:"hsl(210 40% 88%)" }}>
-            {lang === "ar" ? "وحدات المنصة" : "Platform Modules"}
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {PLATFORM_MODULES.map((m,i) => (
-              <Link key={i} to={m.url}
-                className="group rounded-xl p-4 text-center transition-all hover:scale-[1.02] block"
-                style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl mx-auto mb-2"
-                  style={{ background:`${m.color}18`, border:`1px solid ${m.color}30` }}>
-                  <m.icon className="h-5 w-5" style={{ color:m.color }} />
-                </div>
-                <p className="text-xs font-semibold" style={{ color:"hsl(210 40% 85%)" }}>{m.title}</p>
-                <p className="text-[10px] mt-0.5" style={{ color:"hsl(215 25% 45%)" }}>{m.desc}</p>
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[10px] uppercase tracking-widest font-semibold"
+              style={{ color: "hsl(215 25% 40%)" }}>
+              {lang === "ar" ? "المشاريع" : "Engagements"}
+            </p>
+            <Link to="/engagement" className="text-xs" style={{ color: "hsl(38 95% 55%)" }}>
+              Manage →
+            </Link>
+          </div>
+          {engagements.length === 0 ? (
+            <div className="rounded-xl p-8 flex flex-col items-center gap-3"
+              style={{ background: "hsl(216 45% 10%)", border: "1px solid hsl(216 45% 18%)" }}>
+              <FolderKanban className="h-8 w-8" style={{ color: "hsl(216 45% 25%)" }} />
+              <p className="text-sm" style={{ color: "hsl(215 25% 45%)" }}>No engagements yet.</p>
+              <Link to="/engagement"
+                className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg font-semibold"
+                style={{ background: "hsl(38 95% 52%)", color: "hsl(216 58% 6%)" }}>
+                <Plus className="h-3 w-3" /> Create First Engagement
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {engagements.slice(0, 5).map((e) => (
+                <button key={e.id} onClick={() => setActiveEngagement(e.id)}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all hover:opacity-80"
+                  style={{
+                    background: e.id === activeEngagementId ? "hsl(38 95% 52% / 0.08)" : "hsl(216 45% 10%)",
+                    border: e.id === activeEngagementId ? "1px solid hsl(38 95% 52% / 0.3)" : "1px solid hsl(216 45% 18%)",
+                  }}>
+                  <div className="h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+                    style={{ background: "hsl(216 45% 18%)", color: "hsl(210 40% 70%)" }}>
+                    {e.clientName[0]}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold truncate" style={{ color: "hsl(210 40% 88%)" }}>{e.clientName}</p>
+                    <p className="text-xs truncate" style={{ color: "hsl(215 25% 48%)" }}>{e.serviceType} · {e.market}</p>
+                  </div>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0"
+                    style={{ background: `${phaseColor[e.phase]}18`, color: phaseColor[e.phase] }}>
+                    {e.phase}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Specialist modules */}
+        <div>
+          <p className="text-[10px] uppercase tracking-widest font-semibold mb-3"
+            style={{ color: "hsl(215 25% 40%)" }}>
+            {lang === "ar" ? "وحدات متخصصة" : "Specialist Modules"}
+          </p>
+          <div className="space-y-1.5">
+            {SPECIALIST.map((s) => (
+              <Link key={s.url} to={s.url}
+                className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl transition-all hover:opacity-80"
+                style={{ background: "hsl(216 45% 10%)", border: "1px solid hsl(216 45% 17%)" }}>
+                <s.icon className="h-4 w-4 shrink-0" style={{ color: "hsl(215 25% 48%)" }} />
+                <span className="text-xs font-medium" style={{ color: "hsl(210 40% 72%)" }}>{s.label}</span>
+                <ChevronRight className="h-3 w-3 ml-auto" style={{ color: "hsl(216 45% 28%)" }} />
               </Link>
             ))}
           </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div>
-          <h2 className="text-base font-semibold mb-4" style={{ color:"hsl(210 40% 88%)" }}>
-            {lang === "ar" ? "النشاط الأخير" : "Recent Activity"}
-          </h2>
-          <div className="rounded-xl overflow-hidden" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-            {ACTIVITY.map((a,i) => (
-              <div key={i} className="flex items-start gap-3 px-4 py-3"
-                style={{ borderTop:i>0?"1px solid hsl(var(--border))":"none" }}>
-                <div className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
-                  style={{ background:`${a.color}18` }}>
-                  <a.icon className="h-3 w-3" style={{ color:a.color }} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs leading-snug" style={{ color:"hsl(210 40% 78%)" }}>{a.text}</p>
-                  <p className="text-[10px] mt-0.5" style={{ color:"hsl(215 25% 40%)" }}>{a.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Quick Actions */}
-      <div className="rounded-xl p-5" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
-        <h2 className="text-sm font-semibold mb-4" style={{ color:"hsl(210 40% 88%)" }}>
-          {lang === "ar" ? "إجراءات سريعة" : "Quick Actions"}
-        </h2>
-        <div className="flex flex-wrap gap-3">
-          {[
-            { label:lang==="ar"?"مشروع جديد":"New Project",          url:"/projects",                 icon:FolderKanban,  primary:true  },
-            { label:lang==="ar"?"تحليل عقاري":"Real Estate Analysis", url:"/real-estate-intelligence", icon:Building2,     primary:false },
-            { label:lang==="ar"?"إنشاء مقترح":"Generate Proposal",    url:"/proposals",                icon:FileText,      primary:false },
-            { label:lang==="ar"?"تحليل سوق":"Market Analysis",        url:"/market-entry",             icon:TrendingUp,    primary:false },
-            { label:lang==="ar"?"إنشاء تقرير":"Generate Report",       url:"/reports",                  icon:FileOutput,    primary:false },
-            { label:lang==="ar"?"المساعد الذكي":"AI Assistant",        url:"/ai-assistant",             icon:MessageSquare, primary:false },
-          ].map((a,i) => (
-            <Link key={i} to={a.url}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all hover:opacity-90"
-              style={a.primary
-                ? { background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }
-                : { background:"hsl(216 45% 18%)", color:"hsl(210 40% 80%)", border:"1px solid hsl(var(--border))" }}>
-              <a.icon className="h-4 w-4" />{a.label}
-            </Link>
-          ))}
         </div>
       </div>
 
