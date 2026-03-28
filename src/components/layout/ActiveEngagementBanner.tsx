@@ -7,10 +7,10 @@ import { useNavigate } from "react-router-dom";
 import { useEngagementStore, Engagement, EngagementPhase } from "@/store/engagementStore";
 import { Briefcase, ChevronDown, Plus, Check, AlertTriangle, Activity, X } from "lucide-react";
 
-const PHASES: EngagementPhase[] = ["Discovery","Analysis","Strategy","Deliverables","Follow-up","Closed"];
+const PHASES: EngagementPhase[] = ["Discovery","Data Collection","Analysis","Strategy","Deliverables","Review","Closed"];
 const PHASE_COLOR: Record<string, string> = {
-  Discovery:"hsl(38 95% 52%)", Analysis:"hsl(200 80% 55%)", Strategy:"hsl(270 70% 60%)",
-  Deliverables:"hsl(145 65% 45%)", "Follow-up":"hsl(30 90% 55%)", Closed:"hsl(215 25% 45%)",
+  Discovery:"hsl(38 95% 52%)", "Data Collection":"hsl(200 80% 55%)", Analysis:"hsl(270 70% 60%)",
+  Strategy:"hsl(145 65% 45%)", Deliverables:"hsl(30 90% 55%)", Review:"hsl(217 91% 68%)", Closed:"hsl(215 25% 45%)",
 };
 const HEALTH_COLOR: Record<string, string> = {
   "On Track":"hsl(145 65% 45%)", "At Risk":"hsl(38 85% 52%)",
@@ -28,7 +28,7 @@ function NewEngagementModal({ onClose }: { onClose: () => void }) {
     progress:0, stakeholders:[], outputs:{}, contactId:null,
     startDate:new Date().toISOString().slice(0,10), endDate:"",
     requestSummary:{ serviceRequest:"", expectedOutputs:[], requestedReports:[], summary:"" },
-    resources:[], phaseRequirements:{ Discovery:{ phase:"Discovery" as EngagementPhase, requiredInfo:["Customer objectives","Scope","Stakeholders"], requiredDocuments:["Briefing note","Company profile","Meeting notes"], notes:"" } }, requestedOutputs:[],
+    resources:[], phaseRequirements:{ Discovery:{ phase:"Discovery", requiredInfo:["Customer objectives","Scope","Stakeholders"], requiredDocuments:["Briefing note","Company profile","Meeting notes"], notes:"" } }, requestedOutputs:[],
   });
   const f = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement>) =>
     setForm((p) => ({ ...p, [k]: e.target.value }));
