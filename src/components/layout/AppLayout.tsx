@@ -1,9 +1,5 @@
 /**
- * AppLayout.tsx
- * ─────────────────────────────────────────────────────────────────
- * Root shell: sidebar + engagement banner + page content.
- * Banner is inside main so every page gets the shared context strip.
- * ─────────────────────────────────────────────────────────────────
+ * AppLayout.tsx — with engagement banner + optional right panel
  */
 import { Outlet } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
