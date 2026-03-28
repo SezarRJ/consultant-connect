@@ -1,219 +1,204 @@
+/**
+ * AppSidebar.tsx
+ * ─────────────────────────────────────────────────────────────────
+ * Redesigned navigation: 5 main service hubs + system group.
+ * Each hub links to a single page that renders sub-service tabs/cards.
+ * ─────────────────────────────────────────────────────────────────
+ */
 import { Link, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, TrendingUp, Users, BarChart2, DollarSign,
-  ShieldAlert, Handshake, Zap, PackageCheck, FileBarChart2,
-  ChevronRight, Globe2, Bot, FolderOpen, Settings, Languages,
-  UserCheck, FolderKanban, CheckSquare, PieChart, Globe, FileText,
-  ChevronDown, Building2, Layers, MessageSquare, FileOutput,
-  Shield, Network, Briefcase, BookOpen, BarChart, Map,
-  Users2, Lightbulb, Target, Activity, Library, Star,
-  Cpu, TrendingDown, Gauge, Radio
+  LayoutDashboard,
+  Briefcase,
+  BarChart2,
+  Lightbulb,
+  FileOutput,
+  Building2,
+  Settings,
+  Globe2,
+  Languages,
+  ChevronRight,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
-import { useState } from "react";
+
+// ── Nav definition ─────────────────────────────────────────────────
+
+const NAV = [
+  {
+    key: "overview",
+    label: "WORKSPACE",
+    labelAr: "مساحة العمل",
+    items: [
+      { title: "Dashboard",     titleAr: "لوحة التحكم",  url: "/",              icon: LayoutDashboard },
+    ],
+  },
+  {
+    key: "services",
+    label: "SERVICES",
+    labelAr: "الخدمات",
+    items: [
+      {
+        title: "Engagement",    titleAr: "إدارة المشروع", url: "/engagement",    icon: Briefcase,
+        sub: ["Client Briefing", "Stakeholder Mapper", "Engagement Tracker", "Documents", "Activity Log"],
+      },
+      {
+        title: "Analysis",      titleAr: "التحليل",       url: "/analysis",      icon: BarChart2,
+        sub: ["Market Entry", "Competitor Analysis", "Pricing Intelligence", "Risk Assessment",
+               "Distributor Finder", "Export Readiness", "Feasibility Study", "Market Intelligence"],
+      },
+      {
+        title: "Strategy",      titleAr: "الاستراتيجية",  url: "/strategy",      icon: Lightbulb,
+        sub: ["Strategy Workshop", "Benchmarking", "Sales Strategy", "Partner Matchmaking", "Playbooks"],
+      },
+      {
+        title: "Deliverables",  titleAr: "المخرجات",      url: "/deliverables",  icon: FileOutput,
+        sub: ["Proposal Builder", "Report Generator", "Deliverables", "Executive Summary"],
+      },
+      {
+        title: "Practice Ops",  titleAr: "إدارة المكتب",  url: "/practice-ops",  icon: Building2,
+        sub: ["CRM", "Projects", "Tasks", "Financial Overview"],
+      },
+    ],
+  },
+  {
+    key: "system",
+    label: "SYSTEM",
+    labelAr: "النظام",
+    items: [
+      { title: "Settings",      titleAr: "الإعدادات",     url: "/settings",      icon: Settings },
+    ],
+  },
+];
+
+// ── Component ──────────────────────────────────────────────────────
 
 export function AppSidebar() {
   const location = useLocation();
-  const { t, lang, setLang } = useI18n();
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
-    services: true,
-    strategy: true,
-    premium: true,
-  });
+  const { lang, setLang } = useI18n();
 
   const isActive = (url: string) =>
     url === "/" ? location.pathname === "/" : location.pathname.startsWith(url);
 
-  const toggleGroup = (key: string) =>
-    setCollapsed(prev => ({ ...prev, [key]: !prev[key] }));
-
-  const groups = [
-    {
-      key: "overview", label: "COMMAND CENTER", labelAr: "مركز القيادة", collapsible: false,
-      items: [
-        { title: "Dashboard",              url: "/",                   icon: LayoutDashboard },
-        { title: "Executive View",         url: "/executive",          icon: Gauge           },
-        { title: "Insights Feed",          url: "/insights",           icon: Radio           },
-      ],
-    },
-    {
-      key: "engagement", label: "ENGAGEMENT", labelAr: "إدارة المشاريع", collapsible: true,
-      items: [
-        { title: "Projects",               url: "/projects",           icon: FolderKanban    },
-        { title: "Engagement Tracker",     url: "/engagement-tracker", icon: Activity        },
-        { title: "Client Briefing",        url: "/client-briefing",    icon: Briefcase       },
-        { title: "Tasks & Execution",      url: "/tasks",              icon: CheckSquare     },
-        { title: "Document Hub",           url: "/documents",          icon: FolderOpen      },
-      ],
-    },
-    {
-      key: "services", label: "ADVISORY SERVICES", labelAr: "الخدمات الاستشارية", collapsible: true,
-      items: [
-        { title: t.nav_market_entry,       url: "/market-entry",         icon: TrendingUp,    badge: "01" },
-        { title: t.nav_distributor,        url: "/distributor-finder",   icon: Users,         badge: "02" },
-        { title: t.nav_competitor,         url: "/competitor-analysis",  icon: BarChart2,     badge: "03" },
-        { title: t.nav_pricing,            url: "/pricing-intelligence", icon: DollarSign,    badge: "04" },
-        { title: t.nav_risk,               url: "/risk-assessment",      icon: ShieldAlert,   badge: "05" },
-        { title: t.nav_partner,            url: "/partner-matchmaking",  icon: Handshake,     badge: "06" },
-        { title: t.nav_sales,              url: "/sales-strategy",       icon: Zap,           badge: "07" },
-        { title: t.nav_export,             url: "/export-readiness",     icon: PackageCheck,  badge: "08" },
-        { title: t.nav_feasibility,        url: "/feasibility-study",    icon: FileBarChart2, badge: "09" },
-      ],
-    },
-    {
-      key: "strategy", label: "STRATEGY TOOLS", labelAr: "أدوات الاستراتيجية", collapsible: true,
-      items: [
-        { title: "Strategy Workshop",      url: "/strategy-workshop",    icon: Target         },
-        { title: "Benchmarking Tool",      url: "/benchmarking",         icon: BarChart        },
-        { title: "Stakeholder Mapper",     url: "/stakeholder-mapper",   icon: Map             },
-        { title: "Playbook Library",       url: "/playbooks",            icon: Library         },
-      ],
-    },
-    {
-      key: "intelligence", label: "INTELLIGENCE", labelAr: "الاستخبارات", collapsible: true,
-      items: [
-        { title: "Market Intelligence",    url: "/market-intelligence",  icon: Globe           },
-        { title: "AI Assistant",           url: "/ai-assistant",         icon: MessageSquare   },
-        { title: "AI Agents",              url: "/agents",               icon: Bot             },
-        { title: "Knowledge Base",         url: "/knowledge",            icon: BookOpen        },
-      ],
-    },
-    {
-      key: "revenue", label: "REVENUE ENGINE", labelAr: "محرك الإيرادات", collapsible: true,
-      items: [
-        { title: "CRM",                    url: "/crm",                  icon: UserCheck       },
-        { title: "Proposal Builder",       url: "/proposals",            icon: FileText        },
-        { title: "Financial Overview",     url: "/financial",            icon: PieChart        },
-        { title: "Report Generator",       url: "/reports",              icon: FileOutput      },
-      ],
-    },
-    {
-      key: "premium", label: "PREMIUM MODULES", labelAr: "الوحدات المتقدمة", collapsible: true,
-      items: [
-        { title: "Real Estate Intel",      url: "/real-estate-intelligence", icon: Building2   },
-        { title: "Service Modules",        url: "/service-modules",          icon: Layers      },
-        { title: "Company Development",    url: "/company-development",      icon: Network     },
-        { title: "ISO Preparation",        url: "/iso-preparation",          icon: Shield      },
-      ],
-    },
-    {
-      key: "system", label: "SYSTEM", labelAr: "النظام", collapsible: false,
-      items: [
-        { title: t.nav_settings,           url: "/settings",             icon: Settings        },
-      ],
-    },
-  ];
-
   return (
     <aside
-      className="flex h-screen w-64 flex-col border-r shrink-0"
-      style={{ borderColor: "hsl(var(--sidebar-border))", background: "hsl(var(--sidebar-background))" }}
+      className="flex h-screen w-56 flex-col border-r shrink-0"
+      style={{
+        borderColor: "hsl(var(--sidebar-border))",
+        background: "hsl(var(--sidebar-background))",
+      }}
     >
       {/* Logo */}
-      <div className="flex items-center gap-3 px-5 py-5 border-b" style={{ borderColor: "hsl(var(--sidebar-border))" }}>
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: "hsl(38 95% 52%)" }}>
-          <Cpu className="h-5 w-5" style={{ color: "hsl(216 58% 6%)" }} />
+      <div
+        className="flex items-center gap-3 px-4 py-4 border-b"
+        style={{ borderColor: "hsl(var(--sidebar-border))" }}
+      >
+        <div
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: "hsl(38 95% 52%)" }}
+        >
+          <Globe2 className="h-4 w-4" style={{ color: "hsl(216 58% 6%)" }} />
         </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-bold font-display" style={{ color: "hsl(210 40% 92%)" }}>ConsultAI Pro</span>
-          <span className="text-xs" style={{ color: "hsl(38 95% 52%)" }}>Consultancy Command</span>
+        <div className="flex flex-col leading-tight">
+          <span className="text-sm font-bold" style={{ color: "hsl(210 40% 92%)" }}>
+            ConsultAI
+          </span>
+          <span className="text-[10px]" style={{ color: "hsl(38 95% 52%)" }}>
+            Engagement OS
+          </span>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
-        {groups.map(group => {
-          const isCollapsed = group.collapsible && collapsed[group.key];
-          const hasActive = group.items.some(i => isActive(i.url));
-          const displayLabel = lang === "ar" ? group.labelAr : group.label;
+      <nav className="flex-1 overflow-y-auto px-2.5 py-4 space-y-5">
+        {NAV.map((group) => (
+          <div key={group.key}>
+            <p
+              className="px-2 mb-1.5 text-[9px] font-semibold tracking-[0.12em] uppercase"
+              style={{ color: "hsl(215 25% 38%)" }}
+            >
+              {lang === "ar" ? group.labelAr : group.label}
+            </p>
 
-          return (
-            <div key={group.key}>
-              <div
-                className={`flex items-center justify-between px-2 mb-1.5 ${group.collapsible ? "cursor-pointer" : ""}`}
-                onClick={() => group.collapsible && toggleGroup(group.key)}
-              >
-                <p className="text-[10px] font-semibold tracking-widest uppercase"
-                  style={{ color: hasActive && isCollapsed ? "hsl(38 95% 52%)" : "hsl(215 25% 40%)" }}>
-                  {displayLabel}
-                  {hasActive && isCollapsed && (
-                    <span className="ml-2 inline-block h-1.5 w-1.5 rounded-full" style={{ background: "hsl(38 95% 52%)", verticalAlign: "middle" }} />
-                  )}
-                </p>
-                {group.collapsible && (
-                  <ChevronDown
-                    className="h-3 w-3 transition-transform"
-                    style={{
-                      color: "hsl(215 25% 38%)",
-                      transform: isCollapsed ? "rotate(-90deg)" : "rotate(0deg)"
-                    }}
-                  />
-                )}
-              </div>
+            <div className="space-y-0.5">
+              {group.items.map((item) => {
+                const active = isActive(item.url);
+                const title = lang === "ar" ? item.titleAr : item.title;
 
-              {!isCollapsed && (
-                <div className="space-y-0.5">
-                  {group.items.map(item => {
-                    const active = isActive(item.url);
-                    return (
-                      <Link
-                        key={item.url}
-                        to={item.url}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all"
-                        style={{
-                          background: active ? "hsl(38 95% 52% / 0.12)" : "transparent",
-                          color: active ? "hsl(38 95% 60%)" : "hsl(210 40% 72%)",
-                        }}
-                      >
-                        {"badge" in item && item.badge ? (
-                          <span
-                            className="flex h-5 w-5 items-center justify-center rounded text-[10px] font-bold shrink-0"
-                            style={{
-                              background: active ? "hsl(38 95% 52% / 0.25)" : "hsl(216 45% 18%)",
-                              color: active ? "hsl(38 95% 60%)" : "hsl(215 25% 55%)",
-                            }}
+                return (
+                  <div key={item.url}>
+                    <Link
+                      to={item.url}
+                      className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[13px] font-medium transition-all group"
+                      style={{
+                        background: active ? "hsl(38 95% 52% / 0.13)" : "transparent",
+                        color: active ? "hsl(38 95% 60%)" : "hsl(210 40% 68%)",
+                      }}
+                    >
+                      <item.icon className="h-4 w-4 shrink-0" />
+                      <span className="flex-1">{title}</span>
+                      {active && (
+                        <ChevronRight
+                          className="h-3 w-3 opacity-60"
+                          style={{ color: "hsl(38 95% 52%)" }}
+                        />
+                      )}
+                    </Link>
+
+                    {/* Sub-service preview — shown when parent is active */}
+                    {"sub" in item && item.sub && active && (
+                      <div className="ml-7 mt-1 mb-1 space-y-0.5">
+                        {item.sub.slice(0, 4).map((sub) => (
+                          <p
+                            key={sub}
+                            className="text-[11px] px-2 py-0.5 rounded"
+                            style={{ color: "hsl(215 25% 48%)" }}
                           >
-                            {item.badge}
-                          </span>
-                        ) : (
-                          <item.icon className="h-4 w-4 shrink-0" />
+                            {sub}
+                          </p>
+                        ))}
+                        {item.sub.length > 4 && (
+                          <p className="text-[10px] px-2" style={{ color: "hsl(215 25% 38%)" }}>
+                            +{item.sub.length - 4} more
+                          </p>
                         )}
-                        <span className="flex-1 font-medium text-[13px]">{item.title}</span>
-                        {active && <ChevronRight className="h-3 w-3 opacity-60" />}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
-          );
-        })}
+          </div>
+        ))}
       </nav>
 
-      {/* Footer */}
-      <div className="px-4 py-3 border-t space-y-2" style={{ borderColor: "hsl(var(--sidebar-border))" }}>
-        <div className="flex items-center gap-2">
-          <Languages className="h-3.5 w-3.5 shrink-0" style={{ color: "hsl(215 25% 45%)" }} />
-          <span className="text-[11px] font-medium" style={{ color: "hsl(215 25% 50%)" }}>
+      {/* Language footer */}
+      <div
+        className="px-3 py-3 border-t space-y-2"
+        style={{ borderColor: "hsl(var(--sidebar-border))" }}
+      >
+        <div className="flex items-center gap-1.5 mb-1">
+          <Languages className="h-3 w-3" style={{ color: "hsl(215 25% 42%)" }} />
+          <span className="text-[10px]" style={{ color: "hsl(215 25% 42%)" }}>
             {lang === "ar" ? "اللغة" : "Language"}
           </span>
         </div>
         <div className="grid grid-cols-2 gap-1">
-          {(["en", "ar"] as const).map(l => (
+          {(["en", "ar"] as const).map((l) => (
             <button
               key={l}
               onClick={() => setLang(l)}
-              className="py-1.5 rounded-md text-xs font-semibold transition-all"
+              className="py-1.5 rounded-md text-[11px] font-semibold transition-all"
               style={{
-                background: lang === l ? "hsl(38 95% 52%)" : "hsl(216 45% 18%)",
-                color: lang === l ? "hsl(216 58% 6%)" : "hsl(215 25% 60%)",
+                background: lang === l ? "hsl(38 95% 52%)" : "hsl(216 45% 16%)",
+                color: lang === l ? "hsl(216 58% 6%)" : "hsl(215 25% 55%)",
               }}
             >
               {l === "en" ? "English" : "العربية"}
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-center" style={{ color: "hsl(215 25% 35%)" }}>ConsultAI Pro © 2026</p>
+        <p className="text-[9px] text-center" style={{ color: "hsl(215 25% 30%)" }}>
+          ConsultAI © 2026
+        </p>
       </div>
     </aside>
   );
