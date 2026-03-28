@@ -46,6 +46,9 @@ import ServiceModules      from "./pages/ServiceModules";
 // ── System ──────────────────────────────────────────────────────────
 import Settings        from "./pages/Settings";
 import NotFound        from "./pages/NotFound";
+import ProposalBuilder from "./pages/ProposalBuilder";
+import ReportGenerator from "./pages/ReportGenerator";
+import PracticeOpsHub   from "./pages/PracticeOpsHub";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -95,6 +98,10 @@ const App = () => (
               {/* ── System ── */}
               <Route path="/settings"      element={<Settings />} />
 
+              {/* ── Direct service pages ── */}
+              <Route path="/proposal-builder"     element={<ProposalBuilder />} />
+              <Route path="/report-generator"     element={<ReportGenerator />} />
+
               {/* ── Legacy redirects (old deep-link bookmarks → correct hub) ── */}
               <Route path="/market-entry"         element={<Navigate to="/analysis" replace />} />
               <Route path="/competitor-analysis"  element={<Navigate to="/analysis" replace />} />
@@ -108,12 +115,12 @@ const App = () => (
               <Route path="/partner-matchmaking"  element={<Navigate to="/strategy" replace />} />
               <Route path="/proposals"            element={<Navigate to="/deliverables" replace />} />
               <Route path="/reports"              element={<Navigate to="/deliverables" replace />} />
-              <Route path="/practice-ops"         element={<Navigate to="/" replace />} />
+              <Route path="/practice-ops"         element={<PracticeOpsHub />} />
               <Route path="/fmcg-intelligence"    element={<Navigate to="/domain/fmcg" replace />} />
               <Route path="/sales-distribution"   element={<Navigate to="/domain/sales" replace />} />
               <Route path="/fb-consulting"        element={<Navigate to="/domain/fnb" replace />} />
               <Route path="/marketing-intelligence" element={<Navigate to="/domain/marketing" replace />} />
-              <Route path="/manufacturing-module" element={<Navigate to="/domain/fmcg" replace />} />
+              <Route path="/manufacturing-module" element={<Navigate to="/domain/manufacturing" replace />} />
               <Route path="/telecom-module"       element={<Navigate to="/domain/telecom" replace />} />
               <Route path="/business-development" element={<Navigate to="/domain/bizdev" replace />} />
 
