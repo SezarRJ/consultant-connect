@@ -119,11 +119,11 @@ export const PERPLEXITY_MODELS: { id: PerplexityModel; label: string; desc: stri
 
 export const AI_PROVIDERS: AIProvider[] = [
   {
-    id: "anthropic", name: "Anthropic Claude", icon: "🧠",
-    description: "Primary AI engine powering all 9 advisory agents. Powers market analysis, risk assessment, feasibility studies and all structured outputs.",
-    docsUrl: "https://console.anthropic.com/",
-    apiKeyLabel: "Anthropic API Key", apiKeyPlaceholder: "sk-ant-api03-...",
-    purpose: ["All advisory agents", "Structured JSON outputs", "Document analysis"],
+    id: "anthropic", name: "Gemini via Lovable AI Gateway", icon: "✨",
+    description: "Actual primary AI runtime used by the app. Advisory agents and structured analyses are served through the Lovable AI Gateway backed by Gemini model tiers.",
+    docsUrl: "https://lovable.dev/",
+    apiKeyLabel: "Gateway Managed Server-Side", apiKeyPlaceholder: "No manual key required in this screen",
+    purpose: ["All advisory agents", "Gemini tier routing", "Structured outputs via Supabase edge function"],
     category: "llm",
   },
   {
