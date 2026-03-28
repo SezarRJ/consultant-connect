@@ -145,7 +145,7 @@ const ar: typeof en = {
   new: "جديد", view: "عرض", edit: "تعديل", delete: "حذف", close: "إغلاق",
   run: "تشغيل", running: "جارٍ التشغيل...", complete: "مكتمل", pending: "قيد الانتظار",
   back: "رجوع", next: "التالي", status: "الحالة", summary: "ملخص",
-  settings_title: "الإعدادات", settings_subtitle: "إدارة التفضيلات والتكاملات والمستندات",
+  settings_title: "الإعدادات", settings_subtitle: "إدارة تفضيلات التشغيل والتكاملات واللغة والمستندات",
   tab_language: "اللغة", tab_integrations: "التكاملات", tab_documents: "المستندات",
   tab_agents: "إعداد الوكلاء", tab_profile: "الملف الشخصي", tab_security: "الأمان",
   language_title: "اللغة والمنطقة", language_subtitle: "اختر لغة عرض المنصة",
