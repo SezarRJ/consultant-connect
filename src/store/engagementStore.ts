@@ -444,7 +444,6 @@ export const useEngagementStore = create<StoreType>()(
           const completedRequirement = { ...ensurePhaseRequirement(phase, e.phaseRequirements?.[phase]), completedAt: nowIso() };
           return {
             ...e,
-            phase,
             status: nextPhase === "Closed" ? "Completed" : e.status,
             health: nextPhase === "Closed" ? "Closed" : e.health,
             progress: nextPhase === phase ? 100 : Math.max(e.progress, Math.round(((idx + 1) / PHASES.length) * 100)),
