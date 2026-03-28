@@ -56,11 +56,16 @@ export function useClaudeAnalysis({
 
     try {
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
+      const languageInstruction = getPreferredLanguageInstruction();
 
       // Build request body
       const body: Record<string, unknown> = {
-        system: systemPrompt,
-        messages: [{ role: "user", content: userPrompt }],
+        system: `${systemPrompt}
+
+${languageInstruction}`.trim(),
+        messages: [{ role: "user", content: `${userPrompt}
+
+${languageInstruction}`.trim() }],
         maxTokens: 4000,
         modelTier,
         stream: !outputSchema, // don't stream when using tool calling
@@ -210,4 +215,14 @@ function parseAndSetResult(
   }
   setValid(false);
   setter({ raw: text });
+}
+
+
+function getPreferredLanguageInstruction(): string {
+  if (typeof window === "undefined") return "Respond in professional English unless the request explicitly asks for another language.";
+  const lang = window.localStorage.getItem("lang") || document.documentElement.getAttribute("lang") || "en";
+  if (lang === "ar") {
+    return "Respond fully in Arabic. Write all headings, bullet points, tables, recommendations, and analytical explanations in Arabic. Keep brand names, model names, and unavoidable technical terms in their original language only when needed for clarity.";
+  }
+  return "Respond in professional English unless the request explicitly asks for another language.";
 }
