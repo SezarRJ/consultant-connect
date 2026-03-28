@@ -13,16 +13,20 @@ import { Link } from "react-router-dom";
 import { useEngagementStore } from "@/store/engagementStore";
 import {
   UserCheck, FolderKanban, CheckSquare, PieChart,
-  ArrowRight, Briefcase, Clock, DollarSign, TrendingUp
+  ArrowRight, Briefcase, Clock, DollarSign, TrendingUp,
+  FolderOpen, FileText, FileOutput,
 } from "lucide-react";
 
-type OpsSub = "crm" | "projects" | "tasks" | "financial";
+type OpsSub = "crm" | "projects" | "tasks" | "financial" | "documents" | "proposals" | "reports";
 
 const SUBS = [
-  { id: "crm"       as const, label: "CRM",               icon: UserCheck,    url: "/crm",      description: "Manage clients, contacts, and pipeline." },
-  { id: "projects"  as const, label: "Projects",          icon: FolderKanban, url: "/projects", description: "Track deliverable milestones and workstreams." },
-  { id: "tasks"     as const, label: "Tasks",             icon: CheckSquare,  url: "/tasks",    description: "Day-level execution and task management." },
-  { id: "financial" as const, label: "Financial Overview",icon: PieChart,     url: "/financial",description: "Revenue, billing, and practice financials." },
+  { id: "crm"       as const, label: "CRM",               icon: UserCheck,    url: "/crm",              description: "Manage clients, contacts, and pipeline." },
+  { id: "projects"  as const, label: "Projects",          icon: FolderKanban, url: "/projects",         description: "Track deliverable milestones and workstreams." },
+  { id: "tasks"     as const, label: "Tasks",             icon: CheckSquare,  url: "/tasks",            description: "Day-level execution and task management." },
+  { id: "financial" as const, label: "Financial Overview",icon: PieChart,     url: "/financial",        description: "Revenue, billing, and practice financials." },
+  { id: "documents" as const, label: "Document Hub",      icon: FolderOpen,   url: "/documents",        description: "Store, organise, and share project documents." },
+  { id: "proposals" as const, label: "Proposal Builder",  icon: FileText,     url: "/proposal-builder", description: "Create professional consulting proposals." },
+  { id: "reports"   as const, label: "Report Generator",  icon: FileOutput,   url: "/report-generator", description: "Generate engagement reports and summaries." },
 ];
 
 function QuickStats() {
@@ -41,7 +45,7 @@ function QuickStats() {
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
       {stats.map(({ label, value, icon: Icon, color }) => (
         <div key={label} className="rounded-xl p-4 space-y-2"
           style={{ background: "hsl(216 45% 10%)", border: "1px solid hsl(216 45% 18%)" }}>

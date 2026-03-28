@@ -8,6 +8,8 @@ import {
   TrendingUp, Megaphone, Network, Globe2, ArrowRight,
   Plus, AlertTriangle, CheckCircle2, Activity, ChevronRight,
   FolderKanban, CheckSquare, PieChart, UserCheck, Clock,
+  Bot, MessageSquare, FolderOpen, Factory, Settings, FileText,
+  DollarSign, ShieldAlert, PackageCheck, FileBarChart2,
 } from "lucide-react";
 import { useEngagementStore } from "@/store/engagementStore";
 import { useI18n } from "@/lib/i18n";
@@ -21,21 +23,48 @@ const WORKFLOW = [
 ];
 
 const DOMAINS = [
-  { url: "/domain/real-estate",  label: "Real Estate",     icon: Building2,   color: "hsl(38 95% 52%)"  },
-  { url: "/domain/fmcg",         label: "FMCG",            icon: ShoppingCart, color: "hsl(145 65% 48%)" },
-  { url: "/domain/fnb",          label: "Food & Beverage", icon: Coffee,       color: "hsl(30 90% 55%)"  },
-  { url: "/domain/telecom",      label: "Telecom",         icon: Radio,        color: "hsl(200 80% 55%)" },
-  { url: "/domain/distribution", label: "Distribution",    icon: Truck,        color: "hsl(280 70% 65%)" },
-  { url: "/domain/sales",        label: "Sales",           icon: TrendingUp,   color: "hsl(158 64% 48%)" },
-  { url: "/domain/marketing",    label: "Marketing",       icon: Megaphone,    color: "hsl(340 80% 60%)" },
-  { url: "/domain/bizdev",       label: "Business Dev",    icon: Network,      color: "hsl(217 91% 68%)" },
+  { url: "/domain/real-estate",   label: "Real Estate",     icon: Building2,   color: "hsl(38 95% 52%)"  },
+  { url: "/domain/fmcg",          label: "FMCG",            icon: ShoppingCart, color: "hsl(145 65% 48%)" },
+  { url: "/domain/fnb",           label: "Food & Beverage", icon: Coffee,       color: "hsl(30 90% 55%)"  },
+  { url: "/domain/telecom",       label: "Telecom",         icon: Radio,        color: "hsl(200 80% 55%)" },
+  { url: "/domain/distribution",  label: "Distribution",    icon: Truck,        color: "hsl(280 70% 65%)" },
+  { url: "/domain/sales",         label: "Sales",           icon: TrendingUp,   color: "hsl(158 64% 48%)" },
+  { url: "/domain/marketing",     label: "Marketing",       icon: Megaphone,    color: "hsl(340 80% 60%)" },
+  { url: "/domain/bizdev",        label: "Business Dev",    icon: Network,      color: "hsl(217 91% 68%)" },
+  { url: "/domain/manufacturing", label: "Manufacturing",   icon: Factory,      color: "hsl(263 70% 60%)" },
 ];
 
 const PRACTICE_OPS = [
-  { url: "/crm",       label: "CRM",               labelAr: "إدارة العملاء", icon: UserCheck,    desc: "Contacts & pipeline"  },
-  { url: "/projects",  label: "Projects",          labelAr: "المشاريع",      icon: FolderKanban, desc: "Case management"      },
-  { url: "/tasks",     label: "Tasks",             labelAr: "المهام",         icon: CheckSquare,  desc: "Execution & tracking" },
-  { url: "/financial", label: "Financial Overview",labelAr: "المالية",        icon: PieChart,     desc: "Revenue & billing"    },
+  { url: "/crm",              label: "CRM",               labelAr: "إدارة العملاء",     icon: UserCheck,    desc: "Contacts & pipeline"    },
+  { url: "/projects",         label: "Projects",          labelAr: "المشاريع",           icon: FolderKanban, desc: "Case management"        },
+  { url: "/tasks",            label: "Tasks",             labelAr: "المهام",              icon: CheckSquare,  desc: "Execution & tracking"   },
+  { url: "/financial",        label: "Financial",         labelAr: "المالية",             icon: PieChart,     desc: "Revenue & billing"      },
+  { url: "/documents",        label: "Document Hub",      labelAr: "مستودع المستندات",   icon: FolderOpen,   desc: "Files & documents"      },
+  { url: "/proposal-builder", label: "Proposal Builder",  labelAr: "بناء العروض",        icon: FileText,     desc: "Build proposals"        },
+  { url: "/report-generator", label: "Report Generator",  labelAr: "مولد التقارير",      icon: FileBarChart2,desc: "Generate reports"       },
+];
+
+const INTELLIGENCE_ITEMS = [
+  { url: "/ai-assistant", label: "AI Assistant",  labelAr: "المساعد الذكي",    icon: MessageSquare, desc: "Chat with AI", color: "hsl(200 80% 55%)" },
+  { url: "/agents",       label: "AI Agents",     labelAr: "الوكلاء الذكيون",  icon: Bot,           desc: "9 specialist agents", color: "hsl(270 70% 65%)" },
+];
+
+const SPECIALIST_ITEMS = [
+  { url: "/company-development",     label: "Company Dev",       icon: Building2,     color: "hsl(38 95% 52%)"  },
+  { url: "/iso-preparation",         label: "ISO Preparation",   icon: Settings,      color: "hsl(145 65% 48%)" },
+  { url: "/real-estate-intelligence",label: "Real Estate Intel", icon: Building2,     color: "hsl(30 90% 55%)"  },
+  { url: "/service-modules",         label: "Service Modules",   icon: Network,       color: "hsl(200 80% 55%)" },
+];
+
+const ANALYSIS_QUICK = [
+  { url: "/analysis", label: "Market Entry",        icon: TrendingUp,    color: "hsl(38 95% 52%)"  },
+  { url: "/analysis", label: "Competitor Analysis", icon: BarChart2,     color: "hsl(200 80% 55%)" },
+  { url: "/analysis", label: "Pricing Intelligence",icon: DollarSign,    color: "hsl(145 65% 48%)" },
+  { url: "/analysis", label: "Risk Assessment",     icon: ShieldAlert,   color: "hsl(0 72% 60%)"   },
+  { url: "/analysis", label: "Distributor Finder",  icon: Users,         color: "hsl(270 70% 65%)" },
+  { url: "/analysis", label: "Export Readiness",    icon: PackageCheck,  color: "hsl(30 90% 55%)"  },
+  { url: "/analysis", label: "Feasibility Study",   icon: FileBarChart2, color: "hsl(217 91% 68%)" },
+  { url: "/analysis", label: "Market Intelligence", icon: Globe2,        color: "hsl(158 64% 48%)" },
 ];
 
 const PHASE_COLOR: Record<string, string> = {
@@ -197,7 +226,7 @@ export default function Dashboard() {
           <p className="text-[10px] uppercase tracking-widest font-semibold mb-3" style={{ color: "hsl(215 25% 38%)" }}>
             INDUSTRY DOMAINS
           </p>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
             {DOMAINS.map((d) => (
               <Link key={d.url} to={d.url}
                 className="flex flex-col items-center gap-2 p-3 rounded-xl text-center transition-all hover:scale-[1.03]"
@@ -257,14 +286,31 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Analysis Quick Access */}
+      <div>
+        <p className="text-[10px] uppercase tracking-widest font-semibold mb-3" style={{ color: "hsl(215 25% 38%)" }}>
+          ANALYSIS SERVICES
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {ANALYSIS_QUICK.map(({ url, label, icon: Icon, color }) => (
+            <Link key={label} to={url}
+              className="flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-medium transition-all hover:scale-[1.01]"
+              style={{ background: `${color}08`, border: `1px solid ${color}20`, color: "hsl(210 40% 80%)" }}>
+              <Icon className="h-3.5 w-3.5 shrink-0" style={{ color }} />
+              {label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* Practice Ops */}
       <div>
         <p className="text-[10px] uppercase tracking-widest font-semibold mb-3" style={{ color: "hsl(215 25% 38%)" }}>
           PRACTICE OPS
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {PRACTICE_OPS.map(({ url, label, labelAr, icon: Icon, desc }) => (
-            <Link key={url} to={url}
+            <Link key={url+label} to={url}
               className="flex flex-col items-center gap-2 p-4 rounded-xl text-center transition-all hover:scale-[1.02]"
               style={{ background: "hsl(216 45% 10%)", border: "1px solid hsl(216 45% 18%)" }}>
               <Icon className="h-5 w-5" style={{ color: "hsl(38 95% 52%)" }} />
@@ -272,6 +318,43 @@ export default function Dashboard() {
                 {lang === "ar" ? labelAr : label}
               </p>
               <p className="text-[10px]" style={{ color: "hsl(215 25% 42%)" }}>{desc}</p>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Intelligence */}
+      <div>
+        <p className="text-[10px] uppercase tracking-widest font-semibold mb-3" style={{ color: "hsl(215 25% 38%)" }}>
+          AI INTELLIGENCE
+        </p>
+        <div className="grid grid-cols-2 gap-3">
+          {INTELLIGENCE_ITEMS.map(({ url, label, labelAr, icon: Icon, desc, color }) => (
+            <Link key={url} to={url}
+              className="flex items-center gap-3 px-4 py-3 rounded-xl transition-all hover:scale-[1.01]"
+              style={{ background: `${color}08`, border: `1px solid ${color}20` }}>
+              <Icon className="h-5 w-5 shrink-0" style={{ color }} />
+              <div>
+                <p className="text-sm font-semibold" style={{ color: "hsl(210 40% 88%)" }}>{label}</p>
+                <p className="text-[10px]" style={{ color: "hsl(215 25% 48%)" }}>{desc}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      {/* Specialist Modules */}
+      <div>
+        <p className="text-[10px] uppercase tracking-widest font-semibold mb-3" style={{ color: "hsl(215 25% 38%)" }}>
+          SPECIALIST MODULES
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {SPECIALIST_ITEMS.map(({ url, label, icon: Icon, color }) => (
+            <Link key={url} to={url}
+              className="flex flex-col items-center gap-2 p-4 rounded-xl text-center transition-all hover:scale-[1.02]"
+              style={{ background: `${color}08`, border: `1px solid ${color}20` }}>
+              <Icon className="h-5 w-5" style={{ color }} />
+              <p className="text-xs font-semibold" style={{ color: "hsl(210 40% 85%)" }}>{label}</p>
             </Link>
           ))}
         </div>
