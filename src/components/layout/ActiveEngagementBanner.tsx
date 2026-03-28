@@ -27,6 +27,8 @@ function NewEngagementModal({ onClose }: { onClose: () => void }) {
     phase:"Discovery" as EngagementPhase, status:"Active" as const, health:"On Track" as const,
     progress:0, stakeholders:[], outputs:{}, contactId:null,
     startDate:new Date().toISOString().slice(0,10), endDate:"",
+    requestSummary:{ serviceRequest:"", expectedOutputs:[], requestedReports:[], summary:"" },
+    resources:[], phaseRequirements:{ Discovery:{ phase:"Discovery", requiredInfo:["Customer objectives","Scope","Stakeholders"], requiredDocuments:["Briefing note","Company profile","Meeting notes"], notes:"" } }, requestedOutputs:[],
   });
   const f = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement>) =>
     setForm((p) => ({ ...p, [k]: e.target.value }));
