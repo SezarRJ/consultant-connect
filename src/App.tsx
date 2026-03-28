@@ -1,6 +1,5 @@
 /**
  * App.tsx — ConsultAI Pro v2
- * GitHub sync verified: 2026-03-28
  * ─────────────────────────────────────────────────────────────────
  * Full routing:
  *   / Workflow hubs (CRM → Engagement → Analysis → Strategy → Deliverables)
@@ -49,7 +48,10 @@ import Settings        from "./pages/Settings";
 import NotFound        from "./pages/NotFound";
 import ProposalBuilder from "./pages/ProposalBuilder";
 import ReportGenerator from "./pages/ReportGenerator";
-import PracticeOpsHub   from "./pages/PracticeOpsHub";
+import PracticeOpsHub       from "./pages/PracticeOpsHub";
+import WorkflowGuide         from "./pages/WorkflowGuide";
+import DataCollection        from "./pages/DataCollection";
+import FinancialConsultancy  from "./pages/FinancialConsultancy";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -98,6 +100,11 @@ const App = () => (
 
               {/* ── System ── */}
               <Route path="/settings"      element={<Settings />} />
+
+              {/* ── Core workflow ── */}
+              <Route path="/workflow"              element={<WorkflowGuide />} />
+              <Route path="/data-collection"       element={<DataCollection />} />
+              <Route path="/financial-consultancy" element={<FinancialConsultancy />} />
 
               {/* ── Direct service pages ── */}
               <Route path="/proposal-builder"     element={<ProposalBuilder />} />
