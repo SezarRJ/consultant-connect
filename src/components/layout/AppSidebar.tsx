@@ -5,7 +5,9 @@ import {
   ChevronRight, Globe2, Bot, FolderOpen, Settings, Languages,
   UserCheck, FolderKanban, CheckSquare, PieChart, Globe, FileText,
   ChevronDown, Building2, Layers, MessageSquare, FileOutput,
-  Shield, Network
+  Shield, Network, Briefcase, BookOpen, BarChart, Map,
+  Users2, Lightbulb, Target, Activity, Library, Star,
+  Cpu, TrendingDown, Gauge, Radio
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useState } from "react";
@@ -13,7 +15,11 @@ import { useState } from "react";
 export function AppSidebar() {
   const location = useLocation();
   const { t, lang, setLang } = useI18n();
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({
+    services: true,
+    strategy: true,
+    premium: true,
+  });
 
   const isActive = (url: string) =>
     url === "/" ? location.pathname === "/" : location.pathname.startsWith(url);
@@ -23,68 +29,77 @@ export function AppSidebar() {
 
   const groups = [
     {
-      key: "overview", label: "OVERVIEW", labelAr: "نظرة عامة", collapsible: false,
+      key: "overview", label: "COMMAND CENTER", labelAr: "مركز القيادة", collapsible: false,
       items: [
-        { title: "Dashboard",             url: "/",                   icon: LayoutDashboard },
-        { title: "Projects",              url: "/projects",           icon: FolderKanban    },
+        { title: "Dashboard",              url: "/",                   icon: LayoutDashboard },
+        { title: "Executive View",         url: "/executive",          icon: Gauge           },
+        { title: "Insights Feed",          url: "/insights",           icon: Radio           },
+      ],
+    },
+    {
+      key: "engagement", label: "ENGAGEMENT", labelAr: "إدارة المشاريع", collapsible: true,
+      items: [
+        { title: "Projects",               url: "/projects",           icon: FolderKanban    },
+        { title: "Engagement Tracker",     url: "/engagement-tracker", icon: Activity        },
+        { title: "Client Briefing",        url: "/client-briefing",    icon: Briefcase       },
+        { title: "Tasks & Execution",      url: "/tasks",              icon: CheckSquare     },
+        { title: "Document Hub",           url: "/documents",          icon: FolderOpen      },
       ],
     },
     {
       key: "services", label: "ADVISORY SERVICES", labelAr: "الخدمات الاستشارية", collapsible: true,
       items: [
-        { title: t.nav_market_entry,      url: "/market-entry",         icon: TrendingUp,    badge: "01" },
-        { title: t.nav_distributor,       url: "/distributor-finder",   icon: Users,         badge: "02" },
-        { title: t.nav_competitor,        url: "/competitor-analysis",  icon: BarChart2,     badge: "03" },
-        { title: t.nav_pricing,           url: "/pricing-intelligence", icon: DollarSign,    badge: "04" },
-        { title: t.nav_risk,              url: "/risk-assessment",      icon: ShieldAlert,   badge: "05" },
-        { title: t.nav_partner,           url: "/partner-matchmaking",  icon: Handshake,     badge: "06" },
-        { title: t.nav_sales,             url: "/sales-strategy",       icon: Zap,           badge: "07" },
-        { title: t.nav_export,            url: "/export-readiness",     icon: PackageCheck,  badge: "08" },
-        { title: t.nav_feasibility,       url: "/feasibility-study",    icon: FileBarChart2, badge: "09" },
+        { title: t.nav_market_entry,       url: "/market-entry",         icon: TrendingUp,    badge: "01" },
+        { title: t.nav_distributor,        url: "/distributor-finder",   icon: Users,         badge: "02" },
+        { title: t.nav_competitor,         url: "/competitor-analysis",  icon: BarChart2,     badge: "03" },
+        { title: t.nav_pricing,            url: "/pricing-intelligence", icon: DollarSign,    badge: "04" },
+        { title: t.nav_risk,               url: "/risk-assessment",      icon: ShieldAlert,   badge: "05" },
+        { title: t.nav_partner,            url: "/partner-matchmaking",  icon: Handshake,     badge: "06" },
+        { title: t.nav_sales,              url: "/sales-strategy",       icon: Zap,           badge: "07" },
+        { title: t.nav_export,             url: "/export-readiness",     icon: PackageCheck,  badge: "08" },
+        { title: t.nav_feasibility,        url: "/feasibility-study",    icon: FileBarChart2, badge: "09" },
       ],
     },
     {
-      key: "premium", label: "PREMIUM MODULES", labelAr: "الوحدات المتقدمة", collapsible: true,
+      key: "strategy", label: "STRATEGY TOOLS", labelAr: "أدوات الاستراتيجية", collapsible: true,
       items: [
-        { title: "Real Estate Intel",     url: "/real-estate-intelligence", icon: Building2  },
-        { title: "Service Modules",       url: "/service-modules",          icon: Layers     },
+        { title: "Strategy Workshop",      url: "/strategy-workshop",    icon: Target         },
+        { title: "Benchmarking Tool",      url: "/benchmarking",         icon: BarChart        },
+        { title: "Stakeholder Mapper",     url: "/stakeholder-mapper",   icon: Map             },
+        { title: "Playbook Library",       url: "/playbooks",            icon: Library         },
       ],
     },
     {
       key: "intelligence", label: "INTELLIGENCE", labelAr: "الاستخبارات", collapsible: true,
       items: [
-        { title: "Market Intelligence",   url: "/market-intelligence",  icon: Globe          },
-        { title: "AI Assistant",          url: "/ai-assistant",         icon: MessageSquare  },
-        { title: "AI Agents",             url: "/agents",               icon: Bot            },
+        { title: "Market Intelligence",    url: "/market-intelligence",  icon: Globe           },
+        { title: "AI Assistant",           url: "/ai-assistant",         icon: MessageSquare   },
+        { title: "AI Agents",              url: "/agents",               icon: Bot             },
+        { title: "Knowledge Base",         url: "/knowledge",            icon: BookOpen        },
       ],
     },
     {
-      key: "business", label: "REVENUE ENGINE", labelAr: "محرك الإيرادات", collapsible: true,
+      key: "revenue", label: "REVENUE ENGINE", labelAr: "محرك الإيرادات", collapsible: true,
       items: [
-        { title: "CRM",                   url: "/crm",                  icon: UserCheck      },
-        { title: "Proposal Builder",      url: "/proposals",            icon: FileText       },
-        { title: "Financial Overview",    url: "/financial",            icon: PieChart       },
+        { title: "CRM",                    url: "/crm",                  icon: UserCheck       },
+        { title: "Proposal Builder",       url: "/proposals",            icon: FileText        },
+        { title: "Financial Overview",     url: "/financial",            icon: PieChart        },
+        { title: "Report Generator",       url: "/reports",              icon: FileOutput      },
       ],
     },
     {
-      key: "execution", label: "EXECUTION", labelAr: "التنفيذ", collapsible: true,
+      key: "premium", label: "PREMIUM MODULES", labelAr: "الوحدات المتقدمة", collapsible: true,
       items: [
-        { title: "Tasks & Execution",     url: "/tasks",                icon: CheckSquare    },
-        { title: "Report Generator",      url: "/reports",              icon: FileOutput     },
-        { title: "Document Hub",          url: "/documents",            icon: FolderOpen     },
-      ],
-    },
-    {
-      key: "company", label: "COMPANY DEVELOPMENT", labelAr: "تطوير الشركة", collapsible: true,
-      items: [
-        { title: "Company Development",   url: "/company-development",   icon: Network  },
-        { title: "ISO Preparation",       url: "/iso-preparation",       icon: Shield   },
+        { title: "Real Estate Intel",      url: "/real-estate-intelligence", icon: Building2   },
+        { title: "Service Modules",        url: "/service-modules",          icon: Layers      },
+        { title: "Company Development",    url: "/company-development",      icon: Network     },
+        { title: "ISO Preparation",        url: "/iso-preparation",          icon: Shield      },
       ],
     },
     {
       key: "system", label: "SYSTEM", labelAr: "النظام", collapsible: false,
       items: [
-        { title: t.nav_settings,          url: "/settings",             icon: Settings       },
+        { title: t.nav_settings,           url: "/settings",             icon: Settings        },
       ],
     },
   ];
@@ -97,11 +112,11 @@ export function AppSidebar() {
       {/* Logo */}
       <div className="flex items-center gap-3 px-5 py-5 border-b" style={{ borderColor: "hsl(var(--sidebar-border))" }}>
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: "hsl(38 95% 52%)" }}>
-          <Globe2 className="h-5 w-5" style={{ color: "hsl(216 58% 6%)" }} />
+          <Cpu className="h-5 w-5" style={{ color: "hsl(216 58% 6%)" }} />
         </div>
         <div className="flex flex-col">
-          <span className="text-sm font-bold font-display" style={{ color: "hsl(210 40% 92%)" }}>ConsultAI</span>
-          <span className="text-xs" style={{ color: "hsl(38 95% 52%)" }}>Intelligence Platform</span>
+          <span className="text-sm font-bold font-display" style={{ color: "hsl(210 40% 92%)" }}>ConsultAI Pro</span>
+          <span className="text-xs" style={{ color: "hsl(38 95% 52%)" }}>Consultancy Command</span>
         </div>
       </div>
 
@@ -198,7 +213,7 @@ export function AppSidebar() {
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-center" style={{ color: "hsl(215 25% 35%)" }}>ConsultAI Platform © 2026</p>
+        <p className="text-[10px] text-center" style={{ color: "hsl(215 25% 35%)" }}>ConsultAI Pro © 2026</p>
       </div>
     </aside>
   );
