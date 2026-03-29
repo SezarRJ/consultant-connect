@@ -139,7 +139,10 @@ export function AppSidebar() {
         {/* SERVICES */}
         <div className="space-y-0.5">
           {sectionLabel("SERVICES", "الخدمات")}
-          {navItem("Financial Consultancy","/financial-consultancy",DollarSign,"hsl(145 65% 48%)")}
+          {navItem("Service Catalog",      "/service-modules",      Network,   "hsl(38 95% 52%)")}
+          {navItem("Performance Improvement","/workflow",          TrendingUp, "hsl(145 65% 48%)")}
+          {navItem("Strategic Management", "/workflow",            Layers,    "hsl(217 91% 68%)")}
+          {navItem("Real Estate Consulting","/real-estate-intelligence",Building2,"hsl(30 90% 55%)")}
           {navItem("Proposal Builder",     "/proposal-builder",    FileText,  "hsl(38 95% 52%)")}
           {navItem("Report Generator",     "/report-generator",    FileOutput,"hsl(200 80% 55%)")}
         </div>
