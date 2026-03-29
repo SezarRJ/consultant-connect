@@ -47,6 +47,12 @@ const PHASE_ACTIONS: Record<string, { label: string; url: string; desc: string }
 };
 
 const CATEGORY_ICONS: Record<ServiceCategory, React.ElementType> = {
+  "Strategic Management": Target,
+  "Performance Improvement": Activity,
+  "Customer Experience": Users,
+  "Consumer Products": TrendingUp,
+  "Marketing Consulting": Globe2,
+  "Real Estate Consulting": Building2,
   "Market & Commercial": TrendingUp,
   "Financial Consultancy": DollarSign,
   "Real Estate": Building2,
@@ -57,6 +63,12 @@ const CATEGORY_ICONS: Record<ServiceCategory, React.ElementType> = {
 };
 
 const CATEGORY_COLORS: Record<ServiceCategory, string> = {
+  "Strategic Management": "hsl(217 91% 68%)",
+  "Performance Improvement": "hsl(145 65% 48%)",
+  "Customer Experience": "hsl(280 70% 65%)",
+  "Consumer Products": "hsl(38 95% 52%)",
+  "Marketing Consulting": "hsl(200 80% 55%)",
+  "Real Estate Consulting": "hsl(30 90% 55%)",
   "Market & Commercial": "hsl(38 95% 52%)",
   "Financial Consultancy": "hsl(145 65% 48%)",
   "Real Estate": "hsl(30 90% 55%)",
@@ -176,7 +188,7 @@ export default function WorkflowGuide() {
             <h1 className="text-xl font-bold" style={{ color: "hsl(210 40% 94%)" }}>Engagement Workflow</h1>
           </div>
           <p className="text-sm" style={{ color: "hsl(215 25% 52%)" }}>
-            One guided process — from first contact to final report. All services share the same client context.
+            CRM-first, requirements-first engagement flow — from client request to final delivery. Every service inherits the same client context.
           </p>
         </div>
         <Link to="/crm"
