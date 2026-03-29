@@ -11,7 +11,7 @@ export type EngagementPhase = "Discovery"|"Data Collection"|"Analysis"|"Strategy
 export type EngagementStatus = "Active"|"On Hold"|"Completed"|"Cancelled";
 export type HealthStatus = "On Track"|"At Risk"|"Delayed"|"Waiting on Client"|"Closed";
 export type ReadinessStatus = "Ready"|"Partially Ready"|"Not Ready";
-export type ServiceCategory = "Market & Commercial"|"Financial Consultancy"|"Real Estate"|"Operations"|"Company Development"|"ISO & Compliance"|"Domain Intelligence";
+export type ServiceCategory = "Market & Commercial"|"Financial Consultancy"|"Real Estate"|"Operations"|"Company Development"|"ISO & Compliance"|"Domain Intelligence"|"Strategic Management"|"Performance Improvement"|"Customer Experience"|"Consumer Products"|"Marketing Consulting"|"Real Estate Consulting";
 
 export interface CRMContact {
   id:string; fullName:string; jobTitle:string; email:string; phone:string;
@@ -107,11 +107,18 @@ export interface Engagement {
 export const PHASES:EngagementPhase[] = ["Discovery","Data Collection","Analysis","Strategy","Deliverables","Review","Closed"];
 
 export const SERVICE_CATEGORIES:ServiceCategory[] = [
-  "Market & Commercial","Financial Consultancy","Real Estate",
-  "Operations","Company Development","ISO & Compliance","Domain Intelligence"
+  "Strategic Management","Performance Improvement","Customer Experience","Consumer Products",
+  "Marketing Consulting","Real Estate Consulting","Market & Commercial","Financial Consultancy",
+  "Operations","Company Development","ISO & Compliance","Domain Intelligence","Real Estate"
 ];
 
 export const CATEGORY_SERVICES:Record<ServiceCategory, string[]> = {
+  "Strategic Management": ["Corporate Strategy","Growth & Market Entry","Operating Model & Governance","Pricing & Profitability","Performance & PMO","Digital & Data for Strategy","M&A Strategy","Change & Activation","Management Consulting Solutions","Business Strategy Consulting"],
+  "Performance Improvement": ["Cost & Productivity","Throughput & Cycle Time","Quality & First-Pass Yield","Pricing & Margin","Procurement & Vendor Value","Working Capital","Analytics & KPI"],
+  "Customer Experience": ["Revenue, Loyalty & Lower Cost-to-Serve","Journeys, Service & Loyalty","Service Blueprinting","VOC & NPS System","Retention & Win-back"],
+  "Consumer Products": ["Category & Portfolio Strategy","Brand, Shopper & Retail Media","Pricing & Trade Promotion","Sales Operations & Route to Market","Supply Chain & Digital Shelf","Managed Services & Outsourcing"],
+  "Marketing Consulting": ["Growth Strategy & Segmentation","Brand & Positioning","Advertising Consulting","Demand Generation & Content","Sales & Marketing Consulting","Pricing & Sales Consulting","Analytics & Marketing Ops","Customer Experience & Retention","Product Marketing","Go-to-Market for New Regions"],
+  "Real Estate Consulting": ["Portfolio Strategy & Capital Planning","Transaction Support","Property Management Consulting","Lease & Occupier Optimization","Energy, Retro-commissioning & ESG","Development & Project Controls","Data & Reporting","Property Management Consultants"],
   "Market & Commercial": ["Market Entry","Competitor Analysis","Pricing Intelligence","Risk Assessment","Distributor Finder","Export Readiness","Feasibility Study","Market Intelligence","Sales Strategy","Partner Matchmaking"],
   "Financial Consultancy": ["Financial Analysis","Valuation","Investment Appraisal","Financial Modeling","Budget & Forecast","Cash Flow Analysis","Cost Reduction","Profitability Analysis","Due Diligence","Financial Report"],
   "Real Estate": ["Location Intelligence","Feasibility Engine","Investment Decision","Sensitivity Analysis","Comparable Analysis","Scenario Planning"],
@@ -119,6 +126,13 @@ export const CATEGORY_SERVICES:Record<ServiceCategory, string[]> = {
   "Company Development": ["Company Restructuring","Corporate Strategy","Merger & Acquisition","Governance Framework","Board Advisory","Growth Planning"],
   "ISO & Compliance": ["ISO 9001 Preparation","ISO 14001","ISO 45001","Gap Analysis","Audit Preparation","Compliance Review"],
   "Domain Intelligence": ["FMCG Intelligence","F&B Consulting","Telecom Intelligence","Distribution Intelligence","Marketing Intelligence","Manufacturing Intelligence","Business Development"],
+};
+
+export const SERVICE_TYPICAL_STEPS: Partial<Record<ServiceCategory, string[]>> = {
+  "Performance Improvement": ["Diagnose","Prioritize","Pilot","Scale","Track & Adapt"],
+  "Consumer Products": ["Baseline","Design","Pilots","Scale"],
+  "Marketing Consulting": ["Diagnose","Choices","Plan","Launch","Optimize","Scale"],
+  "Real Estate Consulting": ["Baseline","Choices","Plan","Execute","Tune","Review"],
 };
 
 const nowIso = () => new Date().toISOString();
@@ -190,7 +204,7 @@ const DEMO_ENGAGEMENT:Engagement = {
   contactId:DEMO_CONTACT_ID, clientName:"Razan Al-Hadithi",
   companyName:"Mesopotamia Foods Co.", industry:"Food & Beverage",
   sector:"FMCG Distribution", market:"Iraq",
-  serviceType:"Sales Strategy", serviceCategory:"Market & Commercial",
+  serviceType:"Sales Strategy", serviceCategory:"Strategic Management",
   budget:"$35,000", startDate:"2026-03-28", endDate:"2026-06-30",
   timeline:"90-day commercial acceleration sprint",
   objectives:"Increase modern trade listings, rationalise channel coverage, define Iraq go-to-market plan.",
@@ -212,7 +226,7 @@ const DEMO_ENGAGEMENT:Engagement = {
       content:"Premium and convenience food categories benefit from urban retail modernisation in Iraq."},
   },
   requestSummary:{
-    serviceRequest:"Sales Strategy", serviceCategory:"Market & Commercial",
+    serviceRequest:"Sales Strategy", serviceCategory:"Strategic Management",
     expectedOutputs:["Sales Strategy","Market Entry","Competitor Analysis","Executive Summary"],
     deadline:"2026-06-15", targetMarket:"Iraq",
     requestedReports:["Market Entry","Sales Strategy","Competitor Analysis","Executive Summary"],
@@ -307,7 +321,7 @@ export const useEngagementStore = create<StoreType>()(
           id, name:`${contact.companyName} — ${contact.interestedService}`,
           contactId, clientName:contact.fullName, companyName:contact.companyName,
           industry:contact.industry, sector:contact.sector, market:contact.country,
-          serviceType:contact.interestedService, serviceCategory:"Market & Commercial",
+          serviceType:contact.interestedService, serviceCategory:"Strategic Management",
           budget:contact.estimatedBudget,
           startDate:new Date().toISOString().slice(0,10), endDate:"",
           timeline:"TBD", objectives:contact.clientNeed, scope:"",
@@ -315,7 +329,7 @@ export const useEngagementStore = create<StoreType>()(
           priority:contact.priorityLevel, phase:"Discovery", status:"Active",
           health:"On Track", progress:0, stakeholders:[], outputs:{},
           requestSummary:{
-            serviceRequest:contact.interestedService, serviceCategory:"Market & Commercial",
+            serviceRequest:contact.interestedService, serviceCategory:"Strategic Management",
             expectedOutputs, deadline:contact.nextActionDate||"",
             targetMarket:contact.country, requestedReports:expectedOutputs,
             summary:contact.clientNeed||contact.businessProblem||`${contact.interestedService} for ${contact.companyName}`,
