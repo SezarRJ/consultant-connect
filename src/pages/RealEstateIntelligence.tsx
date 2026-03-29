@@ -200,7 +200,7 @@ Provide final GO/NO-GO recommendation with confidence level and next steps.`);
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: "hsl(38 95% 52% / 0.15)", color: "hsl(38 95% 60%)" }}>PREMIUM MODULE</span>
             </div>
             <h1 className="text-2xl font-bold font-display" style={{ color: "hsl(210 40% 94%)" }}>Real Estate Intelligence</h1>
-            <p className="text-sm mt-1" style={{ color: "hsl(215 25% 60%)" }}>Location intelligence · Scenario generation · Feasibility · Multi-AI validation · Decision engine</p>
+            <p className="text-sm mt-1" style={{ color: "hsl(215 25% 60%)" }}>Portfolio strategy, transactions, property management, ESG, feasibility, and project controls</p>
           </div>
           <div className="flex gap-2 flex-wrap">
             {dr?.goNoGo && (
@@ -210,6 +210,20 @@ Provide final GO/NO-GO recommendation with confidence level and next steps.`);
             )}
           </div>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
+        {[
+          ["Portfolio Strategy & Capital Planning","Hold/sell decisions, sector mix, debt/equity options, capital timing"],
+          ["Transaction Support","Buy/sell advisory, underwriting, due diligence lists, data rooms"],
+          ["Property Management Consulting","Service standards, vendor governance, CMMS, maintenance KPIs"],
+          ["Lease, ESG & Project Controls","Lease optimization, retro-commissioning, feasibility, handover to ops"],
+        ].map(([title, desc]) => (
+          <div key={title} className="rounded-xl p-4" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
+            <p className="text-sm font-semibold mb-1" style={{ color: "hsl(210 40% 90%)" }}>{title}</p>
+            <p className="text-xs leading-relaxed" style={{ color: "hsl(215 25% 55%)" }}>{desc}</p>
+          </div>
+        ))}
       </div>
 
       {/* Tab Nav */}
