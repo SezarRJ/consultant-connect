@@ -152,6 +152,39 @@ const MODULES = [
   },
 ];
 
+
+const SERVICE_FAMILIES = [
+  {
+    title: "Performance Improvement Services",
+    steps: ["Diagnose", "Prioritize", "Pilot", "Scale", "Track & Adapt"],
+    items: ["Cost & Productivity", "Throughput & Cycle Time", "Quality & First-Pass Yield", "Pricing & Margin", "Procurement & Vendor Value", "Working Capital", "Analytics & KPI"],
+  },
+  {
+    title: "Customer Experience Consulting",
+    steps: ["Discover", "Map Journeys", "Redesign Service", "Measure Loyalty", "Improve Cost-to-Serve"],
+    items: ["Revenue, Loyalty & Lower Cost-to-Serve", "Journeys, Service and Loyalty"],
+  },
+  {
+    title: "Real Estate Consulting Services",
+    steps: ["Baseline", "Choices", "Plan", "Execute", "Tune", "Review"],
+    items: ["Portfolio Strategy & Capital Planning", "Transaction Support", "Property Management Consulting", "Lease & Occupier Optimization", "Energy, Retro-commissioning & ESG", "Development & Project Controls", "Data & Reporting", "Property Management Consultants"],
+  },
+  {
+    title: "Consumer Products Consulting",
+    steps: ["Baseline", "Design", "Pilots", "Scale"],
+    items: ["Category & Portfolio Strategy", "Brand, Shopper & Retail Media", "Pricing & Trade Promotion", "Sales Operations & Route to Market", "Supply Chain & Digital Shelf", "Managed Services & Outsourcing"],
+  },
+  {
+    title: "Marketing Consulting Services",
+    steps: ["Diagnose", "Choices", "Plan", "Launch", "Optimize", "Scale"],
+    items: ["Growth Strategy & Segmentation", "Brand & Positioning", "Advertising Consulting", "Demand Generation & Content", "Sales & Marketing Consulting", "Pricing & Sales Consulting", "Analytics & Marketing Ops", "Customer Experience & Retention", "Product Marketing", "Go-to-Market for New Regions"],
+  },
+  {
+    title: "Strategic Management Consulting",
+    steps: ["Scan", "Choose", "Align", "Execute", "Track Benefits"],
+    items: ["Corporate Strategy", "Growth & Market Entry", "Operating Model & Governance", "Pricing & Profitability", "Performance & PMO", "Digital & Data for Strategy", "M&A Strategy", "Change & Activation", "Management Consulting Solutions", "Business Strategy Consulting"],
+  },
+];
 function ErrorBanner({ msg }: { msg: string }) {
   return (
     <div className="rounded-xl p-4 flex items-start gap-3" style={{ background: "hsl(0 72% 51% / 0.08)", border: "1px solid hsl(0 72% 51% / 0.3)" }}>
@@ -235,7 +268,32 @@ export default function ServiceModules() {
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold font-display" style={{ color: "hsl(210 40% 94%)" }}>Service Modules</h1>
-        <p className="text-sm mt-1" style={{ color: "hsl(215 25% 55%)" }}>Full-coverage industry modules — each powered by a dedicated AI consulting engine</p>
+        <p className="text-sm mt-1" style={{ color: "hsl(215 25% 55%)" }}>Service families, typical steps, and AI-powered specialist modules for Iraq / MENA consulting engagements</p>
+      </div>
+
+      {/* Service Catalog */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+        {SERVICE_FAMILIES.map((family) => (
+          <div key={family.title} className="rounded-xl p-4" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
+            <div className="flex items-center gap-2 mb-2">
+              <Star className="h-4 w-4" style={{ color: "hsl(38 95% 60%)" }} />
+              <p className="text-sm font-semibold" style={{ color: "hsl(210 40% 90%)" }}>{family.title}</p>
+            </div>
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {family.steps.map((step) => (
+                <span key={step} className="text-[10px] px-2 py-1 rounded-full" style={{ background: "hsl(216 45% 12%)", color: "hsl(215 25% 55%)" }}>{step}</span>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {family.items.slice(0, 6).map((item) => (
+                <span key={item} className="text-[10px] px-2 py-1 rounded-full" style={{ background: "hsl(38 95% 52%/0.10)", color: "hsl(38 95% 60%)" }}>{item}</span>
+              ))}
+              {family.items.length > 6 && (
+                <span className="text-[10px] px-2 py-1 rounded-full" style={{ background: "hsl(216 45% 12%)", color: "hsl(215 25% 55%)" }}>+{family.items.length - 6} more</span>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Module Selector */}
