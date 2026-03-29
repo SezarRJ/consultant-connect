@@ -17,6 +17,42 @@ import {
 const DATA_CATEGORIES = ["Company","Financial","Market","Operations","Custom"] as const;
 
 const SUGGESTED_INPUTS: Record<string, { label: string; category: typeof DATA_CATEGORIES[number]; placeholder: string }[]> = {
+  "Strategic Management": [
+    { label: "Strategic Objective", category: "Company", placeholder: "e.g. Grow EBITDA while entering 2 new segments" },
+    { label: "Target Segments", category: "Market", placeholder: "e.g. B2B industrials, modern trade" },
+    { label: "Current Governance Pain Point", category: "Operations", placeholder: "e.g. Slow decisions and unclear ownership" },
+    { label: "Portfolio / Capital Priority", category: "Financial", placeholder: "e.g. Shift capex toward high-return units" },
+  ],
+  "Performance Improvement": [
+    { label: "Unit Cost Baseline", category: "Financial", placeholder: "e.g. $2.30 per unit" },
+    { label: "Main Bottleneck", category: "Operations", placeholder: "e.g. Packaging line changeovers" },
+    { label: "Throughput / Cycle Time", category: "Operations", placeholder: "e.g. 180 units/hour, 5-day lead time" },
+    { label: "Working Capital Issue", category: "Financial", placeholder: "e.g. 95 days inventory, slow collections" },
+  ],
+  "Customer Experience": [
+    { label: "Key Journey", category: "Company", placeholder: "e.g. onboarding, complaint handling, renewal" },
+    { label: "Top Customer Pain Point", category: "Market", placeholder: "e.g. delayed support and weak follow-up" },
+    { label: "Retention / Loyalty Target", category: "Financial", placeholder: "e.g. reduce churn by 4 pts" },
+    { label: "Service Channel Mix", category: "Operations", placeholder: "e.g. call center, WhatsApp, field service" },
+  ],
+  "Consumer Products": [
+    { label: "Brand / SKU Portfolio", category: "Company", placeholder: "e.g. 3 brands, 24 active SKUs" },
+    { label: "Trade Promotion Challenge", category: "Financial", placeholder: "e.g. heavy discounts with low ROI" },
+    { label: "Route to Market Model", category: "Operations", placeholder: "e.g. distributors + key accounts" },
+    { label: "Digital Shelf Issue", category: "Market", placeholder: "e.g. low ecommerce availability" },
+  ],
+  "Marketing Consulting": [
+    { label: "ICP / Core Segment", category: "Market", placeholder: "e.g. SME owners in Baghdad and Erbil" },
+    { label: "CAC / LTV Baseline", category: "Financial", placeholder: "e.g. CAC $140, LTV $900" },
+    { label: "Main Growth Channel", category: "Operations", placeholder: "e.g. Meta ads + sales outreach" },
+    { label: "Retention Challenge", category: "Market", placeholder: "e.g. 22% churn after month 3" },
+  ],
+  "Real Estate Consulting": [
+    { label: "Asset / Portfolio Scope", category: "Company", placeholder: "e.g. 7 assets across Baghdad and Erbil" },
+    { label: "Lease / Occupancy Issue", category: "Operations", placeholder: "e.g. vacancy at 18%" },
+    { label: "Energy / ESG Priority", category: "Operations", placeholder: "e.g. high utility cost, weak metering" },
+    { label: "Capital Plan Question", category: "Financial", placeholder: "e.g. hold vs sell and retrofit timing" },
+  ],
   "Market & Commercial": [
     { label: "Target Market / Country", category: "Market", placeholder: "e.g. Iraq — Baghdad, Basra, Erbil" },
     { label: "Target Customer Segment", category: "Market", placeholder: "e.g. Modern trade supermarkets, B2B wholesale" },
@@ -125,7 +161,7 @@ export default function DataCollection() {
     </div>
   );
 
-  const suggested = SUGGESTED_INPUTS[eng.serviceCategory] || SUGGESTED_INPUTS["Market & Commercial"];
+  const suggested = SUGGESTED_INPUTS[eng.serviceCategory] || SUGGESTED_INPUTS["Strategic Management"];
   const incomeFields = FIN_FIELDS.filter(f => f.group === "income");
   const balanceFields = FIN_FIELDS.filter(f => f.group === "balance");
   const metaFields = FIN_FIELDS.filter(f => f.group === "meta");
