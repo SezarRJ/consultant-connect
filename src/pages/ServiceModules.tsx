@@ -131,24 +131,24 @@ const MODULES = [
     placeholder: "e.g. Bundle strategy optimization for Iraqi telecom operator, 5M subscribers, prepaid market"
   },
   {
-    key: "manufacturing" as Module,
-    label: "Manufacturing Module",
-    labelAr: "وحدة التصنيع",
-    icon: Factory,
+    key: "realestate" as Module,
+    label: "Real Estate Module",
+    labelAr: "وحدة العقارات",
+    icon: Building2,
     color: "hsl(38 95% 60%)",
     bg: "hsl(38 95% 52% / 0.08)",
     border: "hsl(38 95% 52% / 0.25)",
-    features: ["Process Optimization", "Cost Reduction Engine", "Supply Chain Design", "Procurement Optimizer"],
-    prompt: `You are a senior manufacturing and operations consultant. Analyze and respond ONLY with valid JSON:
+    features: ["Location Intelligence", "Feasibility Engine", "Investment Decision", "Sensitivity Analysis", "Comparable Analysis"],
+    prompt: `You are a senior real estate consultant for MENA markets. Analyze and respond ONLY with valid JSON:
 {
-  "processOptimization": { "currentOEE": "string", "targetOEE": "string", "bottlenecks": ["string"], "improvements": [{"area":"string","action":"string","expectedGain":"string"}] },
-  "costReduction": { "currentCOGS": "string", "targetCOGS": "string", "savingsOpportunities": [{"item":"string","saving":"string","timeframe":"string"}], "totalPotentialSaving": "string" },
-  "supplyChainDesign": { "sourcingStrategy": "string", "keySuppliers": [{"category":"string","strategy":"string","riskLevel":"string"}], "inventoryPolicy": "string", "leadTime": "string" },
-  "procurementOptimization": { "categories": [{"category":"string","spend":"string","strategy":"Buy|Make|Partner","saving":"string"}], "totalSaving": "string" },
-  "capacityPlan": { "currentCapacity": "string", "utilizationRate": "string", "expansionNeeded": "string", "investmentRequired": "string" },
+  "locationIntelligence": { "catchment": "string", "demographics": "string", "accessibility": "string", "competition": "string", "developmentPotential": "string" },
+  "feasibility": { "marketDemand": "string", "financialViability": "string", "phasing": "string", "recommendation": "Go|No-Go|Conditional" },
+  "investmentDecision": { "irr": "string", "npv": "string", "paybackPeriod": "string", "riskLevel": "Low|Medium|High", "recommendation": "string" },
+  "sensitivityAnalysis": { "scenarios": [{"variable":"string","base":"string","upside":"string","downside":"string","impact":"string"}] },
+  "comparableAnalysis": [{"asset":"string","price":"string","size":"string","location":"string","benchmark":"string"}],
   "recommendations": ["string"]
 }`,
-    placeholder: "e.g. Process optimization for food manufacturing plant in Baghdad, 200T/day capacity, 45% OEE"
+    placeholder: "e.g. Feasibility analysis for mixed-use development in Erbil, 50,000 sqm site near Empire World"
   },
 ];
 
