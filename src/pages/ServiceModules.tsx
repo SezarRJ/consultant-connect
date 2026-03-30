@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 
-type Module = "sales" | "fmcg" | "fb" | "marketing" | "bizdev" | "telecom" | "manufacturing";
+type Module = "sales" | "fmcg" | "fb" | "marketing" | "bizdev" | "telecom" | "realestate";
 
 const MODULES = [
   {
