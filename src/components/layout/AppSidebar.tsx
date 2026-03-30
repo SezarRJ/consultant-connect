@@ -8,7 +8,7 @@ import {
   ChevronDown, Building2, ShoppingCart, Coffee, Radio,
   Truck, TrendingUp, Megaphone, Network, Bot,
   MessageSquare, FolderKanban, CheckSquare, PieChart, UserCheck,
-  FolderOpen, Factory, FileText, Database, DollarSign, Layers,
+  FolderOpen, FileText, Database, DollarSign, Layers,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useState } from "react";

@@ -9,7 +9,7 @@ import {
   TrendingUp, Megaphone, Network, Globe2, ArrowRight,
   Plus, AlertTriangle, CheckCircle2, Activity, ChevronRight,
   FolderKanban, CheckSquare, PieChart, UserCheck, Clock,
-  Bot, MessageSquare, FolderOpen, Factory, DollarSign,
+  Bot, MessageSquare, FolderOpen, DollarSign,
   Database, Layers, Lock, Star, Target, ShieldAlert,
   PackageCheck, FileBarChart2, FileText, Settings,
 } from "lucide-react";
