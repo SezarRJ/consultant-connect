@@ -29,7 +29,7 @@ const DOMAIN_ITEMS = [
   { title:"Sales",         url:"/domain/sales",         icon:TrendingUp  },
   { title:"Marketing",     url:"/domain/marketing",     icon:Megaphone   },
   { title:"Business Dev",  url:"/domain/bizdev",        icon:Network     },
-  { title:"Manufacturing", url:"/domain/manufacturing", icon:Factory     },
+  
 ];
 
 export function AppSidebar() {

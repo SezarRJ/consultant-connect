@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   TrendingUp, ShoppingCart, Utensils, Megaphone, Briefcase,
-  Radio, Factory, RefreshCw, CheckCircle2, AlertTriangle,
+  Radio, Building2, RefreshCw, CheckCircle2, AlertTriangle,
   BarChart2, DollarSign, Target, Zap, Users, PieChart,
   ArrowUpRight, Play, Map, Package, Tag, Star, Layers
 } from "lucide-react";

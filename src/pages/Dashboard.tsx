@@ -40,7 +40,7 @@ const DOMAINS = [
   { url:"/domain/sales",         label:"Sales",          icon:TrendingUp,   color:"hsl(158 64% 48%)" },
   { url:"/domain/marketing",     label:"Marketing",      icon:Megaphone,    color:"hsl(340 80% 60%)" },
   { url:"/domain/bizdev",        label:"Biz Dev",        icon:Network,      color:"hsl(217 91% 68%)" },
-  { url:"/domain/manufacturing", label:"Manufacturing",  icon:Factory,      color:"hsl(263 70% 60%)" },
+  
 ];
 
 const ANALYSIS_TOOLS = [

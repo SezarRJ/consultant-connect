@@ -11,7 +11,7 @@ import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import {
   Building2, ShoppingCart, Coffee, Radio, Truck,
   TrendingUp, Megaphone, Network, Loader2, Save, Check,
-  AlertTriangle, Factory,
+  AlertTriangle,
 } from "lucide-react";
 
 interface DomainTool {
