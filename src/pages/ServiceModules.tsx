@@ -250,7 +250,7 @@ function JsonDisplay({ data, depth = 0 }: { data: any; depth?: number }) {
 export default function ServiceModules() {
   const [activeModule, setActiveModule] = useState<Module>("sales");
   const [inputs, setInputs] = useState<Record<Module, string>>({
-    sales: "", fmcg: "", fb: "", marketing: "", bizdev: "", telecom: "", manufacturing: ""
+    sales: "", fmcg: "", fb: "", marketing: "", bizdev: "", telecom: "", realestate: ""
   });
 
   const mod = MODULES.find(m => m.key === activeModule)!;
