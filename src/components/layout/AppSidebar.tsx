@@ -8,7 +8,7 @@ import {
   ChevronDown, Building2, ShoppingCart, Coffee, Radio,
   Truck, TrendingUp, Megaphone, Network, Bot,
   MessageSquare, FolderKanban, CheckSquare, PieChart, UserCheck,
-  FolderOpen, Factory, FileText, Database, DollarSign, Layers,
+  FolderOpen, FileText, Database, DollarSign, Layers,
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { useState } from "react";
@@ -29,7 +29,7 @@ const DOMAIN_ITEMS = [
   { title:"Sales",         url:"/domain/sales",         icon:TrendingUp  },
   { title:"Marketing",     url:"/domain/marketing",     icon:Megaphone   },
   { title:"Business Dev",  url:"/domain/bizdev",        icon:Network     },
-  { title:"Manufacturing", url:"/domain/manufacturing", icon:Factory     },
+  
 ];
 
 export function AppSidebar() {

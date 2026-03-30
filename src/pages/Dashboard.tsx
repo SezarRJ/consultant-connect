@@ -9,7 +9,7 @@ import {
   TrendingUp, Megaphone, Network, Globe2, ArrowRight,
   Plus, AlertTriangle, CheckCircle2, Activity, ChevronRight,
   FolderKanban, CheckSquare, PieChart, UserCheck, Clock,
-  Bot, MessageSquare, FolderOpen, Factory, DollarSign,
+  Bot, MessageSquare, FolderOpen, DollarSign,
   Database, Layers, Lock, Star, Target, ShieldAlert,
   PackageCheck, FileBarChart2, FileText, Settings,
 } from "lucide-react";
@@ -40,7 +40,7 @@ const DOMAINS = [
   { url:"/domain/sales",         label:"Sales",          icon:TrendingUp,   color:"hsl(158 64% 48%)" },
   { url:"/domain/marketing",     label:"Marketing",      icon:Megaphone,    color:"hsl(340 80% 60%)" },
   { url:"/domain/bizdev",        label:"Biz Dev",        icon:Network,      color:"hsl(217 91% 68%)" },
-  { url:"/domain/manufacturing", label:"Manufacturing",  icon:Factory,      color:"hsl(263 70% 60%)" },
+  
 ];
 
 const ANALYSIS_TOOLS = [

@@ -1,7 +1,7 @@
 /**
  * DomainHub.tsx v2 — Industry domain intelligence modules
  * Route: /domain/:domain
- * Domains: real-estate, fmcg, fnb, telecom, distribution, sales, marketing, bizdev, manufacturing
+ * Domains: real-estate, fmcg, fnb, telecom, distribution, sales, marketing, bizdev
  * Full module features per domain
  */
 import { useParams } from "react-router-dom";
@@ -11,7 +11,7 @@ import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import {
   Building2, ShoppingCart, Coffee, Radio, Truck,
   TrendingUp, Megaphone, Network, Loader2, Save, Check,
-  AlertTriangle, Factory,
+  AlertTriangle,
 } from "lucide-react";
 
 interface DomainTool {
@@ -160,22 +160,6 @@ const DOMAINS: Record<string, DomainConfig> = {
       { id: "partner",      label: "Partnership Strategy",   prompt: "Partnership and alliance strategy — partner criteria, deal structure, and engagement roadmap." },
       { id: "pipeline",     label: "BD Pipeline",            prompt: "Business development pipeline framework — target segments, outreach strategy, and conversion approach." },
       { id: "cost-reduction",label: "Cost Reduction Engine", prompt: "Cost reduction analysis — overhead mapping, benchmarking, quick wins, structural savings opportunities, and implementation roadmap." },
-    ],
-  },
-  "manufacturing": {
-    label: "Manufacturing Intelligence", icon: Factory, color: "hsl(263 70% 60%)",
-    description: "Process optimisation, supply chain design, cost reduction, procurement strategy, and industrial operations.",
-    tier: "flash",
-    subTools: [
-      { id: "process",      label: "Process Optimisation",   prompt: "Manufacturing process optimisation — bottleneck analysis, OEE improvement, lean/six sigma opportunities, and implementation roadmap.",
-        fields: [{ key: "process", label: "Manufacturing Process", placeholder: "e.g. FMCG production, assembly line, packaging" }] },
-      { id: "cost-reduction",label: "Cost Reduction Engine", prompt: "Manufacturing cost reduction — raw material, labour, energy, overhead benchmarking and savings initiatives with projected impact." },
-      { id: "supply-chain", label: "Supply Chain Design",    prompt: "End-to-end manufacturing supply chain — sourcing strategy, supplier development, inventory policy, and distribution design." },
-      { id: "procurement",  label: "Procurement Optimiser",  prompt: "Procurement optimisation — supplier rationalisation, category strategy, tender design, and savings roadmap." },
-      { id: "capacity",     label: "Capacity Planning",      prompt: "Capacity planning — demand forecasting, production scheduling, capital investment requirements, and make vs. buy analysis.",
-        fields: [{ key: "capacity", label: "Current Capacity", placeholder: "e.g. 500 MT/month, 2 production lines" }] },
-      { id: "quality",      label: "Quality Management",     prompt: "Quality management system — defect analysis, process controls, QMS design, ISO readiness, and continuous improvement plan." },
-      { id: "feasibility",  label: "Industrial Feasibility", prompt: "Industrial project feasibility — market demand, technical feasibility, financial viability, and go/no-go recommendation." },
     ],
   },
 };
