@@ -162,22 +162,6 @@ const DOMAINS: Record<string, DomainConfig> = {
       { id: "cost-reduction",label: "Cost Reduction Engine", prompt: "Cost reduction analysis — overhead mapping, benchmarking, quick wins, structural savings opportunities, and implementation roadmap." },
     ],
   },
-  "manufacturing": {
-    label: "Manufacturing Intelligence", icon: Factory, color: "hsl(263 70% 60%)",
-    description: "Process optimisation, supply chain design, cost reduction, procurement strategy, and industrial operations.",
-    tier: "flash",
-    subTools: [
-      { id: "process",      label: "Process Optimisation",   prompt: "Manufacturing process optimisation — bottleneck analysis, OEE improvement, lean/six sigma opportunities, and implementation roadmap.",
-        fields: [{ key: "process", label: "Manufacturing Process", placeholder: "e.g. FMCG production, assembly line, packaging" }] },
-      { id: "cost-reduction",label: "Cost Reduction Engine", prompt: "Manufacturing cost reduction — raw material, labour, energy, overhead benchmarking and savings initiatives with projected impact." },
-      { id: "supply-chain", label: "Supply Chain Design",    prompt: "End-to-end manufacturing supply chain — sourcing strategy, supplier development, inventory policy, and distribution design." },
-      { id: "procurement",  label: "Procurement Optimiser",  prompt: "Procurement optimisation — supplier rationalisation, category strategy, tender design, and savings roadmap." },
-      { id: "capacity",     label: "Capacity Planning",      prompt: "Capacity planning — demand forecasting, production scheduling, capital investment requirements, and make vs. buy analysis.",
-        fields: [{ key: "capacity", label: "Current Capacity", placeholder: "e.g. 500 MT/month, 2 production lines" }] },
-      { id: "quality",      label: "Quality Management",     prompt: "Quality management system — defect analysis, process controls, QMS design, ISO readiness, and continuous improvement plan." },
-      { id: "feasibility",  label: "Industrial Feasibility", prompt: "Industrial project feasibility — market demand, technical feasibility, financial viability, and go/no-go recommendation." },
-    ],
-  },
 };
 
 function ToolRunner({ cfg, tool }: { cfg: DomainConfig; tool: DomainTool }) {
