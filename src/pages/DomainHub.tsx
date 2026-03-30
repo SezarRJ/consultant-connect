@@ -1,7 +1,7 @@
 /**
  * DomainHub.tsx v2 — Industry domain intelligence modules
  * Route: /domain/:domain
- * Domains: real-estate, fmcg, fnb, telecom, distribution, sales, marketing, bizdev, manufacturing
+ * Domains: real-estate, fmcg, fnb, telecom, distribution, sales, marketing, bizdev
  * Full module features per domain
  */
 import { useParams } from "react-router-dom";
