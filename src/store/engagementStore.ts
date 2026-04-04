@@ -157,8 +157,7 @@ function getMissingOutputs(eng:Engagement):string[] {
 }
 
 function getReadiness(eng:Engagement, phase:EngagementPhase):ReadinessStatus {
-  const req = ensurePhaseReq(phase, eng.phaseRequirements?.[phase]);
-  const hasInfo = req.requiredInfo.length > 0;
+  const phaseReqSet = !!eng.phaseRequirements?.[phase];
   const hasResources = eng.resources.filter(r=>r.status==="Uploaded").length > 0;
   const hasDataInputs = eng.dataInputs && eng.dataInputs.length > 0;
   const hasOutputs = Object.keys(eng.outputs).length > 0;
@@ -166,7 +165,7 @@ function getReadiness(eng:Engagement, phase:EngagementPhase):ReadinessStatus {
 
   const score =
     (hasSummary ? 1 : 0) +
-    (hasInfo ? 1 : 0) +
+    (phaseReqSet ? 1 : 0) +
     ((hasResources || hasDataInputs) ? 1 : 0) +
     ((phase === "Discovery" || hasOutputs) ? 1 : 0);
 
@@ -388,7 +387,7 @@ export const useEngagementStore = create<StoreType>()(
         return{...e,phase:nextPhase,
           status:nextPhase==="Closed"?"Completed":e.status,
           health:nextPhase==="Closed"?"Closed":e.health,
-          progress:Math.max(e.progress,Math.round(((idx+1)/PHASES.length)*100)),
+          progress:nextPhase==="Closed"?100:Math.max(e.progress,Math.round(((idx+1)/PHASES.length)*100)),
           phaseRequirements:{...e.phaseRequirements,[phase]:{...ensurePhaseReq(phase,e.phaseRequirements?.[phase]),completedAt:nowIso()},
             ...(nextPhase!==phase?{[nextPhase]:ensurePhaseReq(nextPhase,e.phaseRequirements?.[nextPhase])}:{})},
           updatedAt:nowIso()};
@@ -482,6 +481,7 @@ export function getPhaseRequirement(e:Engagement, phase:EngagementPhase):PhaseRe
 }
 
 export function getPhaseProgress(e:Engagement):number {
+  if (e.phase === "Closed") return 100;
   const idx=PHASES.indexOf(e.phase);
   return Math.round((idx/PHASES.length)*100);
 }
