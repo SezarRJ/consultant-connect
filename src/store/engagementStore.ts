@@ -387,7 +387,7 @@ export const useEngagementStore = create<StoreType>()(
         return{...e,phase:nextPhase,
           status:nextPhase==="Closed"?"Completed":e.status,
           health:nextPhase==="Closed"?"Closed":e.health,
-          progress:Math.max(e.progress,Math.round(((idx+1)/PHASES.length)*100)),
+          progress:nextPhase==="Closed"?100:Math.max(e.progress,Math.round(((idx+1)/PHASES.length)*100)),
           phaseRequirements:{...e.phaseRequirements,[phase]:{...ensurePhaseReq(phase,e.phaseRequirements?.[phase]),completedAt:nowIso()},
             ...(nextPhase!==phase?{[nextPhase]:ensurePhaseReq(nextPhase,e.phaseRequirements?.[nextPhase])}:{})},
           updatedAt:nowIso()};
