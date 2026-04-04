@@ -297,9 +297,9 @@ export interface StoreType {
 export const useEngagementStore = create<StoreType>()(
   persist(
     (set, get) => ({
-      contacts:SAMPLE_CONTACTS,
-      engagements:[DEMO_ENGAGEMENT],
-      activeEngagementId:DEMO_ENG_ID,
+      contacts:[],
+      engagements:[],
+      activeEngagementId:null,
 
       createContact:(data) => {
         const id=`c_${Date.now()}`;
