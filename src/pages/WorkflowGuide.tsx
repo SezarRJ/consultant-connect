@@ -6,7 +6,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   useEngagementStore, PHASES, getEngagementReadiness, getMissingRequestedOutputs,
-  SERVICE_CATEGORIES, CATEGORY_SERVICES, type ServiceCategory,
+  SERVICE_CATEGORIES, CATEGORY_SERVICES, type ServiceCategory, type Engagement,
 } from "@/store/engagementStore";
 import {
   Users, Briefcase, Database, BarChart2, Lightbulb, FileOutput,
@@ -79,7 +79,7 @@ const CATEGORY_COLORS: Record<ServiceCategory, string> = {
 };
 
 function PhaseStep({ phase, isActive, isCompleted, isLocked, eng }: {
-  phase: string; isActive: boolean; isCompleted: boolean; isLocked: boolean; eng: any;
+  phase: string; isActive: boolean; isCompleted: boolean; isLocked: boolean; eng: Engagement;
 }) {
   const Icon = PHASE_ICONS[phase as keyof typeof PHASE_ICONS] || Clock;
   const color = PHASE_COLORS[phase as keyof typeof PHASE_COLORS] || "hsl(215 25% 45%)";
@@ -126,7 +126,7 @@ function PhaseStep({ phase, isActive, isCompleted, isLocked, eng }: {
   );
 }
 
-function EngagementCard({ eng, isActive, onSelect }: { eng: any; isActive: boolean; onSelect: () => void }) {
+function EngagementCard({ eng, isActive, onSelect }: { eng: Engagement; isActive: boolean; onSelect: () => void }) {
   const missing = getMissingRequestedOutputs(eng);
   const phaseIdx = PHASES.indexOf(eng.phase);
   const progress = Math.round((phaseIdx / (PHASES.length - 1)) * 100);

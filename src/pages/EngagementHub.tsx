@@ -387,7 +387,7 @@ function TrackerTab({ eng }: { eng: Engagement }) {
           <p className="text-[9px] uppercase tracking-wider font-semibold mb-1"
             style={{ color: "hsl(215 25% 42%)" }}>{label}</p>
           <input type="text" value={(eng[key] as string) || ""}
-            onChange={(e) => updateEngagement(eng.id, { [key]: e.target.value } as any)}
+            onChange={(e) => updateEngagement(eng.id, { [key]: e.target.value } as Partial<Engagement>)}
             className="w-full bg-transparent text-sm font-medium"
             style={{ color: "hsl(210 40% 85%)" }} />
         </div>
