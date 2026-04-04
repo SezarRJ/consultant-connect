@@ -157,8 +157,7 @@ function getMissingOutputs(eng:Engagement):string[] {
 }
 
 function getReadiness(eng:Engagement, phase:EngagementPhase):ReadinessStatus {
-  const req = ensurePhaseReq(phase, eng.phaseRequirements?.[phase]);
-  const hasInfo = req.requiredInfo.length > 0;
+  const phaseReqSet = !!eng.phaseRequirements?.[phase];
   const hasResources = eng.resources.filter(r=>r.status==="Uploaded").length > 0;
   const hasDataInputs = eng.dataInputs && eng.dataInputs.length > 0;
   const hasOutputs = Object.keys(eng.outputs).length > 0;
@@ -166,7 +165,7 @@ function getReadiness(eng:Engagement, phase:EngagementPhase):ReadinessStatus {
 
   const score =
     (hasSummary ? 1 : 0) +
-    (hasInfo ? 1 : 0) +
+    (phaseReqSet ? 1 : 0) +
     ((hasResources || hasDataInputs) ? 1 : 0) +
     ((phase === "Discovery" || hasOutputs) ? 1 : 0);
 
@@ -482,6 +481,7 @@ export function getPhaseRequirement(e:Engagement, phase:EngagementPhase):PhaseRe
 }
 
 export function getPhaseProgress(e:Engagement):number {
+  if (e.phase === "Closed") return 100;
   const idx=PHASES.indexOf(e.phase);
   return Math.round((idx/PHASES.length)*100);
 }

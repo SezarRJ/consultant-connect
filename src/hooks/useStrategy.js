@@ -60,7 +60,7 @@ export const useAcceptStrategy = (clientId) => {
 export const useRejectStrategy = (clientId) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ strategyId }) => {
+    mutationFn: async (strategyId) => {
       const { error } = await supabase.from('strategies').update({ status: 'rejected' }).eq('id', strategyId);
       if (error) throw error;
     },

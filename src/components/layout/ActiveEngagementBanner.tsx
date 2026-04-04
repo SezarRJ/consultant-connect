@@ -22,7 +22,7 @@ function NewEngagementModal({ onClose }: { onClose: () => void }) {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     name:"", clientName:"", companyName:"", industry:"", sector:"", market:"Iraq",
-    serviceType:"", budget:"", timeline:"6 months", objectives:"", scope:"",
+    serviceType:"", serviceCategory:"Strategic Management" as ServiceCategory, budget:"", timeline:"6 months", objectives:"", scope:"",
     constraints:"", risks:"", internalNotes:"", priority:"Medium" as const,
     phase:"Discovery" as EngagementPhase, status:"Active" as const, health:"On Track" as const,
     progress:0, stakeholders:[], outputs:{}, contactId:null,
