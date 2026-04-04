@@ -50,7 +50,7 @@ function NewEngagementModal({ onClose }: { onClose: () => void }) {
           ] as [string,string][]).map(([label,key]) => (
             <div key={key}>
               <label className="block text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color:"hsl(215 25% 48%)" }}>{label}</label>
-              <input type="text" value={(form as any)[key]} onChange={f(key as any)}
+              <input type="text" value={form[key as keyof typeof form] as string} onChange={f(key as keyof typeof form)}
                 className="w-full rounded-md px-3 py-1.5 text-sm"
                 style={{ background:"hsl(216 45% 12%)", color:"hsl(210 40% 88%)", border:"1px solid hsl(216 45% 22%)" }} />
             </div>
