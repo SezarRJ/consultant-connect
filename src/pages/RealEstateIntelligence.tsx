@@ -165,9 +165,11 @@ export default function RealEstateIntelligence() {
 
   const runSensitivity = () => {
     const { location, size, budget, scenario } = projectInput;
-    feasibilityAI.result
-      ? sensitivityAI.analyze(`Run sensitivity analysis on this real estate project: ${scenario} in ${location || "Iraq"}, ${size || "10,000"} sqm, budget ${budget || "market rate"}. Base case ROI ${feasibilityAI.result?.returns?.roi || "unknown"}. Test ±10%, ±20% cost and revenue scenarios plus market downturn.`)
-      : sensitivityAI.analyze(`Run sensitivity analysis for a ${scenario} project in ${location || "Baghdad, Iraq"} with area ${size || "10,000"} sqm and budget ${budget || "market rate"}.`);
+    if (feasibilityAI.result) {
+      sensitivityAI.analyze(`Run sensitivity analysis on this real estate project: ${scenario} in ${location || "Iraq"}, ${size || "10,000"} sqm, budget ${budget || "market rate"}. Base case ROI ${feasibilityAI.result?.returns?.roi || "unknown"}. Test ±10%, ±20% cost and revenue scenarios plus market downturn.`);
+    } else {
+      sensitivityAI.analyze(`Run sensitivity analysis for a ${scenario} project in ${location || "Baghdad, Iraq"} with area ${size || "10,000"} sqm and budget ${budget || "market rate"}.`);
+    }
   };
 
   const runDecision = () => {

@@ -477,6 +477,10 @@ export function getMissingRequestedOutputs(e:Engagement|null):string[] {
   return getMissingOutputs(e);
 }
 
+export function getPhaseRequirement(e:Engagement, phase:EngagementPhase):PhaseRequirement {
+  return ensurePhaseReq(phase, e.phaseRequirements?.[phase]);
+}
+
 export function getPhaseProgress(e:Engagement):number {
   const idx=PHASES.indexOf(e.phase);
   return Math.round((idx/PHASES.length)*100);
