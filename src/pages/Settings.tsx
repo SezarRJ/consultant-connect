@@ -16,12 +16,25 @@ import {
 // ─── Types ────────────────────────────────────────────────────────────────────
 interface ApiKeyEntry {
   id: string;
-  name: string;          // user-given label e.g. "Production Key", "Personal"
-  provider: string;      // "anthropic" | "perplexity" | "feasibilitypro" etc.
+  name: string;
+  provider: string;
   key: string;
   addedAt: string;
   lastUsed: string | null;
   isActive: boolean;
+}
+
+interface CustomAIModule {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  baseUrl: string;
+  apiKey: string;
+  modelId: string;
+  category: "llm" | "search" | "data" | "vision" | "embedding" | "other";
+  isActive: boolean;
+  createdAt: string;
 }
 
 interface RealEstateTool {
