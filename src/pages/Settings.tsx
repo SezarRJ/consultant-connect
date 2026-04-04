@@ -451,7 +451,7 @@ export default function Settings() {
   ];
 
   const tabs: { key: Tab; label: string; icon: React.ElementType; highlight?: boolean; badge?: string }[] = [
-    { key:"ai_keys",      label:"AI & Keys",    icon:Cpu,       highlight:false, badge: apiKeys.length > 0 ? String(apiKeys.length) : undefined },
+    { key:"ai_keys",      label:"AI & Keys",    icon:Cpu,       highlight:false, badge: (apiKeys.length + customModules.length) > 0 ? String(apiKeys.length + customModules.length) : undefined },
     { key:"re_tools",     label:"RE Tools",     icon:Building2, badge: reTools.filter(t => t.status === "connected" || t.status === "configured").length > 0 ? "✓" : undefined },
     { key:"language",     label:t.tab_language, icon:Languages  },
     { key:"integrations", label:"Integrations", icon:Plug       },
