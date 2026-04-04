@@ -4,7 +4,7 @@
  */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useEngagementStore, Engagement, EngagementPhase } from "@/store/engagementStore";
+import { useEngagementStore, Engagement, EngagementPhase, type ServiceCategory } from "@/store/engagementStore";
 import { Briefcase, ChevronDown, Plus, Check, AlertTriangle, Activity, X } from "lucide-react";
 
 const PHASES: EngagementPhase[] = ["Discovery","Data Collection","Analysis","Strategy","Deliverables","Review","Closed"];
@@ -27,7 +27,7 @@ function NewEngagementModal({ onClose }: { onClose: () => void }) {
     phase:"Discovery" as EngagementPhase, status:"Active" as const, health:"On Track" as const,
     progress:0, stakeholders:[], outputs:{}, contactId:null,
     startDate:new Date().toISOString().slice(0,10), endDate:"",
-    requestSummary:{ serviceRequest:"", expectedOutputs:[], requestedReports:[], summary:"" },
+    requestSummary:{ serviceRequest:"", serviceCategory:"Strategic Management" as ServiceCategory, expectedOutputs:[], requestedReports:[], summary:"" },
     resources:[], phaseRequirements:{ Discovery:{ phase:"Discovery", requiredInfo:["Customer objectives","Scope","Stakeholders"], requiredDocuments:["Briefing note","Company profile","Meeting notes"], notes:"" } }, requestedOutputs:[],
   });
   const f = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement|HTMLTextAreaElement|HTMLSelectElement>) =>
