@@ -446,6 +446,7 @@ export default function Settings() {
     { value:"feasibilitypro", label:"FeasibilityPro"      },
     { value:"testfit",        label:"TestFit"             },
     { value:"anylogic",       label:"AnyLogic Cloud"      },
+    ...customModules.map(m => ({ value: m.id, label: m.name })),
     { value:"other",          label:"Other / Custom"      },
   ];
 
