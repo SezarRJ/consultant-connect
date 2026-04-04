@@ -63,11 +63,19 @@ interface RealEstateTool {
 const LS_API_KEYS = "consultai_api_keys_v2";
 const LS_RE_TOOLS = "consultai_re_tools_v1";
 
+const LS_AI_MODULES = "consultai_custom_ai_modules_v1";
+
 function loadApiKeys(): ApiKeyEntry[] {
   try { return JSON.parse(localStorage.getItem(LS_API_KEYS) || "[]"); } catch { return []; }
 }
 function saveApiKeys(keys: ApiKeyEntry[]) {
   localStorage.setItem(LS_API_KEYS, JSON.stringify(keys));
+}
+function loadCustomModules(): CustomAIModule[] {
+  try { return JSON.parse(localStorage.getItem(LS_AI_MODULES) || "[]"); } catch { return []; }
+}
+function saveCustomModules(modules: CustomAIModule[]) {
+  localStorage.setItem(LS_AI_MODULES, JSON.stringify(modules));
 }
 function loadReTools(): Partial<Record<string, Omit<RealEstateTool, keyof RealEstateTool>>> {
   try { return JSON.parse(localStorage.getItem(LS_RE_TOOLS) || "{}"); } catch { return {}; }
