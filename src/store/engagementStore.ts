@@ -174,29 +174,7 @@ function getReadiness(eng:Engagement, phase:EngagementPhase):ReadinessStatus {
   return "Not Ready";
 }
 
-// ── Seeded demo data ─────────────────────────────────────────────
-const DEMO_CONTACT_ID = "c_demo";
-const DEMO_ENG_ID = "eng_demo";
-
-const SAMPLE_CONTACTS:CRMContact[] = [{
-  id:DEMO_CONTACT_ID, fullName:"Razan Al-Hadithi", jobTitle:"Commercial Director",
-  email:"razan@mesopotamiafoods.iq", phone:"+964 780 555 0101",
-  country:"Iraq", companyName:"Mesopotamia Foods Co.",
-  industry:"Food & Beverage", sector:"FMCG Distribution", leadSource:"Referral",
-  interestedService:"Sales Strategy", estimatedBudget:"$35,000", urgency:"High",
-  leadStatus:"Active Client", nextActionDate:"2026-04-05",
-  notes:"Demo contact for workflow QA.",
-  tags:["Demo","FMCG","Iraq"],
-  qualificationStatus:"Qualified",
-  qualificationNotes:"Approved for internal testing.",
-  clientNeed:"Expand modern trade coverage in Baghdad, Basra, and Erbil.",
-  businessProblem:"Low supermarket penetration and fragmented distributor coverage.",
-  decisionMaker:"Razan Al-Hadithi", priorityLevel:"High",
-  engagementId:DEMO_ENG_ID,
-  requestedOutputs:["Sales Strategy","Market Entry","Competitor Analysis","Executive Summary"],
-  initialResourceNotes:["Company profile","Distributor performance sheet","Prior market report"],
-  createdAt:"2026-03-20", updatedAt:"2026-03-28",
-}];
+// ── No seeded demo data — start empty ────────────────────────────
 
 const DEMO_ENGAGEMENT:Engagement = {
   id:DEMO_ENG_ID, name:"Mesopotamia Foods — Iraq Growth Sprint",
