@@ -243,7 +243,7 @@ export default function WorkflowGuide() {
                     <div className="flex-1 min-w-0">
                       <p className="text-[12px] font-medium truncate" style={{ color: "hsl(215 25% 55%)" }}>{e.companyName}</p>
                     </div>
-                    <RefreshCw className="h-3 w-3 shrink-0" style={{ color: "hsl(215 25% 38%)" }} title="Reuse data" />
+                    <RefreshCw className="h-3 w-3 shrink-0" style={{ color: "hsl(215 25% 38%)" }} />
                   </button>
                 ))}
               </div>
