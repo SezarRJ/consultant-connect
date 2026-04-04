@@ -174,80 +174,8 @@ function getReadiness(eng:Engagement, phase:EngagementPhase):ReadinessStatus {
   return "Not Ready";
 }
 
-// ── Seeded demo data ─────────────────────────────────────────────
-const DEMO_CONTACT_ID = "c_demo";
-const DEMO_ENG_ID = "eng_demo";
+// ── No seeded demo data — start empty ────────────────────────────
 
-const SAMPLE_CONTACTS:CRMContact[] = [{
-  id:DEMO_CONTACT_ID, fullName:"Razan Al-Hadithi", jobTitle:"Commercial Director",
-  email:"razan@mesopotamiafoods.iq", phone:"+964 780 555 0101",
-  country:"Iraq", companyName:"Mesopotamia Foods Co.",
-  industry:"Food & Beverage", sector:"FMCG Distribution", leadSource:"Referral",
-  interestedService:"Sales Strategy", estimatedBudget:"$35,000", urgency:"High",
-  leadStatus:"Active Client", nextActionDate:"2026-04-05",
-  notes:"Demo contact for workflow QA.",
-  tags:["Demo","FMCG","Iraq"],
-  qualificationStatus:"Qualified",
-  qualificationNotes:"Approved for internal testing.",
-  clientNeed:"Expand modern trade coverage in Baghdad, Basra, and Erbil.",
-  businessProblem:"Low supermarket penetration and fragmented distributor coverage.",
-  decisionMaker:"Razan Al-Hadithi", priorityLevel:"High",
-  engagementId:DEMO_ENG_ID,
-  requestedOutputs:["Sales Strategy","Market Entry","Competitor Analysis","Executive Summary"],
-  initialResourceNotes:["Company profile","Distributor performance sheet","Prior market report"],
-  createdAt:"2026-03-20", updatedAt:"2026-03-28",
-}];
-
-const DEMO_ENGAGEMENT:Engagement = {
-  id:DEMO_ENG_ID, name:"Mesopotamia Foods — Iraq Growth Sprint",
-  contactId:DEMO_CONTACT_ID, clientName:"Razan Al-Hadithi",
-  companyName:"Mesopotamia Foods Co.", industry:"Food & Beverage",
-  sector:"FMCG Distribution", market:"Iraq",
-  serviceType:"Sales Strategy", serviceCategory:"Strategic Management",
-  budget:"$35,000", startDate:"2026-03-28", endDate:"2026-06-30",
-  timeline:"90-day commercial acceleration sprint",
-  objectives:"Increase modern trade listings, rationalise channel coverage, define Iraq go-to-market plan.",
-  scope:"Baghdad, Basra, Erbil and selected Iraq-wide distributor channels.",
-  constraints:"Limited field sales team, uneven distributor performance.",
-  risks:"Channel conflict, distributor concentration risk.",
-  internalNotes:"Demo engagement for QA.",
-  priority:"High", phase:"Analysis", status:"Active", health:"On Track", progress:35,
-  stakeholders:[{
-    id:"sh_demo_1", name:"Razan Al-Hadithi", position:"Commercial Director",
-    company:"Mesopotamia Foods Co.", role:"Decision Maker", influence:"High",
-    stance:"Champion", contactDetails:"razan@mesopotamiafoods.iq",
-    notes:"Owns go-to-market decisions.", nextStep:"Review sales strategy.",
-  }],
-  outputs:{
-    briefing:{toolId:"briefing",toolLabel:"Client Briefing",phase:"Discovery",createdAt:"2026-03-28T08:00:00.000Z",
-      content:"Mesopotamia Foods seeks stronger supermarket penetration and disciplined channel strategy across Baghdad, Basra, and Erbil."},
-    intelligence:{toolId:"intelligence",toolLabel:"Market Intelligence",phase:"Analysis",createdAt:"2026-03-28T08:30:00.000Z",
-      content:"Premium and convenience food categories benefit from urban retail modernisation in Iraq."},
-  },
-  requestSummary:{
-    serviceRequest:"Sales Strategy", serviceCategory:"Strategic Management",
-    expectedOutputs:["Sales Strategy","Market Entry","Competitor Analysis","Executive Summary"],
-    deadline:"2026-06-15", targetMarket:"Iraq",
-    requestedReports:["Market Entry","Sales Strategy","Competitor Analysis","Executive Summary"],
-    summary:"Growth plan covering Iraq commercial expansion and distributor rationalisation.",
-  },
-  resources:[
-    {id:"res_1",name:"Company profile",category:"Document",status:"Uploaded",createdAt:"2026-03-28T08:00:00.000Z",reusable:true},
-    {id:"res_2",name:"Distributor performance sheet",category:"Financial",status:"Uploaded",createdAt:"2026-03-28T08:05:00.000Z",reusable:true},
-    {id:"res_3",name:"Prior market report",category:"Report",status:"Uploaded",createdAt:"2026-03-28T08:07:00.000Z",reusable:true},
-  ],
-  dataInputs:[
-    {id:"di_1",key:"targetSegment",label:"Target Segment",value:"Modern trade supermarkets and large format retail",category:"Market",createdAt:"2026-03-28T08:00:00.000Z"},
-    {id:"di_2",key:"currentRevenue",label:"Current Annual Revenue",value:"$4.2M USD",category:"Financial",createdAt:"2026-03-28T08:01:00.000Z"},
-    {id:"di_3",key:"distributorCount",label:"Active Distributors",value:"12 across Iraq",category:"Operations",createdAt:"2026-03-28T08:02:00.000Z"},
-  ],
-  phaseRequirements:{
-    Discovery:{phase:"Discovery",requiredInfo:["Objectives","Scope","Stakeholders"],requiredDocuments:["Company profile","Meeting notes"],completedAt:"2026-03-28T08:10:00.000Z",notes:"Completed."},
-    "Data Collection":{phase:"Data Collection",requiredInfo:["Target market","Budget","Inputs"],requiredDocuments:["Distributor sheet","Market report"],completedAt:"2026-03-28T08:20:00.000Z",notes:"Data collected."},
-  },
-  requestedOutputs:["Market Entry","Competitor Analysis","Sales Strategy","Executive Summary"],
-  createdAt:"2026-03-28T07:45:00.000Z", updatedAt:"2026-03-28T08:30:00.000Z",
-};
 
 // ── Store ────────────────────────────────────────────────────────
 export interface StoreType {
@@ -297,9 +225,9 @@ export interface StoreType {
 export const useEngagementStore = create<StoreType>()(
   persist(
     (set, get) => ({
-      contacts:SAMPLE_CONTACTS,
-      engagements:[DEMO_ENGAGEMENT],
-      activeEngagementId:DEMO_ENG_ID,
+      contacts:[],
+      engagements:[],
+      activeEngagementId:null,
 
       createContact:(data) => {
         const id=`c_${Date.now()}`;
@@ -421,9 +349,7 @@ export const useEngagementStore = create<StoreType>()(
         const p=(persistedState as Partial<StoreType>)||{};
         const pContacts=Array.isArray(p.contacts)?p.contacts:currentState.contacts;
         const pEngagements=Array.isArray(p.engagements)?p.engagements:currentState.engagements;
-        const contacts=pContacts.some(c=>c.id===DEMO_CONTACT_ID)?pContacts:[...pContacts,currentState.contacts.find(c=>c.id===DEMO_CONTACT_ID)!];
-        const engagements=pEngagements.some(e=>e.id===DEMO_ENG_ID)?pEngagements.map(e=>e.id===DEMO_ENG_ID?{...DEMO_ENGAGEMENT,...e,dataInputs:e.dataInputs||DEMO_ENGAGEMENT.dataInputs}:e):[...pEngagements,DEMO_ENGAGEMENT];
-        return{...currentState,...p,contacts,engagements,activeEngagementId:p.activeEngagementId||DEMO_ENG_ID};
+        return{...currentState,...p,contacts:pContacts,engagements:pEngagements,activeEngagementId:p.activeEngagementId||null};
       },
     }
   )
