@@ -421,9 +421,7 @@ export const useEngagementStore = create<StoreType>()(
         const p=(persistedState as Partial<StoreType>)||{};
         const pContacts=Array.isArray(p.contacts)?p.contacts:currentState.contacts;
         const pEngagements=Array.isArray(p.engagements)?p.engagements:currentState.engagements;
-        const contacts=pContacts.some(c=>c.id===DEMO_CONTACT_ID)?pContacts:[...pContacts,currentState.contacts.find(c=>c.id===DEMO_CONTACT_ID)!];
-        const engagements=pEngagements.some(e=>e.id===DEMO_ENG_ID)?pEngagements.map(e=>e.id===DEMO_ENG_ID?{...DEMO_ENGAGEMENT,...e,dataInputs:e.dataInputs||DEMO_ENGAGEMENT.dataInputs}:e):[...pEngagements,DEMO_ENGAGEMENT];
-        return{...currentState,...p,contacts,engagements,activeEngagementId:p.activeEngagementId||DEMO_ENG_ID};
+        return{...currentState,...p,contacts:pContacts,engagements:pEngagements,activeEngagementId:p.activeEngagementId||null};
       },
     }
   )
