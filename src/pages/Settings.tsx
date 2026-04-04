@@ -658,7 +658,221 @@ export default function Settings() {
             <button onClick={saveAI} className="w-full py-3 rounded-xl text-sm font-bold" style={{ background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }}>Save Primary AI Settings</button>
           </div>
 
-          {/* ─── SUB-TOOLS ───────────────────────────────────────────────── */}
+          {/* ─── CUSTOM AI MODULES ────────────────────────────────────────── */}
+          <div className="rounded-xl p-6 space-y-4" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
+            <div className="flex items-start justify-between flex-wrap gap-3">
+              <div className="flex items-center gap-2">
+                <Cpu className="h-5 w-5" style={{ color:"hsl(270 70% 65%)" }}/>
+                <div>
+                  <h2 className="text-base font-bold font-display" style={{ color:"hsl(210 40% 90%)" }}>Custom AI Modules</h2>
+                  <p className="text-xs mt-0.5" style={{ color:"hsl(215 25% 55%)" }}>Add external AI services, LLMs, embedding models, or specialized tools. Any OpenAI-compatible endpoint works.</p>
+                </div>
+              </div>
+              <button onClick={() => { setShowAddModule(true); setEditingModule(null); }}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold"
+                style={{ background:"hsl(270 70% 65%)", color:"hsl(216 58% 6%)" }}>
+                <Plus className="h-4 w-4" /> Add Module
+              </button>
+            </div>
+
+            {/* Module list */}
+            {customModules.length === 0 && !showAddModule ? (
+              <div className="rounded-xl p-8 text-center" style={{ background:"hsl(216 45% 11%)", border:"2px dashed hsl(var(--border))" }}>
+                <Cpu className="h-10 w-10 mx-auto mb-3 opacity-20" style={{ color:"hsl(270 70% 65%)" }} />
+                <p className="font-semibold text-sm" style={{ color:"hsl(215 25% 50%)" }}>No custom AI modules yet</p>
+                <p className="text-xs mt-1 mb-3" style={{ color:"hsl(215 25% 38%)" }}>Add modules like Groq, Ollama, Mistral, Cohere, Together AI, or any OpenAI-compatible endpoint</p>
+                <button onClick={() => setShowAddModule(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
+                  style={{ background:"hsl(270 70% 65%)", color:"hsl(216 58% 6%)" }}>
+                  <Plus className="h-4 w-4" /> Add First Module
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {customModules.map(mod => {
+                  const isEditing = editingModule?.id === mod.id;
+                  return (
+                    <div key={mod.id} className="rounded-xl overflow-hidden"
+                      style={{ border:`1px solid ${mod.isActive ? "hsl(270 70% 65%/0.4)" : "hsl(var(--border))"}`, background: mod.isActive ? "hsl(270 70% 65%/0.04)" : "hsl(216 45% 11%)", opacity: mod.isActive ? 1 : 0.65 }}>
+                      {isEditing ? (
+                        <div className="p-4 space-y-3">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>Name</label>
+                              <input value={editingModule.name} onChange={e => setEditingModule(m => m ? {...m, name:e.target.value} : m)}
+                                className="w-full px-3 py-2 rounded-lg text-sm"
+                                style={{ background:"hsl(216 45% 12%)", border:"1px solid hsl(var(--border))", color:"hsl(210 40% 85%)" }} />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>Category</label>
+                              <select value={editingModule.category} onChange={e => setEditingModule(m => m ? {...m, category:e.target.value as CustomAIModule["category"]} : m)}
+                                className="w-full px-3 py-2 rounded-lg text-sm"
+                                style={{ background:"hsl(216 45% 12%)", border:"1px solid hsl(var(--border))", color:"hsl(210 40% 85%)" }}>
+                                {MODULE_CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                              </select>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>Icon</label>
+                            <div className="flex gap-1.5 flex-wrap">
+                              {MODULE_ICONS.map(ic => (
+                                <button key={ic} onClick={() => setEditingModule(m => m ? {...m, icon:ic} : m)}
+                                  className="h-8 w-8 rounded-lg flex items-center justify-center text-lg"
+                                  style={{ background: editingModule.icon === ic ? "hsl(270 70% 65%/0.2)" : "hsl(216 45% 14%)", border: `1px solid ${editingModule.icon === ic ? "hsl(270 70% 65%/0.5)" : "hsl(var(--border))"}` }}>
+                                  {ic}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>Description</label>
+                            <input value={editingModule.description} onChange={e => setEditingModule(m => m ? {...m, description:e.target.value} : m)}
+                              placeholder="What does this module do?"
+                              className="w-full px-3 py-2 rounded-lg text-sm"
+                              style={{ background:"hsl(216 45% 12%)", border:"1px solid hsl(var(--border))", color:"hsl(210 40% 85%)" }} />
+                          </div>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>Base URL</label>
+                              <input value={editingModule.baseUrl} onChange={e => setEditingModule(m => m ? {...m, baseUrl:e.target.value} : m)}
+                                placeholder="https://api.example.com/v1"
+                                className="w-full px-3 py-2 rounded-lg text-sm font-mono"
+                                style={{ background:"hsl(216 45% 12%)", border:"1px solid hsl(var(--border))", color:"hsl(210 40% 85%)" }} />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>Model ID</label>
+                              <input value={editingModule.modelId} onChange={e => setEditingModule(m => m ? {...m, modelId:e.target.value} : m)}
+                                placeholder="e.g. mixtral-8x7b"
+                                className="w-full px-3 py-2 rounded-lg text-sm font-mono"
+                                style={{ background:"hsl(216 45% 12%)", border:"1px solid hsl(var(--border))", color:"hsl(210 40% 85%)" }} />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>API Key</label>
+                            <input value={editingModule.apiKey} onChange={e => setEditingModule(m => m ? {...m, apiKey:e.target.value} : m)}
+                              placeholder="Your API key" type="password"
+                              className="w-full px-3 py-2 rounded-lg text-sm font-mono"
+                              style={{ background:"hsl(216 45% 12%)", border:"1px solid hsl(var(--border))", color:"hsl(210 40% 85%)" }} />
+                          </div>
+                          <div className="flex gap-2">
+                            <button onClick={handleUpdateModule} className="px-4 py-2 rounded-lg text-xs font-semibold"
+                              style={{ background:"hsl(270 70% 65%)", color:"hsl(216 58% 6%)" }}>Save</button>
+                            <button onClick={() => setEditingModule(null)} className="px-4 py-2 rounded-lg text-xs font-semibold"
+                              style={{ background:"hsl(216 45% 18%)", color:"hsl(210 40% 75%)" }}>Cancel</button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-4 px-4 py-3.5">
+                          <span className="text-xl">{mod.icon}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-semibold" style={{ color:"hsl(210 40% 88%)" }}>{mod.name}</span>
+                              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background:"hsl(270 70% 65%/0.15)", color:"hsl(270 70% 65%)" }}>
+                                {MODULE_CATEGORIES.find(c => c.value === mod.category)?.label || mod.category}
+                              </span>
+                              {mod.modelId && <span className="text-[9px] font-mono px-1.5 py-0.5 rounded-full" style={{ background:"hsl(216 45% 16%)", color:"hsl(215 25% 55%)" }}>{mod.modelId}</span>}
+                              {mod.apiKey && <span className="text-[9px] px-1.5 py-0.5 rounded-full" style={{ background:"hsl(158 64% 40%/0.15)", color:"hsl(158 64% 55%)" }}>✓ Key</span>}
+                            </div>
+                            {mod.description && <p className="text-[11px] mt-0.5 truncate" style={{ color:"hsl(215 25% 50%)" }}>{mod.description}</p>}
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <Toggle defaultOn={mod.isActive} onChange={() => handleToggleModule(mod.id)} />
+                            <button onClick={() => setEditingModule({...mod})} className="p-1.5 rounded-lg hover:opacity-80"
+                              style={{ background:"hsl(216 45% 18%)" }}>
+                              <Edit3 className="h-3.5 w-3.5" style={{ color:"hsl(215 25% 55%)" }} />
+                            </button>
+                            <button onClick={() => handleDeleteModule(mod.id)} className="p-1.5 rounded-lg hover:opacity-80"
+                              style={{ background:"hsl(0 72% 51%/0.1)" }}>
+                              <Trash2 className="h-3.5 w-3.5" style={{ color:"hsl(0 72% 68%)" }} />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Add module form */}
+            {showAddModule && (
+              <div className="rounded-xl p-5 space-y-4" style={{ background:"hsl(216 45% 11%)", border:"1px solid hsl(270 70% 65%/0.3)" }}>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold" style={{ color:"hsl(270 70% 75%)" }}>Add New AI Module</h3>
+                  <button onClick={() => setShowAddModule(false)}><X className="h-4 w-4" style={{ color:"hsl(215 25% 50%)" }} /></button>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>Module Name *</label>
+                    <input value={moduleForm.name} onChange={e => setModuleForm(f => ({...f, name:e.target.value}))}
+                      placeholder="e.g. Groq Mixtral, Ollama Local"
+                      className="w-full px-3 py-2.5 rounded-lg text-sm"
+                      style={{ background:"hsl(216 45% 14%)", border:"1px solid hsl(var(--border))", color:"hsl(210 40% 85%)" }} />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>Category</label>
+                    <select value={moduleForm.category} onChange={e => setModuleForm(f => ({...f, category:e.target.value as CustomAIModule["category"]}))}
+                      className="w-full px-3 py-2.5 rounded-lg text-sm"
+                      style={{ background:"hsl(216 45% 14%)", border:"1px solid hsl(var(--border))", color:"hsl(210 40% 85%)" }}>
+                      {MODULE_CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>Icon</label>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {MODULE_ICONS.map(ic => (
+                      <button key={ic} onClick={() => setModuleForm(f => ({...f, icon:ic}))}
+                        className="h-8 w-8 rounded-lg flex items-center justify-center text-lg"
+                        style={{ background: moduleForm.icon === ic ? "hsl(270 70% 65%/0.2)" : "hsl(216 45% 14%)", border: `1px solid ${moduleForm.icon === ic ? "hsl(270 70% 65%/0.5)" : "hsl(var(--border))"}` }}>
+                        {ic}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>Description</label>
+                  <input value={moduleForm.description} onChange={e => setModuleForm(f => ({...f, description:e.target.value}))}
+                    placeholder="What does this module do?"
+                    className="w-full px-3 py-2.5 rounded-lg text-sm"
+                    style={{ background:"hsl(216 45% 14%)", border:"1px solid hsl(var(--border))", color:"hsl(210 40% 85%)" }} />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>Base URL</label>
+                    <input value={moduleForm.baseUrl} onChange={e => setModuleForm(f => ({...f, baseUrl:e.target.value}))}
+                      placeholder="https://api.groq.com/openai/v1"
+                      className="w-full px-3 py-2.5 rounded-lg text-sm font-mono"
+                      style={{ background:"hsl(216 45% 14%)", border:"1px solid hsl(var(--border))", color:"hsl(210 40% 85%)" }} />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>Model ID</label>
+                    <input value={moduleForm.modelId} onChange={e => setModuleForm(f => ({...f, modelId:e.target.value}))}
+                      placeholder="e.g. mixtral-8x7b-32768"
+                      className="w-full px-3 py-2.5 rounded-lg text-sm font-mono"
+                      style={{ background:"hsl(216 45% 14%)", border:"1px solid hsl(var(--border))", color:"hsl(210 40% 85%)" }} />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-[11px] font-semibold uppercase tracking-wider block mb-1" style={{ color:"hsl(215 25% 45%)" }}>API Key</label>
+                  <input value={moduleForm.apiKey} onChange={e => setModuleForm(f => ({...f, apiKey:e.target.value}))}
+                    placeholder="Your API key" type="password"
+                    className="w-full px-3 py-2.5 rounded-lg text-sm font-mono"
+                    style={{ background:"hsl(216 45% 14%)", border:"1px solid hsl(var(--border))", color:"hsl(210 40% 85%)" }} />
+                </div>
+                <div className="rounded-lg p-3 flex items-start gap-2" style={{ background:"hsl(270 70% 65%/0.06)", border:"1px solid hsl(270 70% 65%/0.2)" }}>
+                  <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" style={{ color:"hsl(270 70% 65%)" }}/>
+                  <p className="text-[11px]" style={{ color:"hsl(215 25% 60%)" }}>Supports any OpenAI-compatible API: Groq, Together AI, Ollama, LM Studio, Mistral, Cohere, Fireworks, DeepSeek, and more.</p>
+                </div>
+                <div className="flex gap-3">
+                  <button onClick={() => setShowAddModule(false)} className="flex-1 py-2.5 rounded-lg text-sm font-semibold"
+                    style={{ background:"hsl(216 45% 18%)", color:"hsl(210 40% 75%)" }}>Cancel</button>
+                  <button onClick={handleAddModule} className="flex-1 py-2.5 rounded-lg text-sm font-semibold"
+                    style={{ background:"hsl(270 70% 65%)", color:"hsl(216 58% 6%)" }}>Add Module</button>
+                </div>
+              </div>
+            )}
+          </div>
           <div className="rounded-xl p-6 space-y-4" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4" style={{ color:"hsl(38 95% 52%)" }}/>
