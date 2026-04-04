@@ -230,6 +230,61 @@ export default function Settings() {
   const [showKeyValues, setShowKeyValues] = useState<Record<string, boolean>>({});
   const [keyForm, setKeyForm] = useState({ name:"", provider:"anthropic", key:"" });
 
+  // ── Custom AI Modules state ───────────────────────────────────────────────
+  const [customModules, setCustomModules] = useState<CustomAIModule[]>(loadCustomModules);
+  const [showAddModule, setShowAddModule] = useState(false);
+  const [editingModule, setEditingModule] = useState<CustomAIModule | null>(null);
+  const [moduleForm, setModuleForm] = useState<Omit<CustomAIModule, "id"|"createdAt">>({
+    name:"", icon:"🤖", description:"", baseUrl:"", apiKey:"", modelId:"",
+    category:"llm", isActive:true,
+  });
+
+  const MODULE_ICONS = ["🤖","🧠","⚡","🔮","🌟","💡","🎯","🔬","🛡️","📡","🔗","🎨"];
+  const MODULE_CATEGORIES: { value: CustomAIModule["category"]; label: string }[] = [
+    { value:"llm", label:"Language Model" },
+    { value:"search", label:"Search" },
+    { value:"data", label:"Data Processing" },
+    { value:"vision", label:"Vision" },
+    { value:"embedding", label:"Embedding" },
+    { value:"other", label:"Other" },
+  ];
+
+  const handleAddModule = () => {
+    if (!moduleForm.name.trim()) { toast.error("Module name is required"); return; }
+    const entry: CustomAIModule = {
+      ...moduleForm, id:`mod_${Date.now()}`, createdAt: new Date().toISOString(),
+    };
+    const updated = [...customModules, entry];
+    setCustomModules(updated);
+    saveCustomModules(updated);
+    toast.success(`"${entry.name}" AI module added`);
+    setModuleForm({ name:"", icon:"🤖", description:"", baseUrl:"", apiKey:"", modelId:"", category:"llm", isActive:true });
+    setShowAddModule(false);
+  };
+
+  const handleUpdateModule = () => {
+    if (!editingModule) return;
+    const updated = customModules.map(m => m.id === editingModule.id ? editingModule : m);
+    setCustomModules(updated);
+    saveCustomModules(updated);
+    setEditingModule(null);
+    toast.success("Module updated");
+  };
+
+  const handleDeleteModule = (id: string) => {
+    const mod = customModules.find(m => m.id === id);
+    const updated = customModules.filter(m => m.id !== id);
+    setCustomModules(updated);
+    saveCustomModules(updated);
+    toast.success(`"${mod?.name}" removed`);
+  };
+
+  const handleToggleModule = (id: string) => {
+    const updated = customModules.map(m => m.id === id ? { ...m, isActive: !m.isActive } : m);
+    setCustomModules(updated);
+    saveCustomModules(updated);
+  };
+
   // ── Real Estate Tools state ───────────────────────────────────────────────
   const [reTools, setReTools] = useState<RealEstateTool[]>(() => {
     const saved = loadReTools() as any;
