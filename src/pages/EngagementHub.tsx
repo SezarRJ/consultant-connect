@@ -28,7 +28,7 @@ const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
   { id: "log",          label: "Activity Log", icon: ClipboardList},
 ];
 
-const PHASES: EngagementPhase[] = ["Discovery","Analysis","Strategy","Deliverables","Follow-up","Closed"];
+const PHASES: EngagementPhase[] = ["Discovery","Data Collection","Analysis","Strategy","Deliverables","Review","Closed"];
 const HEALTH_OPTIONS: HealthStatus[] = ["On Track","At Risk","Delayed","Waiting on Client","Closed"];
 
 const PHASE_COLOR: Record<string, string> = {
