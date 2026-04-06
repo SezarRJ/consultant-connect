@@ -16,7 +16,7 @@ import { useInsights } from "@/hooks/useInsights";
 import { useDeliverables } from "@/hooks/useDeliverables";
 import { useActivityLog, useClientKPIs } from "@/hooks/useActivityLog";
 import { useStrategies } from "@/hooks/useStrategy";
-import { revenueData, regionalData, simulationResults } from "@/data/mockData";
+// revenueData, regionalData, simulationResults removed — replaced with live DB queries
 import { FeedbackBar } from "@/components/feedback/FeedbackBar";
 import { useRunAnalysis, useJobStatus } from "@/hooks/useAnalysis";
 import { useUpdateClient } from "@/hooks/useClients";
@@ -406,30 +406,18 @@ export default function ClientWorkspace() {
             <Card>
               <CardHeader><CardTitle className="text-base">Revenue Trend (12 Months)</CardTitle></CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={280}>
-                  <LineChart data={revenueData}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                    <XAxis dataKey="month" tick={{ fontSize: 12 }} />
-                    <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="actual" stroke="hsl(217, 91%, 53%)" strokeWidth={2} name="Actual" />
-                    <Line type="monotone" dataKey="target" stroke="hsl(142, 72%, 36%)" strokeWidth={2} strokeDasharray="5 5" name="Target" />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="flex items-center justify-center h-[280px] text-muted-foreground text-sm">
+                  No revenue data yet. Connect your billing system to populate this chart.
+                </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader><CardTitle className="text-base">Regional Revenue Split</CardTitle></CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={280}>
-                  <PieChart>
-                    <Pie data={regionalData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={4} dataKey="value" label={({ name, value }) => `${name} ${value}%`}>
-                      {regionalData.map((entry, i) => <Cell key={i} fill={entry.fill} />)}
-                    </Pie>
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
+                <div className="flex items-center justify-center h-[280px] text-muted-foreground text-sm">
+                  No regional data yet. Add engagement locations to see the breakdown.
+                </div>
               </CardContent>
             </Card>
 
@@ -516,11 +504,9 @@ export default function ClientWorkspace() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             {clientStrategies.map((strategy) => {
-              // G-10 FIX: get simulation data for this strategy
-              const sim = simulationResults.find((r) => r.strategyId === strategy.id);
-              const simChartData = sim
-                ? sim.months.map((m, i) => ({ month: m, P10: sim.p10[i], P50: sim.p50[i], P90: sim.p90[i] }))
-                : [];
+              // Simulation data not yet connected to a live table — show empty state
+              const sim = null;
+              const simChartData: { month: string; P10: number; P50: number; P90: number }[] = [];
 
               return (
                 <Card key={strategy.id} className={strategyStatuses[strategy.id] === "accepted" ? "border-success" : ""}>

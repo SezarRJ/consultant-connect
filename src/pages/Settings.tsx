@@ -214,6 +214,230 @@ const DOC_TYPES = [
   { type:"Competitor Intel",  icon:"🔍", count:14 },
 ];
 
+// ─── Service Requirements Checklist ──────────────────────────────────────────
+
+const SERVICE_REQUIREMENTS: {
+  id: string;
+  icon: string;
+  name: string;
+  color: string;
+  description: string;
+  requirements: { label: string; detail: string; critical: boolean }[];
+}[] = [
+  {
+    id: "anthropic",
+    icon: "✨",
+    name: "Anthropic / Claude (Primary AI)",
+    color: "hsl(38 95% 60%)",
+    description: "Required for all advisory agents, structured analyses, and AI chat features.",
+    requirements: [
+      { label: "Anthropic API Key",           detail: "Create at console.anthropic.com → API Keys. Prefix: sk-ant-...",                                    critical: true  },
+      { label: "Billing account activated",   detail: "Add a payment method in console.anthropic.com → Billing before the key works in production.",       critical: true  },
+      { label: "Usage tier upgrade (optional)", detail: "New accounts start at Tier 1 (low rate limits). Request a tier upgrade for production load.",      critical: false },
+      { label: "Model access confirmed",       detail: "Ensure your account has access to claude-sonnet-4-20250514 or the model selected in settings.",     critical: false },
+    ],
+  },
+  {
+    id: "supabase",
+    icon: "🗄️",
+    name: "Supabase (Database & Auth)",
+    color: "hsl(158 64% 55%)",
+    description: "Hosts all client data, engagements, documents, and user authentication.",
+    requirements: [
+      { label: "VITE_SUPABASE_URL env var",         detail: "Set in .env file. Found in your Supabase project → Settings → API → Project URL.",                          critical: true  },
+      { label: "VITE_SUPABASE_PUBLISHABLE_KEY",     detail: "The anon/public key from Supabase → Settings → API → Project API Keys.",                                     critical: true  },
+      { label: "Migrations applied",                detail: "Run `supabase db push` or apply the SQL files in /supabase/migrations/ to your project.",                    critical: true  },
+      { label: "Row-Level Security policies",       detail: "Enable RLS on clients, engagements, documents tables. Default policies in migrations handle this.",           critical: true  },
+      { label: "Edge Functions deployed",           detail: "Deploy supabase/functions/ai-chat with `supabase functions deploy ai-chat`.",                                 critical: true  },
+      { label: "Storage bucket created (optional)", detail: "Create a 'documents' bucket in Supabase → Storage for file upload features.",                                 critical: false },
+    ],
+  },
+  {
+    id: "perplexity",
+    icon: "🔍",
+    name: "Perplexity AI (Web Search)",
+    color: "hsl(280 80% 70%)",
+    description: "Enables real-time market data, competitor intelligence, and live news in analyses.",
+    requirements: [
+      { label: "Perplexity API key",          detail: "Generate at perplexity.ai/settings/api. Prefix: pplx-...",                    critical: true  },
+      { label: "Paid Perplexity plan",        detail: "The API requires a paid subscription. Free tier does not include API access.", critical: true  },
+      { label: "Key entered in Settings",     detail: "Paste the key in the Sub-Tools section above and click Save.",                 critical: true  },
+      { label: "Web Search toggled on",       detail: "Enable the Web Search toggle in Behaviour Settings and select Perplexity.",   critical: false },
+    ],
+  },
+  {
+    id: "tavily",
+    icon: "🌐",
+    name: "Tavily Search",
+    color: "hsl(200 80% 65%)",
+    description: "AI-optimised web search for agent-driven research tasks.",
+    requirements: [
+      { label: "Tavily API key",          detail: "Sign up at tavily.com and generate a key. Prefix: tvly-...",                 critical: true  },
+      { label: "Key entered in Settings", detail: "Paste the key in the Sub-Tools section above and select Tavily as provider.", critical: true  },
+      { label: "Free tier available",     detail: "Tavily offers a free tier (1,000 searches/month) suitable for testing.",      critical: false },
+    ],
+  },
+  {
+    id: "serpapi",
+    icon: "📊",
+    name: "SerpAPI (Google Search Data)",
+    color: "hsl(38 95% 60%)",
+    description: "Pulls Google SERP results, Trends data, and pricing signals.",
+    requirements: [
+      { label: "SerpAPI account & key",       detail: "Register at serpapi.com. Key available in your dashboard.",             critical: true  },
+      { label: "Plan with sufficient credits", detail: "Free plan includes 100 searches/month. Upgrade for production usage.", critical: false },
+      { label: "Key entered in Settings",      detail: "Paste in the Sub-Tools section above.",                               critical: true  },
+    ],
+  },
+  {
+    id: "firecrawl",
+    icon: "🔥",
+    name: "Firecrawl (Web Scraping)",
+    color: "hsl(0 72% 68%)",
+    description: "Converts competitor websites and market reports to clean LLM-readable text.",
+    requirements: [
+      { label: "Firecrawl API key",       detail: "Generate at firecrawl.dev/app/api-keys. Prefix: fc-...",     critical: true  },
+      { label: "Key entered in Settings", detail: "Paste in the Sub-Tools section above and enable Firecrawl.", critical: true  },
+      { label: "CORS headers on target sites", detail: "Some sites block scrapers. Firecrawl handles most but not all.",     critical: false },
+    ],
+  },
+  {
+    id: "custom_module",
+    icon: "🤖",
+    name: "Custom AI Modules (OpenAI-compatible)",
+    color: "hsl(270 70% 65%)",
+    description: "Any Groq, Ollama, Together AI, Mistral, or self-hosted OpenAI-compatible endpoint.",
+    requirements: [
+      { label: "Base URL",                    detail: "Must end at the /v1 root (e.g. https://api.groq.com/openai/v1). Do not include /chat/completions.", critical: true  },
+      { label: "API Key",                     detail: "Provider-specific key. For Ollama running locally, any non-empty string works.",                    critical: true  },
+      { label: "Model ID",                    detail: "Exact model identifier the provider uses (e.g. mixtral-8x7b-32768, llama-3.1-8b-instant).",        critical: true  },
+      { label: "CORS enabled (browser use)",  detail: "If calling from the browser, the provider's server must allow cross-origin requests. Ollama: set OLLAMA_ORIGINS=*.", critical: false },
+      { label: "OpenAI-compatible chat API",  detail: "Endpoint must accept POST /chat/completions with { model, messages, max_tokens }.",                critical: true  },
+    ],
+  },
+];
+
+function ServiceRequirementsChecklist() {
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [checked, setChecked] = useState<Record<string, boolean>>(() => {
+    try { return JSON.parse(localStorage.getItem("consultai_req_checks") || "{}"); } catch { return {}; }
+  });
+
+  const toggle = (key: string) => {
+    const next = { ...checked, [key]: !checked[key] };
+    setChecked(next);
+    localStorage.setItem("consultai_req_checks", JSON.stringify(next));
+  };
+
+  return (
+    <div className="rounded-xl p-6 space-y-4" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>
+      <div className="flex items-center gap-2">
+        <CheckCircle2 className="h-5 w-5" style={{ color: "hsl(158 64% 55%)" }} />
+        <div>
+          <h2 className="text-base font-bold font-display" style={{ color: "hsl(210 40% 90%)" }}>
+            Service Setup Requirements
+          </h2>
+          <p className="text-xs mt-0.5" style={{ color: "hsl(215 25% 55%)" }}>
+            Everything your company needs to provide before each service goes live. Check off items as you complete them.
+          </p>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {SERVICE_REQUIREMENTS.map(svc => {
+          const isOpen = openId === svc.id;
+          const total    = svc.requirements.length;
+          const critical = svc.requirements.filter(r => r.critical).length;
+          const done     = svc.requirements.filter((r, i) => checked[`${svc.id}__${i}`]).length;
+          const critDone = svc.requirements.filter((r, i) => r.critical && checked[`${svc.id}__${i}`]).length;
+          const allCritDone = critDone === critical;
+
+          return (
+            <div key={svc.id} className="rounded-xl overflow-hidden"
+              style={{
+                border: `1px solid ${allCritDone ? svc.color + "55" : "hsl(var(--border))"}`,
+                background: allCritDone ? svc.color + "06" : "hsl(216 45% 11%)",
+              }}>
+              {/* Header row — click to expand */}
+              <button
+                onClick={() => setOpenId(isOpen ? null : svc.id)}
+                className="w-full flex items-center gap-3 px-4 py-3.5 text-left">
+                <span className="text-lg">{svc.icon}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-semibold" style={{ color: "hsl(210 40% 88%)" }}>{svc.name}</span>
+                    {allCritDone
+                      ? <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: svc.color + "20", color: svc.color }}>✓ READY</span>
+                      : <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: "hsl(38 95% 52%/0.12)", color: "hsl(38 95% 60%)" }}>
+                          {critDone}/{critical} critical
+                        </span>
+                    }
+                  </div>
+                  <p className="text-[11px] mt-0.5 truncate" style={{ color: "hsl(215 25% 50%)" }}>{svc.description}</p>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {/* Progress ring text */}
+                  <span className="text-[10px] font-mono" style={{ color: "hsl(215 25% 45%)" }}>{done}/{total}</span>
+                  {isOpen
+                    ? <ChevronUp className="h-3.5 w-3.5" style={{ color: "hsl(215 25% 45%)" }} />
+                    : <ChevronDown className="h-3.5 w-3.5" style={{ color: "hsl(215 25% 45%)" }} />}
+                </div>
+              </button>
+
+              {/* Expanded checklist */}
+              {isOpen && (
+                <div className="px-4 pb-4 space-y-2" style={{ borderTop: "1px solid hsl(var(--border))" }}>
+                  <p className="text-[10px] pt-3 font-semibold uppercase tracking-wider" style={{ color: "hsl(215 25% 40%)" }}>
+                    Requirements checklist
+                  </p>
+                  {svc.requirements.map((req, i) => {
+                    const key = `${svc.id}__${i}`;
+                    const isDone = !!checked[key];
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => toggle(key)}
+                        className="w-full flex items-start gap-3 px-3 py-2.5 rounded-lg text-left transition-all hover:opacity-90"
+                        style={{
+                          background: isDone ? "hsl(158 64% 40%/0.08)" : "hsl(216 45% 13%)",
+                          border: `1px solid ${isDone ? "hsl(158 64% 40%/0.3)" : "hsl(var(--border))"}`,
+                        }}>
+                        {/* Checkbox */}
+                        <div className="mt-0.5 h-4 w-4 rounded flex items-center justify-center shrink-0"
+                          style={{
+                            background: isDone ? "hsl(158 64% 50%)" : "hsl(216 45% 18%)",
+                            border: `1.5px solid ${isDone ? "hsl(158 64% 50%)" : "hsl(215 25% 35%)"}`,
+                          }}>
+                          {isDone && <Check className="h-2.5 w-2.5" style={{ color: "hsl(216 58% 6%)" }} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-semibold" style={{ color: isDone ? "hsl(158 64% 60%)" : "hsl(210 40% 85%)" }}>
+                              {req.label}
+                            </span>
+                            {req.critical && !isDone && (
+                              <span className="text-[8px] font-bold px-1 py-0.5 rounded" style={{ background: "hsl(0 72% 51%/0.15)", color: "hsl(0 72% 68%)" }}>
+                                REQUIRED
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[10px] mt-0.5 leading-relaxed" style={{ color: "hsl(215 25% 50%)" }}>{req.detail}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 export default function Settings() {
   const { t, lang, setLang } = useI18n();
   const [activeTab, setActiveTab] = useState<Tab>("ai_keys");
@@ -283,6 +507,54 @@ export default function Settings() {
     const updated = customModules.map(m => m.id === id ? { ...m, isActive: !m.isActive } : m);
     setCustomModules(updated);
     saveCustomModules(updated);
+  };
+
+  // ── Custom module ping / connection test ──────────────────────────────────
+  const [modulePingStatus, setModulePingStatus] = useState<Record<string, "idle"|"testing"|"ok"|"fail">>({});
+
+  const pingModule = async (mod: CustomAIModule) => {
+    if (!mod.baseUrl) { toast.error("Set a Base URL before testing"); return; }
+    if (!mod.apiKey)  { toast.error("Add an API key before testing"); return; }
+
+    setModulePingStatus(p => ({ ...p, [mod.id]: "testing" }));
+
+    const endpoint = mod.baseUrl.replace(/\/$/, "") + "/chat/completions";
+    try {
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${mod.apiKey}`,
+        },
+        body: JSON.stringify({
+          model:      mod.modelId || "gpt-3.5-turbo",
+          max_tokens: 5,
+          messages:   [{ role: "user", content: "ping" }],
+        }),
+        signal: AbortSignal.timeout(12000),
+      });
+
+      if (res.ok) {
+        setModulePingStatus(p => ({ ...p, [mod.id]: "ok" }));
+        toast.success(`✓ ${mod.name} — connection successful`);
+      } else {
+        const body = await res.json().catch(() => ({}));
+        setModulePingStatus(p => ({ ...p, [mod.id]: "fail" }));
+        toast.error(`${mod.name} error ${res.status}: ${(body as any)?.error?.message || res.statusText}`);
+      }
+    } catch (err: any) {
+      setModulePingStatus(p => ({ ...p, [mod.id]: "fail" }));
+      if (err?.name === "TimeoutError") {
+        toast.error(`${mod.name}: request timed out (12s)`);
+      } else if (err?.message?.includes("Failed to fetch") || err?.message?.includes("NetworkError")) {
+        toast.error(`${mod.name}: network error — check the Base URL and CORS headers`);
+      } else {
+        toast.error(`${mod.name}: ${err?.message ?? "Unknown error"}`);
+      }
+    }
+
+    // Reset badge after 4 s
+    setTimeout(() => setModulePingStatus(p => ({ ...p, [mod.id]: "idle" })), 4000);
   };
 
   // ── Real Estate Tools state ───────────────────────────────────────────────
@@ -777,6 +1049,32 @@ export default function Settings() {
                             {mod.description && <p className="text-[11px] mt-0.5 truncate" style={{ color:"hsl(215 25% 50%)" }}>{mod.description}</p>}
                           </div>
                           <div className="flex items-center gap-1.5 shrink-0">
+                            {/* ── Ping / Test button ── */}
+                            {(() => {
+                              const ps = modulePingStatus[mod.id] ?? "idle";
+                              const label =
+                                ps === "testing" ? "Testing…" :
+                                ps === "ok"      ? "✓ OK"     :
+                                ps === "fail"    ? "✗ Fail"   : "Test";
+                              const bg =
+                                ps === "ok"   ? "hsl(158 64% 40%/0.2)" :
+                                ps === "fail" ? "hsl(0 72% 51%/0.15)"  : "hsl(216 45% 18%)";
+                              const color =
+                                ps === "ok"   ? "hsl(158 64% 55%)" :
+                                ps === "fail" ? "hsl(0 72% 68%)"   : "hsl(215 25% 55%)";
+                              return (
+                                <button
+                                  onClick={() => pingModule(mod)}
+                                  disabled={ps === "testing"}
+                                  title="Send a test ping to verify the API connection"
+                                  className="px-2 py-1 rounded-lg text-[10px] font-bold transition-all disabled:opacity-60"
+                                  style={{ background: bg, color, border: `1px solid ${color}40` }}>
+                                  {ps === "testing"
+                                    ? <span className="flex items-center gap-1"><RefreshCw className="h-2.5 w-2.5 animate-spin" />{label}</span>
+                                    : label}
+                                </button>
+                              );
+                            })()}
                             <Toggle defaultOn={mod.isActive} onChange={() => handleToggleModule(mod.id)} />
                             <button onClick={() => setEditingModule({...mod})} className="p-1.5 rounded-lg hover:opacity-80"
                               style={{ background:"hsl(216 45% 18%)" }}>
@@ -994,6 +1292,9 @@ export default function Settings() {
               );
             })}
           </div>
+
+          {/* ─── SERVICE REQUIREMENTS CHECKLIST ─────────────────────────── */}
+          <ServiceRequirementsChecklist />
 
           {/* ─── BEHAVIOUR ───────────────────────────────────────────────── */}
           <div className="rounded-xl p-6 space-y-5" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>
