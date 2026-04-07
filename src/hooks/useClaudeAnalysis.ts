@@ -188,7 +188,7 @@ ${languageInstruction}`.trim() }],
       setLoading(false);
       setStreaming(false);
     }
-  }, [systemPrompt, agentId, modelTier, reasoningEffort, outputSchema]);
+  }, [systemPrompt, modelTier, reasoningEffort, outputSchema]);
 
   return {
     result, loading, error, rawText, streaming,

@@ -4,7 +4,7 @@
 import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users, Briefcase, BarChart2, Lightbulb,
-  FileOutput, Globe2, Settings, Languages, ChevronRight,
+  FileOutput, Globe2, Settings, ChevronRight,
   ChevronDown, Building2, ShoppingCart, Coffee, Radio,
   Truck, TrendingUp, Megaphone, Network, Bot,
   MessageSquare, FolderKanban, CheckSquare, PieChart, UserCheck,

@@ -10,7 +10,7 @@ import {
   Plus, AlertTriangle, CheckCircle2, Activity, ChevronRight,
   FolderKanban, CheckSquare, PieChart, UserCheck, Clock,
   Bot, MessageSquare, FolderOpen, DollarSign,
-  Database, Layers, Lock, Star, Target, ShieldAlert,
+  Database, Star, Target, ShieldAlert,
   PackageCheck, FileBarChart2, FileText, Settings,
 } from "lucide-react";
 import { useEngagementStore, PHASES, getEngagementReadiness, getMissingRequestedOutputs, type EngagementPhase } from "@/store/engagementStore";

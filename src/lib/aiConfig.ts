@@ -2,11 +2,15 @@
 // aiConfig.ts  –  Central AI configuration store (persisted in localStorage)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// These IDs map to actual Gemini tiers via the Lovable AI Gateway:
+//   "flash-lite" → gemini-2.5-flash-lite  (standard advisory agents)
+//   "flash"      → gemini-2.5-flash       (complex analyses)
+//   "pro"        → gemini-2.5-pro         (premium reasoning)
+// The names below are kept for UI display compatibility.
 export type AnthropicModel =
-  | "claude-opus-4-5"
-  | "claude-sonnet-4-5"
-  | "claude-haiku-4-5"
-  | "claude-opus-4-5-20251101"
+  | "flash-lite"
+  | "flash"
+  | "pro"
   | "claude-sonnet-4-20250514"
   | "claude-haiku-3-5-20241022";
 
@@ -73,7 +77,7 @@ const DEFAULTS: AIConfig = {
   openaiKey: "",
   serpapiKey: "",
   firecrawlKey: "",
-  anthropicModel: "claude-sonnet-4-20250514",
+  anthropicModel: "flash",
   perplexityModel: "sonar-pro",
   webSearchEnabled: false,
   streamingEnabled: true,
@@ -103,11 +107,9 @@ export function getApiKey(config: AIConfig, provider: keyof Pick<AIConfig, "anth
 }
 
 export const ANTHROPIC_MODELS: { id: AnthropicModel; label: string; tier: "flagship" | "balanced" | "fast"; contextK: number; desc: string }[] = [
-  { id: "claude-opus-4-5",          label: "Claude Opus 4.5",     tier: "flagship", contextK: 200, desc: "Most capable – complex multi-step reasoning" },
-  { id: "claude-sonnet-4-20250514",  label: "Claude Sonnet 4",     tier: "balanced", contextK: 200, desc: "Best speed/intelligence balance – recommended" },
-  { id: "claude-sonnet-4-5",        label: "Claude Sonnet 4.5",   tier: "balanced", contextK: 200, desc: "Latest Sonnet – enhanced agentic performance" },
-  { id: "claude-haiku-4-5",         label: "Claude Haiku 4.5",    tier: "fast",     contextK: 200, desc: "Ultra-fast responses, cost-efficient" },
-  { id: "claude-haiku-3-5-20241022",label: "Claude Haiku 3.5",    tier: "fast",     contextK: 200, desc: "Fastest – great for simple lookups" },
+  { id: "pro",       label: "Gemini 2.5 Pro",        tier: "flagship", contextK: 200, desc: "Highest reasoning – complex analyses, financial modelling, feasibility studies" },
+  { id: "flash",     label: "Gemini 2.5 Flash",      tier: "balanced", contextK: 200, desc: "Best speed/quality balance – recommended for most analyses" },
+  { id: "flash-lite",label: "Gemini 2.5 Flash Lite", tier: "fast",     contextK: 200, desc: "Fastest & most cost-efficient – summaries, briefings, quick lookups" },
 ];
 
 export const PERPLEXITY_MODELS: { id: PerplexityModel; label: string; desc: string }[] = [

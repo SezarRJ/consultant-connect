@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   Building2, MapPin, BarChart2, DollarSign, TrendingUp, Target,
   RefreshCw, Download, CheckCircle2, AlertTriangle, Star, Layers,
-  PieChart, Activity, Zap, Shield, FileText, ChevronRight, Globe2,
+  PieChart, Activity, Zap, Shield, FileText, ChevronRight,
   Hotel, ShoppingBag, Home, LayoutGrid, Briefcase, ArrowUpRight
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";

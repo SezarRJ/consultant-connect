@@ -6,12 +6,12 @@
 import { useState } from "react";
 import {
   useEngagementStore, type DataInput, type ResourceItem,
-  type FinancialData, type ServiceCategory, CATEGORY_SERVICES,
+  type FinancialData, type ServiceCategory,
 } from "@/store/engagementStore";
 import {
-  Database, Upload, Plus, X, Check, AlertTriangle, ChevronRight,
-  DollarSign, FileText, Table, Layers, RefreshCw, Save,
-  Building2, TrendingUp, Globe2, Settings, Info, Trash2,
+  Database, Plus, Check, AlertTriangle,
+  FileText, Layers, RefreshCw, Save,
+  Info, Trash2,
 } from "lucide-react";
 
 const DATA_CATEGORIES = ["Company","Financial","Market","Operations","Custom"] as const;

@@ -7,7 +7,7 @@ import RequirementsPanel from "@/components/engagement/RequirementsPanel";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import {
   FileText, FileOutput, ClipboardList,
-  Loader2, AlertTriangle, Save, Check, Copy,
+  Loader2, AlertTriangle, Save, Check, Copy, Download,
 } from "lucide-react";
 
 type SubId = "proposal"|"report"|"tracker"|"executive";
@@ -47,6 +47,16 @@ function SubRunner({ sub }: { sub: typeof SUBS[0] }) {
   );
   const [saved,  setSaved]  = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const downloadTxt = () => {
+    if (!content) return;
+    const filename = `${sub.label} — ${eng?.companyName || eng?.clientName || "Engagement"} — ${new Date().toISOString().slice(0,10)}.txt`;
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  };
 
   const priorAvailable = eng ? sub.priorTools.filter((id) => !!eng.outputs?.[id]) : [];
   const existing = eng?.outputs?.[sub.id];
@@ -154,6 +164,13 @@ Format:
                 style={{ background: "hsl(216 45% 18%)", color: "hsl(215 25% 55%)" }}>
                 {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {copied ? "Copied!" : "Copy"}
+              </button>
+              <button onClick={downloadTxt}
+                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold"
+                style={{ background: "hsl(216 45% 18%)", color: "hsl(158 64% 55%)" }}
+                title="Download as .txt — open in Word or paste into your template">
+                <Download className="h-4 w-4" />
+                Download .txt
               </button>
             </>
           )}

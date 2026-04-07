@@ -3,7 +3,7 @@ import {
   Building2, Users, GitBranch, DollarSign, TrendingUp, AlertTriangle,
   CheckCircle2, ChevronDown, UserPlus, Star, ArrowUpRight, RefreshCw,
   Network, FileText, Briefcase, Play, ChevronUp, Info, Lock,
-  ClipboardList, BarChart2, Target, Layers, Settings2, Globe, Zap
+  ClipboardList, BarChart2, Target, Layers
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { AIDisclaimer } from "@/components/ai/AIDisclaimer";

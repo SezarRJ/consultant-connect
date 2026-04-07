@@ -11,12 +11,19 @@ import { useSubmitFeedback } from '@/hooks/useFeedback';
  *  agentName   — (optional) which agent produced this output
  *  compact     — when true, hides the label text and uses smaller icons
  */
-export const FeedbackBar = ({ entityType, entityId, agentName, compact = false }) => {
+interface FeedbackBarProps {
+  entityType: string;
+  entityId: string;
+  agentName?: string;
+  compact?: boolean;
+}
+
+export const FeedbackBar = ({ entityType, entityId, agentName, compact = false }: FeedbackBarProps) => {
   const [submitted, setSubmitted] = useState(false);
-  const [selected, setSelected]   = useState(null);
+  const [selected, setSelected]   = useState<string | null>(null);
   const { mutate: submitFeedback, isPending } = useSubmitFeedback();
 
-  const handleFeedback = (rating) => {
+  const handleFeedback = (rating: string) => {
     setSelected(rating);
     submitFeedback(
       {
@@ -28,7 +35,6 @@ export const FeedbackBar = ({ entityType, entityId, agentName, compact = false }
       {
         onSuccess: () => {
           setSubmitted(true);
-          // Reset "Thanks" message after 3 s
           setTimeout(() => setSubmitted(false), 3000);
         },
         onError: () => {
@@ -48,7 +54,13 @@ export const FeedbackBar = ({ entityType, entityId, agentName, compact = false }
 
   const iconSize = compact ? 14 : 18;
 
-  const btn = (rating, Icon, hoverBg, hoverText, title) => (
+  const btn = (
+    rating: string,
+    Icon: React.ElementType,
+    hoverBg: string,
+    hoverText: string,
+    title: string
+  ) => (
     <button
       onClick={() => handleFeedback(rating)}
       disabled={isPending}

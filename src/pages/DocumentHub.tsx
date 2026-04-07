@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Upload, Search, FileText, FileSpreadsheet, File, Download, Trash2, Eye, FolderOpen, Filter, CheckCircle2, Clock, AlertTriangle, Loader2, Plus } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
@@ -11,18 +11,7 @@ interface Doc {
   uploadDate: string; status: DocStatus; category: string; client?: string; pages?: number;
 }
 
-const INITIAL_DOCS: Doc[] = [
-  { id: "1", name: "Iraq Market Analysis 2026.pdf",        type: "PDF",   size: "2.4 MB", uploadDate: "2026-03-10", status: "complete",   category: "Market Research",   client: "Al-Mansour Trading",   pages: 45 },
-  { id: "2", name: "Distributor Network - Baghdad.xlsx",   type: "Excel", size: "890 KB", uploadDate: "2026-03-09", status: "complete",   category: "Partner Profiles",  client: "Gulf Exports Ltd" },
-  { id: "3", name: "Competitor Pricing Report Q1.pdf",     type: "PDF",   size: "1.8 MB", uploadDate: "2026-03-08", status: "complete",   category: "Competitor Intel",  client: "TechBridge FZCO",      pages: 28 },
-  { id: "4", name: "Financial Projections FY2026.xlsx",    type: "Excel", size: "1.2 MB", uploadDate: "2026-03-07", status: "complete",   category: "Financial Reports", client: "Al-Mansour Trading" },
-  { id: "5", name: "Risk Assessment - Basra Hub.docx",     type: "Word",  size: "560 KB", uploadDate: "2026-03-06", status: "processing", category: "Risk Reports",      client: "Gulf Exports Ltd",     pages: 18 },
-  { id: "6", name: "KRG Regulatory Framework.pdf",         type: "PDF",   size: "3.1 MB", uploadDate: "2026-03-05", status: "complete",   category: "Market Research",   pages: 62 },
-  { id: "7", name: "Partner Profiles - Erbil.csv",         type: "CSV",   size: "220 KB", uploadDate: "2026-03-04", status: "complete",   category: "Partner Profiles",  client: "TechBridge FZCO" },
-  { id: "8", name: "Export Readiness Checklist.docx",      type: "Word",  size: "340 KB", uploadDate: "2026-03-03", status: "pending",    category: "Market Research" },
-  { id: "9", name: "Feasibility Study - FMCG.pdf",         type: "PDF",   size: "4.2 MB", uploadDate: "2026-03-02", status: "complete",   category: "Financial Reports", client: "Al-Mansour Trading",   pages: 88 },
-  { id: "10", name: "Sales Channel Analysis.pptx",         type: "PowerPoint", size: "6.1 MB", uploadDate: "2026-03-01", status: "error", category: "Competitor Intel" },
-];
+const LS_DOCS = "consultai_docs_v1";
 
 const CATEGORIES = ["All", "Market Research", "Partner Profiles", "Competitor Intel", "Financial Reports", "Risk Reports"];
 
@@ -41,39 +30,48 @@ const statusBadge: Record<DocStatus, { icon: React.ReactNode; label: string; col
   error:      { icon: <AlertTriangle className="h-3 w-3" />, label: "Error",      color: "data-pill-red" },
 };
 
+function loadDocs(): Doc[] {
+  try { return JSON.parse(localStorage.getItem(LS_DOCS) || "[]") || []; } catch { return []; }
+}
+
 export default function DocumentHub() {
   const { t } = useI18n();
-  const [docs, setDocs] = useState<Doc[]>(INITIAL_DOCS);
+  const [docs, setDocs] = useState<Doc[]>(loadDocs);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<Doc | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
+  // Persist to localStorage whenever docs change
+  useEffect(() => { localStorage.setItem(LS_DOCS, JSON.stringify(docs)); }, [docs]);
+
   const filtered = docs.filter(d =>
     (category === "All" || d.category === category) &&
     (d.name.toLowerCase().includes(search.toLowerCase()) || (d.client || "").toLowerCase().includes(search.toLowerCase()))
   );
 
-  const handleUpload = async (files: FileList | null) => {
+  const handleUpload = (files: FileList | null) => {
     if (!files || !files.length) return;
     setUploading(true);
-    await new Promise(r => setTimeout(r, 1200));
     const newDocs: Doc[] = Array.from(files).map((f, i) => ({
-      id: `new-${Date.now()}-${i}`,
+      id: `doc-${Date.now()}-${i}`,
       name: f.name,
-      type: f.name.endsWith(".pdf") ? "PDF" : f.name.endsWith(".xlsx") || f.name.endsWith(".xls") ? "Excel" : f.name.endsWith(".csv") ? "CSV" : f.name.endsWith(".pptx") ? "PowerPoint" : "Word",
-      size: `${(f.size / 1024 / 1024).toFixed(1)} MB`,
+      type: f.name.endsWith(".pdf") ? "PDF"
+          : f.name.endsWith(".xlsx") || f.name.endsWith(".xls") ? "Excel"
+          : f.name.endsWith(".csv") ? "CSV"
+          : f.name.endsWith(".pptx") ? "PowerPoint"
+          : "Word",
+      size: f.size >= 1024 * 1024
+          ? `${(f.size / 1024 / 1024).toFixed(1)} MB`
+          : `${Math.round(f.size / 1024)} KB`,
       uploadDate: new Date().toISOString().split("T")[0],
-      status: "processing",
+      status: "complete" as DocStatus,
       category: "Market Research",
     }));
     setDocs(prev => [...newDocs, ...prev]);
     setUploading(false);
-    toast.success(`${files.length} document${files.length > 1 ? "s" : ""} uploaded and queued for processing`);
-    setTimeout(() => {
-      setDocs(prev => prev.map(d => newDocs.find(n => n.id === d.id) ? { ...d, status: "complete" } : d));
-    }, 3000);
+    toast.success(`${files.length} document${files.length > 1 ? "s" : ""} registered. Metadata saved locally — keep original files in your storage system.`);
   };
 
   const deleteDoc = (id: string) => {
@@ -81,7 +79,6 @@ export default function DocumentHub() {
     toast.success("Document deleted");
   };
 
-  const totalSize = docs.length * 1.8; // approximate
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">

@@ -1,10 +1,10 @@
 import { useState } from "react";
 import {
   Award, CheckCircle2, AlertTriangle, RefreshCw, ChevronDown, ChevronRight,
-  Shield, FileText, Users, Factory, Globe, Zap, BarChart2, ChevronUp,
-  ClipboardList, Star, ArrowUpRight, Download, Info, X, Play, Lock,
-  Target, TrendingUp, Building2, Settings2, BookOpen, CheckSquare,
-  AlertCircle, Calendar, DollarSign, Layers, Network, Eye
+  Shield, FileText, Factory, Globe, Zap, BarChart2, ChevronUp,
+  Star, ArrowUpRight, Download, Info, X, Play, Lock,
+  Target, Building2, Settings2, BookOpen, CheckSquare,
+  AlertCircle, Eye
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { AIDisclaimer } from "@/components/ai/AIDisclaimer";

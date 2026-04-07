@@ -3,8 +3,8 @@ import {
   Settings as SettingsIcon, Languages, Plug, FolderOpen, Bot, User,
   Shield, Check, Upload, AlertCircle, Eye, EyeOff, CheckCircle2,
   Key, Cpu, Globe, Zap, Sliders, ExternalLink, RefreshCw, Wifi,
-  Plus, Trash2, Edit3, Copy, MoreHorizontal, Building2, BarChart2,
-  Activity, X, ChevronDown, ChevronUp, Lock, Unlock, Star, Info
+  Plus, Trash2, Edit3, Copy, Building2,
+  X, ChevronDown, ChevronUp, Lock, Unlock, Star, Info
 } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
 import { toast } from "sonner";
@@ -445,7 +445,12 @@ export default function Settings() {
   const [testStatus, setTestStatus] = useState<"idle"|"testing"|"ok"|"fail">("idle");
   const [integrations, setIntegrations] = useState(INTEGRATIONS_INIT);
   const [agents, setAgents] = useState(AGENTS_INIT);
-  const [profile, setProfile] = useState({ name:"Ahmad Al-Rashidi", company:"Global Trade Consultants", email:"ahmad@gtc.com", phone:"+964 770 123 4567", region:"Iraq / MENA" });
+  const [profile, setProfile] = useState(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("consultai_profile") || "null");
+      return saved || { name:"", company:"", email:"", phone:"", region:"" };
+    } catch { return { name:"", company:"", email:"", phone:"", region:"" }; }
+  });
 
   // ── API Key Manager state ──────────────────────────────────────────────────
   const [apiKeys, setApiKeys] = useState<ApiKeyEntry[]>(loadApiKeys);
@@ -1815,7 +1820,7 @@ export default function Settings() {
               </div>
             ))}
           </div>
-          <button onClick={() => toast.success("Profile saved")} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }}>Save Profile</button>
+          <button onClick={() => { localStorage.setItem("consultai_profile", JSON.stringify(profile)); toast.success("Profile saved"); }} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }}>Save Profile</button>
         </div>
       )}
 

@@ -3,7 +3,7 @@
  * Replaces scattered navigation with a clear guided process
  */
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   useEngagementStore, PHASES, getEngagementReadiness, getMissingRequestedOutputs,
   SERVICE_CATEGORIES, CATEGORY_SERVICES, type ServiceCategory, type Engagement,
@@ -172,7 +172,6 @@ export default function WorkflowGuide() {
     completePhase,
   } = useEngagementStore();
   const eng = getActiveEngagement();
-  const navigate = useNavigate();
   const [selectedCategory, setSelectedCategory] = useState<ServiceCategory | null>(null);
 
   const activePhaseIdx = eng ? PHASES.indexOf(eng.phase) : -1;
