@@ -156,8 +156,6 @@ Client Objectives: ${form.objectives || "Improve business performance and growth
           )}
 
           {r && !loading && (
-          <>
-          <AIDisclaimer compact />
             <div className="space-y-4">
               {/* Title & Summary */}
               <div className="rounded-xl p-5" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>

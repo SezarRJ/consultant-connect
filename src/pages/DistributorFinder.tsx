@@ -126,8 +126,6 @@ Provide realistic Iraqi distributor profiles for Erbil, Baghdad, Basra. Include 
       {!loading && !d && !error && <EmptyState icon={<Users className="h-12 w-12" />} title="Find Your Distribution Partner" description="Search for certified distributors and reliable wholesalers across Iraq's key commercial cities." />}
 
       {d && !loading && (
-        <>
-          <AIDisclaimer compact />
         <div className="space-y-5">
           {d.summary && (
             <div className="rounded-xl p-4" style={{ background: "hsl(38 95% 52% / 0.06)", border: "1px solid hsl(38 95% 52% / 0.2)" }}>

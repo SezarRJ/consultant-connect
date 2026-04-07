@@ -252,8 +252,6 @@ Be specific to Iraq market 2025-2026. Include real prices in USD and IQD, realis
       </div>}
 
       {d && !loading && (
-        <>
-          <AIDisclaimer compact />
         <div className="space-y-5">
           {/* Verdict */}
           <div className="rounded-2xl p-6 flex items-start gap-6 flex-wrap" style={{ background: "hsl(var(--card))", border: `2px solid ${vc}40` }}>

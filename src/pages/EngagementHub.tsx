@@ -406,7 +406,6 @@ function ActivityLogTab({ eng }: { eng: Engagement }) {
         {outputs.length} saved output{outputs.length !== 1 ? "s" : ""}
       </p>
       {outputs.length === 0 ? (
-          <AIDisclaimer compact />
         <p className="text-sm text-center py-8" style={{ color: "hsl(215 25% 42%)" }}>
           No outputs saved yet. Run Analysis, Strategy, or Deliverables tools and click "Save to Engagement".
         </p>
