@@ -69,11 +69,11 @@ function ContactCard({ c, onClick, selected }: { c: CRMContact; onClick: () => v
 }
 
 // ── Contact Detail ────────────────────────────────────────────────
-function ContactDetail({ c, onEdit, onConvert, onDelete }: {
+function ContactDetail({ c, onEdit, onConvert, onDelete, onUpdateStatus }: {
   c: CRMContact; onEdit: () => void; onConvert: () => void; onDelete: () => void;
+  onUpdateStatus: (id: string, status: LeadStatus) => void;
 }) {
   const sc = STATUS_CONFIG[c.leadStatus];
-  const { updateContact } = useEngagementStore();
 
   return (
     <div className="space-y-4">
@@ -125,7 +125,7 @@ function ContactDetail({ c, onEdit, onConvert, onDelete }: {
         <div>
           <label className="block text-[10px] uppercase tracking-wider font-semibold mb-1" style={{ color: "hsl(215 25% 48%)" }}>Update Status</label>
           <select value={c.leadStatus}
-            onChange={(e) => updateContact(c.id, { leadStatus: e.target.value as LeadStatus })}
+            onChange={(e) => onUpdateStatus(c.id, e.target.value as LeadStatus)}
             className="w-full rounded-md px-3 py-1.5 text-xs"
             style={{ background: "hsl(216 45% 14%)", color: "hsl(210 40% 88%)", border: "1px solid hsl(216 45% 22%)" }}>
             {STATUSES.map((s) => <option key={s}>{s}</option>)}
