@@ -108,8 +108,15 @@ export default function ExecutiveDashboard() {
     const allEngagements = engagements.data ?? [];
     const allClients     = clients.data     ?? [];
 
+    const currentYear = new Date().getFullYear();
     const active    = allEngagements.filter(e => e.status !== "Complete" && e.status !== "complete");
-    const completed = allEngagements.filter(e => e.status === "Complete" || e.status === "complete");
+    const completed = allEngagements.filter(e => {
+      const isComplete = e.status === "Complete" || e.status === "complete";
+      if (!isComplete) return false;
+      const closeDate = e.completed_at || e.due_date;
+      if (!closeDate) return true;
+      return new Date(closeDate).getFullYear() === currentYear;
+    });
 
     const activeClientIds = new Set(active.map(e => e.client_id));
     const totalRevenue = allClients
@@ -143,6 +150,10 @@ export default function ExecutiveDashboard() {
   const activeEngagements = useMemo(() =>
     (engagements.data ?? [])
       .filter(e => e.status !== "Complete" && e.status !== "complete")
+      .sort((a, b) => {
+        const order: Record<string, number> = { critical: 0, at_risk: 1, on_track: 2, pipeline: 3 };
+        return (order[statusKey(a.status)] ?? 4) - (order[statusKey(b.status)] ?? 4);
+      })
       .slice(0, 6)
       .map(e => ({
         name:   e.type,
@@ -160,7 +171,9 @@ export default function ExecutiveDashboard() {
       .slice(0, 5)
       .map(e => ({
         title: `${e.type} — ${e.client_name}`,
-        date:  e.due_date ? new Date(e.due_date).toLocaleDateString() : "—",
+        date:  (e.completed_at || e.due_date)
+          ? new Date(e.completed_at || e.due_date).toLocaleDateString()
+          : "—",
       })),
     [engagements.data]
   );
