@@ -189,6 +189,7 @@ Provide real-world accurate pricing data for Iraq market in 2025-2026.`);
             </OutputCard>
           )}
         </div>
+        </>
       )}
     </div>
   );

@@ -359,6 +359,7 @@ export default function StakeholderMapper() {
                 ))}
               </div>
             </>
+          </>
           )}
         </div>
       </div>

@@ -252,6 +252,7 @@ Provide realistic Iraqi distributor profiles for Erbil, Baghdad, Basra. Include 
             )}
           </div>
         </div>
+        </>
       )}
     </div>
   );

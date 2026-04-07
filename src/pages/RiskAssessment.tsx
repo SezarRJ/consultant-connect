@@ -251,6 +251,7 @@ Provide realistic 2025-2026 Iraq risk assessment covering payment risk, logistic
             </OutputCard>
           </div>
         </div>
+        </>
       )}
     </div>
   );

@@ -306,6 +306,7 @@ export default function InsightsFeed() {
                 </div>
               )}
             </>
+          </>
           )}
         </div>
       </div>

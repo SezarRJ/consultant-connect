@@ -284,6 +284,7 @@ Focus on supermarket chains, wholesalers, cash van distribution, and e-commerce 
             </OutputCard>
           )}
         </div>
+        </>
       )}
     </div>
   );
