@@ -366,7 +366,6 @@ export default function PlaybookLibrary() {
                 <RefreshCw className="h-3.5 w-3.5" /> Regenerate
               </button>
             </div>
-          </>
           )}
         </div>
       </div>

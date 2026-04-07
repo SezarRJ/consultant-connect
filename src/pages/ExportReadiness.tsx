@@ -296,7 +296,6 @@ Check packaging compliance, Arabic labeling requirements, pricing competitivenes
             </OutputCard>
           )}
         </div>
-        </>
       )}
     </div>
   );

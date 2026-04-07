@@ -195,7 +195,6 @@ export default function StrategyWorkshop() {
             {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             {copied ? "Copied!" : "Copy Analysis"}
           </button>
-          </>
         )}
       </div>
 

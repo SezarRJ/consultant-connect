@@ -780,7 +780,6 @@ Cover all sections thoroughly. Use realistic 2025-2026 Iraq market data. Be spec
 
           {tokensUsed && <AIStatusBar tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />}
         </div>
-        </>
       )}
     </div>
   );

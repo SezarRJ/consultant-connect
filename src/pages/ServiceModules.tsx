@@ -381,7 +381,6 @@ export default function ServiceModules() {
               </div>
               <JsonDisplay data={result} />
             </div>
-          </>
           )}
 
           {!result && !loading && !error && (

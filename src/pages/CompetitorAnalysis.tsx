@@ -344,7 +344,6 @@ Identify ALL competing brands with their strengths, weaknesses, pricing, distrib
 
           {tokensUsed && <AIStatusBar tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />}
         </div>
-        </>
       )}
     </div>
   );

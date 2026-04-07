@@ -285,8 +285,6 @@ export default function BenchmarkingTool() {
                   </div>
                 </div>
               )}
-            </>
-          </>
           )}
         </div>
       </div>

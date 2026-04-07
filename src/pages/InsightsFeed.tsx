@@ -303,8 +303,6 @@ export default function InsightsFeed() {
                   </p>
                 </div>
               )}
-            </>
-          </>
           )}
         </div>
       </div>

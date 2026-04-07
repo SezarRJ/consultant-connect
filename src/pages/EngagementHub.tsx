@@ -466,7 +466,6 @@ export default function EngagementHub() {
       </div>
 
       {!eng ? <NoEngagement /> : (
-        <>
           {tab === "overview"     && <OverviewTab     eng={eng} />}
           {tab === "stakeholders" && <StakeholdersTab eng={eng} />}
           {tab === "tracker"      && <TrackerTab      eng={eng} />}
@@ -483,7 +482,6 @@ export default function EngagementHub() {
             </div>
           )}
           {tab === "log" && <ActivityLogTab eng={eng} />}
-        </>
       )}
     </div>
   );

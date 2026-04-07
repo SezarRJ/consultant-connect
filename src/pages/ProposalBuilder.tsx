@@ -236,7 +236,6 @@ Client Objectives: ${form.objectives || "Improve business performance and growth
                 </div>
               )}
             </div>
-          </>
           )}
 
           {!r && !loading && !error && (

@@ -466,7 +466,6 @@ export default function MarketIntelligence() {
 
           {tokensUsed && <AIStatusBar tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />}
         </div>
-        </>
       )}
     </div>
   );

@@ -525,7 +525,6 @@ Be specific to Iraq market 2025-2026. Include real prices in USD and IQD, realis
 
           {tokensUsed && <AIStatusBar tokensUsed={tokensUsed} responseTime={responseTime} jsonValid={jsonValid} modelUsed={modelUsed} />}
         </div>
-        </>
       )}
     </div>
   );

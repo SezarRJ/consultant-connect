@@ -236,7 +236,6 @@ export default function ReportGenerator() {
               <Download className="h-3.5 w-3.5" /> Export {format.toUpperCase()}
             </button>
           </div>
-          </>
         )}
       </div>
 
