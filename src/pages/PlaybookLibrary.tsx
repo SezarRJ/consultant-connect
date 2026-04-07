@@ -264,6 +264,7 @@ export default function PlaybookLibrary() {
           )}
 
           {r && !loading && (
+          <>
           <AIDisclaimer compact />
             <div className="space-y-4">
               {/* Header */}
@@ -367,6 +368,7 @@ export default function PlaybookLibrary() {
                 <RefreshCw className="h-3.5 w-3.5" /> Regenerate
               </button>
             </div>
+          </>
           )}
         </div>
       </div>

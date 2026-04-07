@@ -189,6 +189,7 @@ export default function StrategyWorkshop() {
           </p>
         </div>
         {r && (
+          <>
           <AIDisclaimer compact />
           <button onClick={copy}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
@@ -196,6 +197,7 @@ export default function StrategyWorkshop() {
             {copied ? <CheckCircle2 className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             {copied ? "Copied!" : "Copy Analysis"}
           </button>
+          </>
         )}
       </div>
 

@@ -156,6 +156,7 @@ Client Objectives: ${form.objectives || "Improve business performance and growth
           )}
 
           {r && !loading && (
+          <>
           <AIDisclaimer compact />
             <div className="space-y-4">
               {/* Title & Summary */}
@@ -237,6 +238,7 @@ Client Objectives: ${form.objectives || "Improve business performance and growth
                 </div>
               )}
             </div>
+          </>
           )}
 
           {!r && !loading && !error && (

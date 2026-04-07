@@ -226,6 +226,7 @@ export default function ReportGenerator() {
           <p className="text-sm mt-1" style={{ color: "hsl(215 25% 55%)" }}>AI-powered professional consulting reports — feasibility, strategy, market, sales audit, business plans</p>
         </div>
         {result && (
+          <>
           <AIDisclaimer compact />
           <div className="flex gap-2">
             <button onClick={handleCopy} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold"
@@ -237,6 +238,7 @@ export default function ReportGenerator() {
               <Download className="h-3.5 w-3.5" /> Export {format.toUpperCase()}
             </button>
           </div>
+          </>
         )}
       </div>
 

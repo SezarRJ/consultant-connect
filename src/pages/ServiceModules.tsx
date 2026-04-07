@@ -374,6 +374,7 @@ export default function ServiceModules() {
           )}
 
           {result && !loading && (
+          <>
           <AIDisclaimer compact />
             <div className="space-y-3">
               <div className="flex items-center gap-2 mb-1">
@@ -382,6 +383,7 @@ export default function ServiceModules() {
               </div>
               <JsonDisplay data={result} />
             </div>
+          </>
           )}
 
           {!result && !loading && !error && (
