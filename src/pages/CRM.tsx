@@ -7,6 +7,7 @@ import {
   useCRMContacts, useCreateCRMContact, useUpdateCRMContact, useDeleteCRMContact,
   type CRMContact, type LeadStatus,
 } from "@/hooks/useCRMContacts";
+import { useEngagementStore } from "@/store/engagementStore";
 import { Loader2, AlertTriangle } from "lucide-react";
 import {
   Users, Plus, Search, X, Phone, Mail, Globe, Building2,
@@ -278,6 +279,7 @@ export default function CRMPage() {
   const createContact = useCreateCRMContact();
   const updateContact = useUpdateCRMContact();
   const deleteContact = useDeleteCRMContact();
+  const { createEngagement } = useEngagementStore();
 
   const [search,       setSearch]       = useState("");
   const [filterStatus, setFilterStatus] = useState<LeadStatus | "all">("all");
@@ -302,9 +304,55 @@ export default function CRMPage() {
     setShowForm(false); setEditContact(null);
   };
 
-  // Convert contact to engagement — marks as Active Client, then opens Engagement Hub
+  // Convert contact to engagement — creates Zustand engagement + marks Supabase contact as Active Client
   const handleConvert = async (contact: CRMContact) => {
+    // 1. Update CRM contact status in Supabase
     await updateContact.mutateAsync({ id: contact.id, leadStatus: "Active Client" });
+
+    // 2. Build and create the engagement in Zustand store (sets it as active automatically)
+    const expectedOutputs = [contact.interestedService, "Executive Summary"].filter(Boolean);
+    createEngagement({
+      name: `${contact.companyName || contact.fullName} — ${contact.interestedService}`,
+      contactId: contact.id,
+      clientName: contact.fullName,
+      companyName: contact.companyName,
+      industry: contact.industry,
+      sector: contact.sector,
+      market: contact.country,
+      serviceType: contact.interestedService,
+      serviceCategory: "Strategic Management",
+      budget: contact.estimatedBudget,
+      startDate: new Date().toISOString().slice(0, 10),
+      endDate: "",
+      timeline: "TBD",
+      objectives: contact.clientNeed || contact.businessProblem || "",
+      scope: "",
+      constraints: "",
+      risks: "",
+      internalNotes: contact.qualificationNotes,
+      priority: contact.priorityLevel,
+      phase: "Discovery",
+      status: "Active",
+      health: "On Track",
+      progress: 0,
+      stakeholders: [],
+      outputs: {},
+      requestSummary: {
+        serviceRequest: contact.interestedService,
+        serviceCategory: "Strategic Management",
+        expectedOutputs,
+        deadline: contact.nextActionDate || "",
+        targetMarket: contact.country,
+        requestedReports: expectedOutputs,
+        summary: contact.clientNeed || contact.businessProblem || `${contact.interestedService} for ${contact.companyName || contact.fullName}`,
+      },
+      resources: [],
+      dataInputs: [],
+      phaseRequirements: {},
+      requestedOutputs: expectedOutputs,
+    });
+
+    // 3. Go to Engagement Hub (engagement is now active)
     navigate("/engagement");
   };
 
