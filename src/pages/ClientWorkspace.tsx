@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -25,7 +25,6 @@ import { useAcceptStrategy, useRejectStrategy } from "@/hooks/useStrategy";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell, Legend,
-  BarChart, Bar,
 } from "recharts";
 import {
   Building2, MapPin, DollarSign, User, Edit, Bot, FileText,
@@ -46,36 +45,55 @@ export default function ClientWorkspace() {
   const { data: kpis = [] } = useClientKPIs(id);
 
   const client = allClients.find((c: any) => c.id === id);
-  const engagement = allEngagements.find((e: any) => e.clientId === id);
-  const clientInsights = allInsights.filter((i: any) => i.clientId === id);
-  const clientDeliverables = allDeliverables.filter((d: any) => d.clientId === id);
+  // support both camelCase (hook-transformed) and snake_case (raw Supabase)
+  const clientEngagements = allEngagements.filter((e: any) => (e.clientId ?? e.client_id) === id);
+  const engagement = clientEngagements[0] ?? null; // primary engagement for header display
+  const clientInsights = allInsights.filter((i: any) => (i.clientId ?? i.client_id) === id);
+  const clientDeliverables = allDeliverables.filter((d: any) => (d.clientId ?? d.client_id) === id);
 
   // G-06: run analysis state
   const [jobId, setJobId] = useState<string | null>(null);
   const runAnalysis = useRunAnalysis(id!);
   const { data: jobStatus } = useJobStatus(jobId ?? "");
 
-  // G-08 FIX: edit dialog state
+  // G-08 FIX: edit dialog state — initialized via useEffect to avoid async race
   const [editOpen, setEditOpen] = useState(false);
   const [editForm, setEditForm] = useState({
-    name:        client?.name        ?? "",
-    industry:    client?.industry    ?? "",
-    revenue:     client?.revenue     ?? "",
-    location:    client?.location    ?? "",
-    contactName: client?.contactName ?? "",
+    name:        "",
+    industry:    "",
+    revenue:     "",
+    location:    "",
+    contactName: "",
   });
+  useEffect(() => {
+    if (client) {
+      setEditForm({
+        name:             client.name             ?? "",
+        industry:         client.industry         ?? "",
+        revenue:          client.revenue          ?? "",
+        location:         client.location         ?? "",
+        contactName:      (client as any).contactName ?? (client as any).contact_name ?? "",
+        problemStatement: (client as any).problemStatement ?? (client as any).problem_statement ?? "",
+      } as any);
+    }
+  }, [client]);
   const updateClient = useUpdateClient();
 
   // G-07 FIX: file upload
   const fileRef = useRef<HTMLInputElement>(null);
   const uploadDoc = useUploadDocument(id!);
 
-  // G-11 FIX: strategy mutations instead of local-only state
+  // G-11 FIX: strategy mutations — initialized via useEffect to avoid async race
   const acceptStrategy = useAcceptStrategy(id!);
   const rejectStrategy = useRejectStrategy(id!);
-  const [strategyStatuses, setStrategyStatuses] = useState<Record<string, string>>(
-    Object.fromEntries(clientStrategies.map((s) => [s.id, s.status]))
-  );
+  const [strategyStatuses, setStrategyStatuses] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (clientStrategies.length > 0) {
+      setStrategyStatuses(
+        Object.fromEntries(clientStrategies.map((s) => [s.id, s.status ?? "pending"]))
+      );
+    }
+  }, [clientStrategies]);
 
   if (!client) {
     return (
@@ -172,7 +190,7 @@ export default function ClientWorkspace() {
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div className="flex items-start gap-4">
           <div className="h-16 w-16 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-2xl shrink-0">
-            {client.logo}
+            {(client as any).logo || client.name?.charAt(0)?.toUpperCase() || "?"}
           </div>
           <div>
             <h1 className="text-2xl font-bold">{client.name}</h1>
@@ -180,10 +198,16 @@ export default function ClientWorkspace() {
               <span className="flex items-center gap-1"><Building2 className="h-4 w-4" />{client.industry}</span>
               <span className="flex items-center gap-1"><DollarSign className="h-4 w-4" />{client.revenue}</span>
               <span className="flex items-center gap-1"><MapPin className="h-4 w-4" />{client.location}</span>
-              <span className="flex items-center gap-1"><User className="h-4 w-4" />{client.contactName} · {client.contactRole}</span>
+              {((client as any).contactName ?? (client as any).contact_name) && (
+                <span className="flex items-center gap-1">
+                  <User className="h-4 w-4" />
+                  {(client as any).contactName ?? (client as any).contact_name}
+                  {((client as any).contactRole ?? (client as any).contact_role) && ` · ${(client as any).contactRole ?? (client as any).contact_role}`}
+                </span>
+              )}
             </div>
             <p className="text-sm mt-1">
-              Health Score: <span className={`font-bold ${healthColor}`}>{client.healthScore}/100</span>
+              Health Score: <span className={`font-bold ${healthColor}`}>{(client as any).healthScore ?? (client as any).health_score ?? 0}/100</span>
             </p>
           </div>
         </div>
@@ -222,18 +246,29 @@ export default function ClientWorkspace() {
           </DialogHeader>
           <div className="space-y-4 pt-2">
             {[
-              { label: "Company Name",  key: "name"        },
-              { label: "Industry",      key: "industry"    },
-              { label: "Revenue",       key: "revenue"     },
-              { label: "Location",      key: "location"    },
-              { label: "Contact Name",  key: "contactName" },
+              { label: "Company Name",       key: "name"             },
+              { label: "Industry",           key: "industry"         },
+              { label: "Revenue",            key: "revenue"          },
+              { label: "Location",           key: "location"         },
+              { label: "Contact Name",       key: "contactName"      },
+              { label: "Problem Statement",  key: "problemStatement" },
             ].map(({ label, key }) => (
               <div key={key} className="space-y-2">
                 <Label>{label}</Label>
-                <Input
-                  value={(editForm as any)[key]}
-                  onChange={(e) => setEditForm((p) => ({ ...p, [key]: e.target.value }))}
-                />
+                {key === "problemStatement" ? (
+                  <textarea
+                    rows={3}
+                    className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm resize-none"
+                    value={(editForm as any)[key] ?? ""}
+                    onChange={(e) => setEditForm((p) => ({ ...p, [key]: e.target.value }))}
+                    placeholder="Describe the core problem this client is facing…"
+                  />
+                ) : (
+                  <Input
+                    value={(editForm as any)[key]}
+                    onChange={(e) => setEditForm((p) => ({ ...p, [key]: e.target.value }))}
+                  />
+                )}
               </div>
             ))}
             <div className="flex gap-2 justify-end pt-2">
@@ -273,16 +308,21 @@ export default function ClientWorkspace() {
               <CardHeader><CardTitle className="text-base">Company Context</CardTitle></CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground">{client.description}</p>
-                {engagement && (
-                  <div className="mt-4 p-3 rounded-lg bg-muted">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium">{engagement.type}</span>
-                      <Badge variant="outline">{engagement.phase}</Badge>
-                    </div>
-                    <Progress value={engagement.progress} className="h-2" />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {engagement.progress}% complete · Due {engagement.dueDate}
-                    </p>
+                {clientEngagements.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    {clientEngagements.map((eng: any) => (
+                      <div key={eng.id} className="p-3 rounded-lg bg-muted">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium">{eng.type}</span>
+                          <Badge variant="outline">{eng.phase ?? eng.status}</Badge>
+                        </div>
+                        <Progress value={eng.progress ?? 0} className="h-2" />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {eng.progress ?? 0}% complete
+                          {(eng.dueDate ?? eng.due_date) ? ` · Due ${eng.dueDate ?? eng.due_date}` : ""}
+                        </p>
+                      </div>
+                    ))}
                   </div>
                 )}
               </CardContent>
@@ -421,71 +461,49 @@ export default function ClientWorkspace() {
               </CardContent>
             </Card>
 
-            {/* G-09 FIX: FeedbackBar on each AI insight */}
             <Card className="lg:col-span-2">
               <CardHeader><CardTitle className="text-base">AI-Generated Key Insights</CardTitle></CardHeader>
               <CardContent className="space-y-3">
-                {[
-                  { id: "ai-1", title: "Revenue concentration risk in Midwest region",    confidence: 92, framework: "Porter's Five Forces" },
-                  { id: "ai-2", title: "Last-mile delivery costs 23% above industry avg", confidence: 87, framework: "Value Chain Analysis"  },
-                  { id: "ai-3", title: "Customer acquisition cost trending upward Q3",     confidence: 78, framework: "Unit Economics"         },
-                ].map((item) => (
-                  <div key={item.id} className="flex items-start justify-between p-3 rounded-lg border">
-                    <div className="flex-1">
-                      <p className="text-sm font-medium">{item.title}</p>
-                      <div className="flex items-center gap-2 mt-1 mb-2">
-                        <Badge variant="outline" className="text-xs">Confidence: {item.confidence}%</Badge>
-                        <Badge variant="secondary" className="text-xs">{item.framework}</Badge>
-                      </div>
-                      {/* G-09 FIX: FeedbackBar wired with entityType + entityId */}
-                      <FeedbackBar
-                        entityType="insight"
-                        entityId={item.id}
-                        agentName="Analysis Agent"
-                        compact
-                      />
-                    </div>
-                    <Sheet>
-                      <SheetTrigger asChild>
-                        <Button size="sm" variant="ghost"><Eye className="mr-1 h-4 w-4" /> View Reasoning</Button>
-                      </SheetTrigger>
-                      <SheetContent>
-                        <SheetHeader><SheetTitle>AI Reasoning Trace</SheetTitle></SheetHeader>
-                        <div className="mt-6 space-y-4">
-                          <div>
-                            <h4 className="text-sm font-semibold mb-2">Sources</h4>
-                            <ul className="text-sm text-muted-foreground space-y-1">
-                              <li>• Q4 2025 Financial Report.pdf</li>
-                              <li>• Operations Dashboard Export.xlsx</li>
-                              <li>• Customer Survey Results.csv</li>
-                            </ul>
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-semibold mb-2">Framework Applied</h4>
-                            <p className="text-sm text-muted-foreground">{item.framework}</p>
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-semibold mb-2">Agent Steps</h4>
-                            <ol className="text-sm text-muted-foreground space-y-2">
-                              <li>1. Data Ingestion Agent extracted financial metrics</li>
-                              <li>2. Financial Analysis Agent identified revenue patterns</li>
-                              <li>3. Market Intelligence Agent cross-referenced benchmarks</li>
-                              <li>4. Risk Assessment Agent evaluated concentration risk</li>
-                            </ol>
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-semibold mb-2">Confidence Breakdown</h4>
-                            <div className="space-y-1">
-                              <div className="flex justify-between text-sm"><span>Data quality</span><span>{item.confidence - 5}%</span></div>
-                              <div className="flex justify-between text-sm"><span>Framework fit</span><span>{item.confidence}%</span></div>
-                              <div className="flex justify-between text-sm"><span>Cross-validation</span><span>{item.confidence - 8}%</span></div>
-                            </div>
-                          </div>
-                        </div>
-                      </SheetContent>
-                    </Sheet>
+                {clientInsights.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground text-sm">
+                    No AI insights yet. Click <strong>Run AI Analysis</strong> to generate insights for this client.
                   </div>
-                ))}
+                ) : (
+                  clientInsights.map((item: any) => (
+                    <div key={item.id} className="flex items-start justify-between p-3 rounded-lg border">
+                      <div className="flex-1">
+                        <p className="text-sm font-medium">{item.title}</p>
+                        <div className="flex items-center gap-2 mt-1 mb-2">
+                          {item.confidence != null && (
+                            <Badge variant="outline" className="text-xs">Confidence: {item.confidence}%</Badge>
+                          )}
+                          {(item.framework || item.source) && (
+                            <Badge variant="secondary" className="text-xs">{item.framework ?? item.source}</Badge>
+                          )}
+                        </div>
+                        <FeedbackBar
+                          entityType="insight"
+                          entityId={item.id}
+                          agentName="Analysis Agent"
+                          compact
+                        />
+                      </div>
+                      {item.reasoning && (
+                        <Sheet>
+                          <SheetTrigger asChild>
+                            <Button size="sm" variant="ghost"><Eye className="mr-1 h-4 w-4" /> View Reasoning</Button>
+                          </SheetTrigger>
+                          <SheetContent>
+                            <SheetHeader><SheetTitle>AI Reasoning Trace</SheetTitle></SheetHeader>
+                            <div className="mt-6">
+                              <pre className="text-sm text-muted-foreground whitespace-pre-wrap">{item.reasoning}</pre>
+                            </div>
+                          </SheetContent>
+                        </Sheet>
+                      )}
+                    </div>
+                  ))
+                )}
               </CardContent>
             </Card>
           </div>
@@ -497,17 +515,17 @@ export default function ClientWorkspace() {
             <CardContent className="py-4">
               <p className="text-sm font-medium">Problem Statement</p>
               <p className="text-sm text-muted-foreground mt-1">
-                {client.name} is experiencing margin compression due to rising last-mile delivery costs and increasing competition.
+                {(client as any).problemStatement
+                  ?? (client as any).problem_statement
+                  ?? engagement?.problemStatement
+                  ?? engagement?.problem_statement
+                  ?? "No problem statement defined yet. Add one via the Edit client dialog."}
               </p>
             </CardContent>
           </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             {clientStrategies.map((strategy) => {
-              // Simulation data not yet connected to a live table — show empty state
-              const sim = null;
-              const simChartData: { month: string; P10: number; P50: number; P90: number }[] = [];
-
               return (
                 <Card key={strategy.id} className={strategyStatuses[strategy.id] === "accepted" ? "border-success" : ""}>
                   <CardHeader className="pb-3">
@@ -535,29 +553,6 @@ export default function ClientWorkspace() {
                         <p className="text-xs text-muted-foreground">ROI</p>
                       </div>
                     </div>
-
-                    {/* G-10 FIX: simulation bar chart P10/P50/P90 */}
-                    {simChartData.length > 0 && (
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">ROI Simulation (% return)</p>
-                        <ResponsiveContainer width="100%" height={100}>
-                          <BarChart data={simChartData} barGap={2}>
-                            <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                            <Tooltip formatter={(v: any) => `${v}%`} />
-                            <Bar dataKey="P10" fill="hsl(0, 84%, 75%)"   name="Pessimistic" />
-                            <Bar dataKey="P50" fill="hsl(217,91%,53%)"   name="Base Case"   />
-                            <Bar dataKey="P90" fill="hsl(142,72%,36%)"   name="Optimistic"  />
-                          </BarChart>
-                        </ResponsiveContainer>
-                        {sim && (
-                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                            <span>NPV P10: ${sim.npv.p10}M</span>
-                            <span>P50: ${sim.npv.p50}M</span>
-                            <span>P90: ${sim.npv.p90}M</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
 
                     <div className="flex items-center justify-between text-xs">
                       <span>Impact: <strong>{strategy.impactScore}/10</strong></span>
