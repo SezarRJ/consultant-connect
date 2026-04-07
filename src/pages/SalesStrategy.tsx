@@ -146,6 +146,7 @@ Focus on supermarket chains, wholesalers, cash van distribution, and e-commerce 
       {!loading && !d && !error && <EmptyState icon={<Zap className="h-12 w-12" />} title="Sales Strategy Generator" description="Get a tailored sales strategy covering supermarkets, wholesalers, cash van and e-commerce for Iraq." />}
 
       {d && !loading && (
+        <>
           <AIDisclaimer compact />
         <div className="space-y-5">
           {d.summary && (

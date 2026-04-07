@@ -164,6 +164,7 @@ Identify ALL competing brands with their strengths, weaknesses, pricing, distrib
       </div>}
 
       {d && !loading && (
+        <>
           <AIDisclaimer compact />
         <div className="space-y-5">
           {/* Overview banner */}

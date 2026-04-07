@@ -204,8 +204,8 @@ export default function BenchmarkingTool() {
           )}
 
           {r && (
-          <AIDisclaimer compact />
-            <>
+          <>
+            <AIDisclaimer compact />
               {/* Score Banner */}
               <div className="rounded-xl p-5 flex items-center justify-between"
                 style={{ background: "hsl(216 45% 12%)", border: "1px solid hsl(var(--border))" }}>

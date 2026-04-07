@@ -186,6 +186,7 @@ export default function MarketIntelligence() {
       </div>}
 
       {d && !loading && (
+        <>
           <AIDisclaimer compact />
         <div className="space-y-5">
           {/* Overview hero */}

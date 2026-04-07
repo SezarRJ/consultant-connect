@@ -252,6 +252,7 @@ Be specific to Iraq market 2025-2026. Include real prices in USD and IQD, realis
       </div>}
 
       {d && !loading && (
+        <>
           <AIDisclaimer compact />
         <div className="space-y-5">
           {/* Verdict */}

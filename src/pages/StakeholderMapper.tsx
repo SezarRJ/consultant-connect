@@ -298,8 +298,8 @@ export default function StakeholderMapper() {
           )}
 
           {r && !loading && (
-          <AIDisclaimer compact />
-            <>
+          <>
+            <AIDisclaimer compact />
               {/* Summary */}
               <div className="rounded-xl p-4" style={{ background: "hsl(216 45% 12%)" }}>
                 <p className="text-xs font-bold mb-2" style={{ color: "hsl(38 95% 60%)" }}>Stakeholder Landscape Summary</p>

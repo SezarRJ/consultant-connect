@@ -126,6 +126,7 @@ Provide realistic 2025-2026 Iraq risk assessment covering payment risk, logistic
       {!loading && !d && !error && <EmptyState icon={<ShieldAlert className="h-12 w-12" />} title="Risk Assessment Ready" description="Get a comprehensive risk report covering payment, logistics, legal, and customs challenges in Iraq." />}
 
       {d && !loading && (
+        <>
           <AIDisclaimer compact />
         <div className="space-y-5">
           {/* Overall Risk Banner */}

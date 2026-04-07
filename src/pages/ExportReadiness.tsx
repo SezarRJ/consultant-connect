@@ -136,6 +136,7 @@ Check packaging compliance, Arabic labeling requirements, pricing competitivenes
       {!loading && !d && !error && <EmptyState icon={<PackageCheck className="h-12 w-12" />} title="Export Readiness Check" description="Verify your packaging, Arabic labeling, pricing, and logistics readiness before entering Iraq." />}
 
       {d && !loading && (
+        <>
           <AIDisclaimer compact />
         <div className="space-y-5">
           {/* Overall Score */}

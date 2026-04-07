@@ -95,6 +95,7 @@ Provide real-world accurate pricing data for Iraq market in 2025-2026.`);
       {!loading && !d && !error && <EmptyState icon={<DollarSign className="h-12 w-12" />} title="Ready for Pricing Analysis" description="Enter product details to get wholesale price, retail price, and margin intelligence for Iraq." />}
 
       {d && !loading && (
+        <>
           <AIDisclaimer compact />
         <div className="space-y-5">
           {/* Price Summary */}
