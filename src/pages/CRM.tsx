@@ -443,6 +443,7 @@ export default function CRMPage() {
               onEdit={() => { setEditContact(sel); setShowForm(true); }}
               onConvert={() => handleConvert(sel)}
               onDelete={() => handleDelete(sel.id)}
+              onUpdateStatus={(id, status) => updateContact.mutate({ id, leadStatus: status })}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-64 rounded-xl"
