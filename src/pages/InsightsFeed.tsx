@@ -185,7 +185,7 @@ export default function InsightsFeed() {
             </div>
           )}
 
-          {r && !loading && (
+          {r && !loading && (<>
               {/* Headline Banner */}
               <div className="rounded-xl p-5"
                 style={{ background: "linear-gradient(135deg, hsl(216 52% 10%), hsl(216 52% 13%))", border: "1px solid hsl(38 95% 52%/0.25)" }}>
@@ -303,7 +303,7 @@ export default function InsightsFeed() {
                   </p>
                 </div>
               )}
-          )}
+          </>)}
         </div>
       </div>
     </div>

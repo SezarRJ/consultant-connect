@@ -297,7 +297,7 @@ export default function StakeholderMapper() {
             </div>
           )}
 
-          {r && !loading && (
+          {r && !loading && (<>
               {/* Summary */}
               <div className="rounded-xl p-4" style={{ background: "hsl(216 45% 12%)" }}>
                 <p className="text-xs font-bold mb-2" style={{ color: "hsl(38 95% 60%)" }}>Stakeholder Landscape Summary</p>
@@ -356,7 +356,7 @@ export default function StakeholderMapper() {
                   </div>
                 ))}
               </div>
-          )}
+          </>)}
         </div>
       </div>
     </div>
