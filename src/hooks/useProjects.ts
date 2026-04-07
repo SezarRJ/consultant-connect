@@ -23,7 +23,7 @@ export function useProjects() {
   return useQuery({
     queryKey: ["projects"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("projects").select("*").order("created_at",{ascending:false});
+      const { data, error } = await (supabase as any).from("projects").select("*").order("created_at",{ascending:false});
       if (error) throw error;
       return (data ?? []).map(fromRow);
     },
@@ -35,7 +35,7 @@ export function useCreateProject() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (p: Omit<Project,"id"|"createdAt">) => {
-      const { data, error } = await supabase.from("projects").insert({
+      const { data, error } = await (supabase as any).from("projects").insert({
         name:p.name, client:p.client, country:p.country, industry:p.industry, type:p.type,
         status:p.status, priority:p.priority, value:p.value, currency:p.currency,
         start_date:p.startDate||null, end_date:p.endDate||null, progress:p.progress,
@@ -66,7 +66,7 @@ export function useUpdateProject() {
       if (p.notes      !== undefined) patch.notes      = p.notes;
       if (p.startDate  !== undefined) patch.start_date = p.startDate||null;
       if (p.endDate    !== undefined) patch.end_date   = p.endDate||null;
-      const { data, error } = await supabase.from("projects").update(patch).eq("id",id).select().single();
+      const { data, error } = await (supabase as any).from("projects").update(patch).eq("id",id).select().single();
       if (error) throw error;
       return fromRow(data);
     },
@@ -78,7 +78,7 @@ export function useDeleteProject() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id:string) => {
-      const { error } = await supabase.from("projects").delete().eq("id",id);
+      const { error } = await (supabase as any).from("projects").delete().eq("id",id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey:["projects"] }),

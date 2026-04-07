@@ -12,7 +12,8 @@ export interface CRMContact {
   qualificationStatus:"Pending"|"Qualified"|"Rejected";
   qualificationNotes:string; clientNeed:string; businessProblem:string;
   decisionMaker:string; priorityLevel:"High"|"Medium"|"Low";
-  engagementId:string|null; createdAt:string; updatedAt:string;
+  engagementId:string|null; requestedOutputs:string[]; initialResourceNotes:string[];
+  createdAt:string; updatedAt:string;
 }
 
 function fromRow(r: any): CRMContact {
@@ -26,6 +27,7 @@ function fromRow(r: any): CRMContact {
     qualificationNotes:r.qualification_notes||"", clientNeed:r.client_need||"",
     businessProblem:r.business_problem||"", decisionMaker:r.decision_maker||"",
     priorityLevel:r.priority_level||"Medium", engagementId:r.engagement_id||null,
+    requestedOutputs:r.requested_outputs||[], initialResourceNotes:r.initial_resource_notes||[],
     createdAt:r.created_at, updatedAt:r.updated_at,
   };
 }
@@ -41,6 +43,8 @@ function toInsert(c: Omit<CRMContact,"id"|"createdAt"|"updatedAt">) {
     client_need:c.clientNeed, business_problem:c.businessProblem,
     decision_maker:c.decisionMaker, priority_level:c.priorityLevel,
     engagement_id:c.engagementId||null,
+    requested_outputs:c.requestedOutputs||[],
+    initial_resource_notes:c.initialResourceNotes||[],
   };
 }
 
