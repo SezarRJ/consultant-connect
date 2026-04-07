@@ -168,6 +168,99 @@ export type Database = {
         }
         Relationships: []
       }
+      crm_contacts: {
+        Row: {
+          business_problem: string | null
+          client_need: string | null
+          company_name: string | null
+          country: string | null
+          created_at: string
+          decision_maker: string | null
+          email: string | null
+          engagement_id: string | null
+          estimated_budget: string | null
+          full_name: string
+          id: string
+          industry: string | null
+          initial_resource_notes: string[] | null
+          interested_service: string | null
+          job_title: string | null
+          lead_source: string | null
+          lead_status: string
+          next_action_date: string | null
+          notes: string | null
+          phone: string | null
+          priority_level: string | null
+          qualification_notes: string | null
+          qualification_status: string | null
+          requested_outputs: string[] | null
+          sector: string | null
+          tags: string[] | null
+          updated_at: string
+          urgency: string | null
+        }
+        Insert: {
+          business_problem?: string | null
+          client_need?: string | null
+          company_name?: string | null
+          country?: string | null
+          created_at?: string
+          decision_maker?: string | null
+          email?: string | null
+          engagement_id?: string | null
+          estimated_budget?: string | null
+          full_name: string
+          id?: string
+          industry?: string | null
+          initial_resource_notes?: string[] | null
+          interested_service?: string | null
+          job_title?: string | null
+          lead_source?: string | null
+          lead_status?: string
+          next_action_date?: string | null
+          notes?: string | null
+          phone?: string | null
+          priority_level?: string | null
+          qualification_notes?: string | null
+          qualification_status?: string | null
+          requested_outputs?: string[] | null
+          sector?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          urgency?: string | null
+        }
+        Update: {
+          business_problem?: string | null
+          client_need?: string | null
+          company_name?: string | null
+          country?: string | null
+          created_at?: string
+          decision_maker?: string | null
+          email?: string | null
+          engagement_id?: string | null
+          estimated_budget?: string | null
+          full_name?: string
+          id?: string
+          industry?: string | null
+          initial_resource_notes?: string[] | null
+          interested_service?: string | null
+          job_title?: string | null
+          lead_source?: string | null
+          lead_status?: string
+          next_action_date?: string | null
+          notes?: string | null
+          phone?: string | null
+          priority_level?: string | null
+          qualification_notes?: string | null
+          qualification_status?: string | null
+          requested_outputs?: string[] | null
+          sector?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          urgency?: string | null
+        }
+        Relationships: []
+      }
       deliverables: {
         Row: {
           audience: string | null
