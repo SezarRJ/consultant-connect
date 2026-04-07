@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useEngagementStore, buildFullContext } from "@/store/engagementStore";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import {
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
   Building2, ShoppingCart, Coffee, Radio, Truck,
   TrendingUp, Megaphone, Network, Loader2, Save, Check,
   AlertTriangle,
@@ -241,6 +242,7 @@ Provide a structured, professional ${tool.label} analysis with clear sections an
       </div>
 
       {rawText && (
+          <AIDisclaimer compact />
         <div className="rounded-xl p-5" style={{ background: "hsl(216 45% 10%)", border: "1px solid hsl(216 45% 18%)" }}>
           <p className="text-[10px] uppercase tracking-widest font-semibold mb-3" style={{ color: "hsl(215 25% 45%)" }}>
             {tool.label} {eng ? `— ${eng.companyName || eng.clientName}` : ""}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Map, Plus, X, Users, RefreshCw, Sparkles, TrendingUp, Shield, ArrowRight, Edit3 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { toast } from "sonner";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 const SYSTEM_PROMPT = `You are an expert management consultant building a stakeholder analysis for a consulting engagement. Based on the stakeholders listed, generate detailed engagement strategies. Respond ONLY with valid JSON:
 {
@@ -297,6 +298,7 @@ export default function StakeholderMapper() {
           )}
 
           {r && !loading && (
+          <AIDisclaimer compact />
             <>
               {/* Summary */}
               <div className="rounded-xl p-4" style={{ background: "hsl(216 45% 12%)" }}>

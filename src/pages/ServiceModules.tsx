@@ -6,6 +6,7 @@ import {
   ArrowUpRight, Play, Map, Package, Tag, Star, Layers
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 type Module = "sales" | "fmcg" | "fb" | "marketing" | "bizdev" | "telecom" | "realestate";
 
@@ -373,6 +374,7 @@ export default function ServiceModules() {
           )}
 
           {result && !loading && (
+          <AIDisclaimer compact />
             <div className="space-y-3">
               <div className="flex items-center gap-2 mb-1">
                 <CheckCircle2 className="h-4 w-4" style={{ color: mod.color }} />

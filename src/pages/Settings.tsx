@@ -115,29 +115,6 @@ function ProviderStatus({ hasKey }: { hasKey: boolean }) {
   );
 }
 
-const LS_AGENTS = "consultai_agents_v1";
-function loadAgents() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(LS_AGENTS) || "null");
-    if (!saved) return AGENTS_INIT;
-    // merge: picks up any new agents added to AGENTS_INIT, preserves saved prefs
-    return AGENTS_INIT.map(a => ({ ...a, ...(saved.find((s: any) => s.id === a.id) ?? {}) }));
-  } catch { return AGENTS_INIT; }
-}
-function saveAgents(agents: typeof AGENTS_INIT) {
-  localStorage.setItem(LS_AGENTS, JSON.stringify(agents));
-}
-
-const LS_PROFILE = "consultai_profile_v1";
-const PROFILE_DEFAULT = { name: "", company: "", email: "", phone: "", region: "" };
-function loadProfile() {
-  try { return { ...PROFILE_DEFAULT, ...JSON.parse(localStorage.getItem(LS_PROFILE) || "{}") }; }
-  catch { return PROFILE_DEFAULT; }
-}
-function saveProfile(p: typeof PROFILE_DEFAULT) {
-  localStorage.setItem(LS_PROFILE, JSON.stringify(p));
-}
-
 // ─── Real Estate Tool definitions ────────────────────────────────────────────
 const RE_TOOLS_INIT: RealEstateTool[] = [
   {
@@ -467,11 +444,8 @@ export default function Settings() {
   const [aiCfg, setAiCfg] = useState<AIConfig>(loadAIConfig);
   const [testStatus, setTestStatus] = useState<"idle"|"testing"|"ok"|"fail">("idle");
   const [integrations, setIntegrations] = useState(INTEGRATIONS_INIT);
-  const [agents, setAgents] = useState(loadAgents);
-
-  // persist agent settings whenever they change
-  useEffect(() => { saveAgents(agents); }, [agents]);
-  const [profile, setProfile] = useState(loadProfile);
+  const [agents, setAgents] = useState(AGENTS_INIT);
+  const [profile, setProfile] = useState({ name:"Ahmad Al-Rashidi", company:"Global Trade Consultants", email:"ahmad@gtc.com", phone:"+964 770 123 4567", region:"Iraq / MENA" });
 
   // ── API Key Manager state ──────────────────────────────────────────────────
   const [apiKeys, setApiKeys] = useState<ApiKeyEntry[]>(loadApiKeys);
@@ -1815,7 +1789,7 @@ export default function Settings() {
                   <div className="w-20 h-1 rounded-full" style={{ background:"hsl(216 45% 22%)" }}>
                     <div className="h-full rounded-full" style={{ width:`${agent.accuracy}%`, background:"hsl(38 95% 52%)" }} />
                   </div>
-                  <span className="text-[10px]" title="Target accuracy — not a live measurement" style={{ color:"hsl(215 25% 50%)" }}>Target: {agent.accuracy}%</span>
+                  <span className="text-[10px]" style={{ color:"hsl(215 25% 50%)" }}>{agent.accuracy}%</span>
                   <select value={agent.responseLen} onChange={e => setAgents(p => p.map(a => a.id===agent.id?{...a, responseLen:e.target.value}:a))}
                     className="text-xs rounded px-2 py-0.5" style={{ background:"hsl(216 45% 16%)", border:"1px solid hsl(var(--border))", color:"hsl(215 25% 65%)" }}>
                     <option value="brief">Brief</option><option value="standard">Standard</option><option value="detailed">Detailed</option>
@@ -1841,7 +1815,7 @@ export default function Settings() {
               </div>
             ))}
           </div>
-          <button onClick={() => { saveProfile(profile); toast.success("Profile saved"); }} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }}>Save Profile</button>
+          <button onClick={() => toast.success("Profile saved")} className="px-5 py-2.5 rounded-lg text-sm font-semibold" style={{ background:"hsl(38 95% 52%)", color:"hsl(216 58% 6%)" }}>Save Profile</button>
         </div>
       )}
 

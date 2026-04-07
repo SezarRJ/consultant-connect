@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { toast } from "sonner";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 type ReportType = "feasibility" | "strategy" | "market" | "sales_audit" | "business_plan";
 type OutputFormat = "pdf" | "excel" | "presentation";
@@ -225,6 +226,7 @@ export default function ReportGenerator() {
           <p className="text-sm mt-1" style={{ color: "hsl(215 25% 55%)" }}>AI-powered professional consulting reports — feasibility, strategy, market, sales audit, business plans</p>
         </div>
         {result && (
+          <AIDisclaimer compact />
           <div className="flex gap-2">
             <button onClick={handleCopy} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold"
               style={{ background: "hsl(216 45% 18%)", color: "hsl(210 40% 75%)", border: "1px solid hsl(var(--border))" }}>

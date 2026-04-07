@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { AIStatusBar } from "@/components/ai/AIStatusBar";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 const Badge = ({ v, c = "hsl(38 95% 60%)" }: { v: string; c?: string }) => (
   <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap"
@@ -163,6 +164,7 @@ Identify ALL competing brands with their strengths, weaknesses, pricing, distrib
       </div>}
 
       {d && !loading && (
+          <AIDisclaimer compact />
         <div className="space-y-5">
           {/* Overview banner */}
           <div className="rounded-2xl p-5" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

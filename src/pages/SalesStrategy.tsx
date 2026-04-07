@@ -4,6 +4,7 @@ import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { OutputCard, DataRow, TagList, LoadingState, EmptyState } from "@/components/analysis/OutputCard";
 import { AIStatusBar } from "@/components/ai/AIStatusBar";
 import { WebSearchPanel } from "@/components/ai/WebSearchPanel";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 
 const SYSTEM_PROMPT = `You are an Iraq sales strategy expert specializing in FMCG, retail, wholesale, and e-commerce. Respond ONLY with valid JSON:
@@ -145,6 +146,7 @@ Focus on supermarket chains, wholesalers, cash van distribution, and e-commerce 
       {!loading && !d && !error && <EmptyState icon={<Zap className="h-12 w-12" />} title="Sales Strategy Generator" description="Get a tailored sales strategy covering supermarkets, wholesalers, cash van and e-commerce for Iraq." />}
 
       {d && !loading && (
+          <AIDisclaimer compact />
         <div className="space-y-5">
           {d.summary && (
             <div className="rounded-xl p-4 flex items-start gap-3" style={{ background: "hsl(38 95% 52% / 0.06)", border: "1px solid hsl(38 95% 52% / 0.2)" }}>

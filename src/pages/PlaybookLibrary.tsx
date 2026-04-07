@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { toast } from "sonner";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 const SYSTEM_PROMPT = `You are a senior management consultant with 20+ years MENA experience. Generate a detailed consulting playbook for the selected topic. Respond ONLY with valid JSON:
 {
@@ -263,6 +264,7 @@ export default function PlaybookLibrary() {
           )}
 
           {r && !loading && (
+          <AIDisclaimer compact />
             <div className="space-y-4">
               {/* Header */}
               <div className="rounded-xl p-5" style={{ background: "hsl(216 45% 12%)" }}>

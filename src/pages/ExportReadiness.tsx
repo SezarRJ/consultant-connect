@@ -4,6 +4,7 @@ import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { OutputCard, DataRow, LoadingState, EmptyState } from "@/components/analysis/OutputCard";
 import { AIStatusBar } from "@/components/ai/AIStatusBar";
 import { WebSearchPanel } from "@/components/ai/WebSearchPanel";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 
 const SYSTEM_PROMPT = `You are an Iraq export compliance and market readiness expert. Respond ONLY with valid JSON:
@@ -135,6 +136,7 @@ Check packaging compliance, Arabic labeling requirements, pricing competitivenes
       {!loading && !d && !error && <EmptyState icon={<PackageCheck className="h-12 w-12" />} title="Export Readiness Check" description="Verify your packaging, Arabic labeling, pricing, and logistics readiness before entering Iraq." />}
 
       {d && !loading && (
+          <AIDisclaimer compact />
         <div className="space-y-5">
           {/* Overall Score */}
           <div className="rounded-xl p-6 flex items-center gap-6"

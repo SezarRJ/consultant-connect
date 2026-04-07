@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FileText, Plus, RefreshCw, Download, Copy, CheckCircle2, DollarSign, Clock, Target, Layers, Building2, Briefcase } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { toast } from "sonner";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 const SYSTEM_PROMPT = `You are a senior consulting proposal writer specializing in MENA markets. Generate a professional consulting proposal. Respond ONLY with valid JSON:
 {
@@ -155,6 +156,7 @@ Client Objectives: ${form.objectives || "Improve business performance and growth
           )}
 
           {r && !loading && (
+          <AIDisclaimer compact />
             <div className="space-y-4">
               {/* Title & Summary */}
               <div className="rounded-xl p-5" style={{ background:"hsl(var(--card))", border:"1px solid hsl(var(--border))" }}>

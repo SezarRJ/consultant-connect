@@ -7,6 +7,7 @@ import {
   AlertCircle, Calendar, DollarSign, Layers, Network, Eye
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 // ─── ISO Standards ────────────────────────────────────────────────────────────
 const ISO_STANDARDS = [
@@ -643,6 +644,7 @@ Existing Certifications / Quality Systems: ${context.existing||"None"}
       {gapAI.error&&<ErrorBanner msg={gapAI.error}/>}
       {gapAI.loading&&<LoadingCard msg={`Analyzing ${selectedStd.code} compliance gaps for ${context.industry||"your company"}...`}/>}
       {gapAI.result&&!gapAI.loading&&(()=>{
+          <AIDisclaimer compact />
         const r=gapAI.result;
         return (
           <div className="space-y-4">

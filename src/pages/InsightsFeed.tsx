@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { toast } from "sonner";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 const SYSTEM_PROMPT = `You are a senior MENA business intelligence analyst. Generate a curated insights briefing for a consultancy team focused on Iraq and MENA markets. Respond ONLY with valid JSON:
 {
@@ -185,6 +186,7 @@ export default function InsightsFeed() {
           )}
 
           {r && !loading && (
+          <AIDisclaimer compact />
             <>
               {/* Headline Banner */}
               <div className="rounded-xl p-5"

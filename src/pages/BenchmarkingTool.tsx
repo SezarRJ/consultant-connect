@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BarChart2, RefreshCw, Sparkles, TrendingUp, TrendingDown, Minus, Target, ArrowRight } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { toast } from "sonner";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 const SYSTEM_PROMPT = `You are a senior management consultant specializing in performance benchmarking for MENA/Iraq markets. Generate a comprehensive benchmarking analysis. Respond ONLY with valid JSON:
 {
@@ -203,6 +204,7 @@ export default function BenchmarkingTool() {
           )}
 
           {r && (
+          <AIDisclaimer compact />
             <>
               {/* Score Banner */}
               <div className="rounded-xl p-5 flex items-center justify-between"

@@ -3,7 +3,11 @@
  */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useEngagementStore, CRMContact, LeadStatus } from "@/store/engagementStore";
+import {
+  useCRMContacts, useCreateCRMContact, useUpdateCRMContact, useDeleteCRMContact,
+  type CRMContact, type LeadStatus,
+} from "@/hooks/useCRMContacts";
+import { Loader2, AlertTriangle } from "lucide-react";
 import {
   Users, Plus, Search, X, Phone, Mail, Globe, Building2,
   ArrowRight, CheckCircle2, Briefcase, Star, Trash2
@@ -309,7 +313,11 @@ function ContactForm({ initial, onSave, onClose }: {
 // ── Main ──────────────────────────────────────────────────────────
 export default function CRMPage() {
   const navigate = useNavigate();
-  const { contacts, createContact, updateContact, deleteContact, convertToEngagement } = useEngagementStore();
+  const { data: contacts = [], isLoading, isError } = useCRMContacts();
+  const createContact = useCreateCRMContact();
+  const updateContact = useUpdateCRMContact();
+  const deleteContact = useDeleteCRMContact();
+
   const [search,       setSearch]       = useState("");
   const [filterStatus, setFilterStatus] = useState<LeadStatus | "all">("all");
   const [selId,        setSelId]        = useState<string | null>(null);
@@ -324,19 +332,41 @@ export default function CRMPage() {
   );
   const sel = contacts.find((c) => c.id === selId);
 
-  const handleSave = (d: any) => {
-    if (editContact) updateContact(editContact.id, d);
-    else createContact(d);
+  const handleSave = async (d: any) => {
+    if (editContact) {
+      await updateContact.mutateAsync({ id: editContact.id, ...d });
+    } else {
+      await createContact.mutateAsync(d);
+    }
     setShowForm(false); setEditContact(null);
   };
-  const handleConvert = (contactId: string) => {
-    const id = convertToEngagement(contactId);
-    if (id) navigate("/engagement");
+
+  // Convert contact to engagement — creates an entry in engagements table
+  const handleConvert = async (contact: CRMContact) => {
+    // Update contact status to Active Client
+    await updateContact.mutateAsync({ id: contact.id, leadStatus: "Active Client" });
+    navigate("/engagement-tracker");
+  };
+
+  const handleDelete = async (id: string) => {
+    await deleteContact.mutateAsync(id);
+    setSelId(null);
   };
 
   const activeClients = contacts.filter((c) => c.leadStatus === "Active Client").length;
   const qualified     = contacts.filter((c) => c.leadStatus === "Qualified").length;
   const won           = contacts.filter((c) => c.leadStatus === "Closed Won").length;
+
+  if (isLoading) return (
+    <div className="flex items-center justify-center h-64 gap-2 text-muted-foreground">
+      <Loader2 className="h-5 w-5 animate-spin"/><span className="text-sm">Loading contacts…</span>
+    </div>
+  );
+  if (isError) return (
+    <div className="flex items-center justify-center h-64 gap-2" style={{color:"hsl(0 72% 68%)"}}>
+      <AlertTriangle className="h-5 w-5"/><span className="text-sm">Failed to load. Check Supabase connection.</span>
+    </div>
+  );
 
   return (
     <div className="space-y-5 max-w-7xl">
@@ -344,7 +374,7 @@ export default function CRMPage() {
         <div>
           <h1 className="text-xl font-bold" style={{ color: "hsl(210 40% 92%)" }}>CRM</h1>
           <p className="text-sm mt-0.5" style={{ color: "hsl(215 25% 48%)" }}>
-            Manage leads, qualify prospects, and convert to engagements.
+            Manage leads, qualify prospects, and convert to engagements — live from your database.
           </p>
         </div>
         <button onClick={() => { setEditContact(null); setShowForm(true); }}
@@ -388,13 +418,21 @@ export default function CRMPage() {
             </select>
           </div>
 
-          <div className="space-y-2">
-            {filtered.length === 0
-              ? <p className="text-sm text-center py-8" style={{ color: "hsl(215 25% 40%)" }}>No contacts found.</p>
-              : filtered.map((c) => (
-                <ContactCard key={c.id} c={c} selected={selId === c.id} onClick={() => setSelId(c.id)} />
-              ))}
-          </div>
+          {contacts.length === 0 ? (
+            <div className="rounded-xl p-10 text-center" style={{ background: "hsl(216 45% 10%)", border: "2px dashed hsl(216 45% 20%)" }}>
+              <Users className="h-8 w-8 mx-auto mb-3 opacity-20" style={{ color: "hsl(38 95% 52%)" }}/>
+              <p className="text-sm font-semibold" style={{ color: "hsl(215 25% 50%)" }}>No contacts yet</p>
+              <p className="text-xs mt-1" style={{ color: "hsl(215 25% 38%)" }}>Add your first lead to start the pipeline</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filtered.length === 0
+                ? <p className="text-sm text-center py-8" style={{ color: "hsl(215 25% 40%)" }}>No contacts found.</p>
+                : filtered.map((c) => (
+                  <ContactCard key={c.id} c={c} selected={selId === c.id} onClick={() => setSelId(c.id)} />
+                ))}
+            </div>
+          )}
         </div>
 
         {/* Detail */}
@@ -403,8 +441,8 @@ export default function CRMPage() {
             <ContactDetail
               c={sel}
               onEdit={() => { setEditContact(sel); setShowForm(true); }}
-              onConvert={() => handleConvert(sel.id)}
-              onDelete={() => { deleteContact(sel.id); setSelId(null); }}
+              onConvert={() => handleConvert(sel)}
+              onDelete={() => handleDelete(sel.id)}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-64 rounded-xl"

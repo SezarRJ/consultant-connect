@@ -6,6 +6,7 @@ import {
   ClipboardList, BarChart2, Target, Layers, Settings2, Globe, Zap
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 interface CompanyProfile {
   name:string; country:string; city:string; region:string;
@@ -844,6 +845,7 @@ Current Pain Points / Challenges: ${co.challenges}
       {orgAI.error&&<Err msg={orgAI.error}/>}
       {orgAI.loading&&<Spin msg={`Designing org structure for ${co.name}...`}/>}
       {orgAI.result&&!orgAI.loading&&(()=>{
+          <AIDisclaimer compact />
         const r=orgAI.result;
         const depts:any[]=r.structure?.departments||[];
         return(

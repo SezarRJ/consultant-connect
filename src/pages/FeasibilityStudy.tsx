@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { AIStatusBar } from "@/components/ai/AIStatusBar";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 const Badge = ({ v, c = "hsl(38 95% 60%)" }: { v: string; c?: string }) => (
   <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap"
@@ -251,6 +252,7 @@ Be specific to Iraq market 2025-2026. Include real prices in USD and IQD, realis
       </div>}
 
       {d && !loading && (
+          <AIDisclaimer compact />
         <div className="space-y-5">
           {/* Verdict */}
           <div className="rounded-2xl p-6 flex items-start gap-6 flex-wrap" style={{ background: "hsl(var(--card))", border: `2px solid ${vc}40` }}>

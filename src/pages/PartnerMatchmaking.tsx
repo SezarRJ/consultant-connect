@@ -4,6 +4,7 @@ import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { OutputCard, LoadingState, EmptyState } from "@/components/analysis/OutputCard";
 import { AIStatusBar } from "@/components/ai/AIStatusBar";
 import { WebSearchPanel } from "@/components/ai/WebSearchPanel";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 
 const SYSTEM_PROMPT = `You are an Iraq business matchmaking expert. Respond ONLY with valid JSON:
@@ -138,6 +139,7 @@ Match with verified Iraqi distributors, agents, and logistics providers. Provide
       {!loading && !d && !error && <EmptyState icon={<Handshake className="h-12 w-12" />} title="Partner Matchmaking" description="Find verified distributors, agents and logistics partners tailored to your product and target regions in Iraq." />}
 
       {d && !loading && (
+          <AIDisclaimer compact />
         <div className="space-y-5">
           {d.summary && <div className="rounded-xl p-4" style={{ background: "hsl(38 95% 52% / 0.06)", border: "1px solid hsl(38 95% 52% / 0.2)" }}><p className="text-sm" style={{ color: "hsl(215 25% 70%)" }}>{d.summary}</p></div>}
 

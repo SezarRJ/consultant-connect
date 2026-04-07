@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { AIStatusBar } from "@/components/ai/AIStatusBar";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 const Badge = ({ v, c = "hsl(38 95% 60%)" }: { v: string; c?: string }) => (
   <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold whitespace-nowrap"
@@ -185,6 +186,7 @@ export default function MarketIntelligence() {
       </div>}
 
       {d && !loading && (
+          <AIDisclaimer compact />
         <div className="space-y-5">
           {/* Overview hero */}
           <div className="rounded-2xl p-6 flex flex-col md:flex-row items-start gap-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

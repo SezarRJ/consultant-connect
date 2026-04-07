@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { toast } from "sonner";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 // ── Agent definitions ─────────────────────────────────────────────────────────
 const AGENTS = [
@@ -114,6 +115,7 @@ export default function AIAssistant() {
   const [activeAgentId, setActiveAgentId] = useState("ceo-advisor");
   const [input, setInput] = useState("");
   const [history, setHistory] = useState<ChatMessage[]>([]);
+  const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const agent = AGENTS.find(a => a.id === activeAgentId)!;
@@ -122,31 +124,25 @@ export default function AIAssistant() {
   // Track streaming text for the current response
   const [streamingText, setStreamingText] = useState("");
   const prevRawRef = useRef("");
-  const finalTextRef = useRef("");
 
   useEffect(() => {
-    if (rawText && rawText !== prevRawRef.current) {
+    if (loading && rawText && rawText !== prevRawRef.current) {
+          <AIDisclaimer compact />
       setStreamingText(rawText);
-      finalTextRef.current = rawText;
       prevRawRef.current = rawText;
     }
-  }, [rawText]);
-
-  useEffect(() => {
-    if (!loading && finalTextRef.current) {
-      const text = finalTextRef.current;
+    if (!loading && streamingText) {
       setHistory(prev => {
         const last = prev[prev.length - 1];
-        if (last?.role === "assistant" && last.content !== text) {
-          return [...prev.slice(0, -1), { ...last, content: text }];
+        if (last?.role === "assistant" && last.content !== streamingText) {
+          return [...prev.slice(0, -1), { ...last, content: streamingText }];
         }
         return prev;
       });
       setStreamingText("");
       prevRawRef.current = "";
-      finalTextRef.current = "";
     }
-  }, [loading]);
+  }, [rawText, loading]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -158,11 +154,13 @@ export default function AIAssistant() {
     const assistantPlaceholder: ChatMessage = { role: "assistant", content: "...", agentId: activeAgentId, timestamp: new Date().toLocaleTimeString() };
     setHistory(prev => [...prev, userMsg, assistantPlaceholder]);
     setInput("");
+    setIsTyping(true);
 
     // Build context from last 4 exchanges
     const recentContext = history.filter(m => m.agentId === activeAgentId).slice(-4).map(m => `${m.role === "user" ? "User" : "Assistant"}: ${m.content}`).join("\n\n");
     const fullPrompt = recentContext ? `Previous conversation:\n${recentContext}\n\nUser: ${input}` : input;
     await analyze(fullPrompt);
+    setIsTyping(false);
   };
 
   const handleStarter = (starter: string) => { setInput(starter); };
@@ -170,13 +168,6 @@ export default function AIAssistant() {
   const handleCopy = (text: string) => { navigator.clipboard.writeText(text); toast.success("Copied!"); };
 
   const clearChat = () => { setHistory([]); toast.success("Conversation cleared"); };
-
-  const handleAgentSwitch = (agentId: string) => {
-    setActiveAgentId(agentId);
-    setStreamingText("");
-    prevRawRef.current = "";
-    finalTextRef.current = "";
-  };
 
   const agentHistory = history.filter(m => m.agentId === activeAgentId);
 
@@ -194,7 +185,7 @@ export default function AIAssistant() {
         </div>
         <nav className="flex-1 overflow-y-auto p-3 space-y-1">
           {AGENTS.map(a => (
-            <AgentCard key={a.id} agent={a} active={activeAgentId === a.id} onClick={() => handleAgentSwitch(a.id)} />
+            <AgentCard key={a.id} agent={a} active={activeAgentId === a.id} onClick={() => setActiveAgentId(a.id)} />
           ))}
         </nav>
         <div className="p-3 border-t" style={{ borderColor: "hsl(var(--border))" }}>

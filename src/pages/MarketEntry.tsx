@@ -7,6 +7,7 @@ import {
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import { LoadingState, EmptyState } from "@/components/analysis/OutputCard";
 import { AIStatusBar } from "@/components/ai/AIStatusBar";
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 const Badge = ({ v, c = "hsl(38 95% 60%)" }: { v: string; c?: string }) => (
@@ -321,6 +322,7 @@ Cover all sections thoroughly. Use realistic 2025-2026 Iraq market data. Be spec
       )}
 
       {d && !loading && (
+          <AIDisclaimer compact />
         <div className="space-y-5">
 
           {/* Verdict banner */}

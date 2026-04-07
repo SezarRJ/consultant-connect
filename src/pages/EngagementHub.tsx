@@ -13,6 +13,7 @@ import {
 import RequirementsPanel from "@/components/engagement/RequirementsPanel";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
 import {
+import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
   Briefcase, Users, Activity, FolderOpen, ClipboardList,
   Plus, Trash2, Loader2, FileText, Copy, Check,
   AlertTriangle, Save, X,
@@ -32,13 +33,12 @@ const PHASES: EngagementPhase[] = ["Discovery","Data Collection","Analysis","Str
 const HEALTH_OPTIONS: HealthStatus[] = ["On Track","At Risk","Delayed","Waiting on Client","Closed"];
 
 const PHASE_COLOR: Record<string, string> = {
-  Discovery:          "hsl(38 95% 52%)",
-  "Data Collection":  "hsl(200 80% 55%)",
-  Analysis:           "hsl(270 70% 60%)",
-  Strategy:           "hsl(145 65% 45%)",
-  Deliverables:       "hsl(30 90% 55%)",
-  Review:             "hsl(217 91% 68%)",
-  Closed:             "hsl(215 25% 45%)",
+  Discovery:    "hsl(38 95% 52%)",
+  Analysis:     "hsl(200 80% 55%)",
+  Strategy:     "hsl(270 70% 60%)",
+  Deliverables: "hsl(145 65% 45%)",
+  "Follow-up":  "hsl(30 90% 55%)",
+  Closed:       "hsl(215 25% 45%)",
 };
 const HEALTH_COLOR: Record<string, string> = {
   "On Track":       "hsl(145 65% 45%)",
@@ -406,6 +406,7 @@ function ActivityLogTab({ eng }: { eng: Engagement }) {
         {outputs.length} saved output{outputs.length !== 1 ? "s" : ""}
       </p>
       {outputs.length === 0 ? (
+          <AIDisclaimer compact />
         <p className="text-sm text-center py-8" style={{ color: "hsl(215 25% 42%)" }}>
           No outputs saved yet. Run Analysis, Strategy, or Deliverables tools and click "Save to Engagement".
         </p>
