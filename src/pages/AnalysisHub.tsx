@@ -177,7 +177,6 @@ Format:
             <p className="text-[10px] uppercase tracking-widest font-semibold" style={{ color: "hsl(215 25% 45%)" }}>
               {sub.label} — {eng.companyName || eng.clientName}
               {existing && !rawText && <span className="ml-2 text-[9px]">(saved)</span>}
-          <AIDisclaimer compact />
             </p>
             <span className="text-[10px] px-2 py-0.5 rounded-full"
               style={{ background: "hsl(216 45% 18%)", color: "hsl(215 25% 55%)" }}>{sub.tier}</span>
