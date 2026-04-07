@@ -264,7 +264,6 @@ export default function PlaybookLibrary() {
           )}
 
           {r && !loading && (
-          <AIDisclaimer compact />
             <div className="space-y-4">
               {/* Header */}
               <div className="rounded-xl p-5" style={{ background: "hsl(216 45% 12%)" }}>

@@ -12,8 +12,8 @@ import {
 } from "@/store/engagementStore";
 import RequirementsPanel from "@/components/engagement/RequirementsPanel";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
-import {
 import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
+import {
   Briefcase, Users, Activity, FolderOpen, ClipboardList,
   Plus, Trash2, Loader2, FileText, Copy, Check,
   AlertTriangle, Save, X,
@@ -406,7 +406,6 @@ function ActivityLogTab({ eng }: { eng: Engagement }) {
         {outputs.length} saved output{outputs.length !== 1 ? "s" : ""}
       </p>
       {outputs.length === 0 ? (
-          <AIDisclaimer compact />
         <p className="text-sm text-center py-8" style={{ color: "hsl(215 25% 42%)" }}>
           No outputs saved yet. Run Analysis, Strategy, or Deliverables tools and click "Save to Engagement".
         </p>
@@ -467,7 +466,6 @@ export default function EngagementHub() {
       </div>
 
       {!eng ? <NoEngagement /> : (
-        <>
           {tab === "overview"     && <OverviewTab     eng={eng} />}
           {tab === "stakeholders" && <StakeholdersTab eng={eng} />}
           {tab === "tracker"      && <TrackerTab      eng={eng} />}
@@ -484,7 +482,6 @@ export default function EngagementHub() {
             </div>
           )}
           {tab === "log" && <ActivityLogTab eng={eng} />}
-        </>
       )}
     </div>
   );

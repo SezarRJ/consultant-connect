@@ -322,7 +322,6 @@ Cover all sections thoroughly. Use realistic 2025-2026 Iraq market data. Be spec
       )}
 
       {d && !loading && (
-          <AIDisclaimer compact />
         <div className="space-y-5">
 
           {/* Verdict banner */}

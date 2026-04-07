@@ -374,7 +374,6 @@ export default function ServiceModules() {
           )}
 
           {result && !loading && (
-          <AIDisclaimer compact />
             <div className="space-y-3">
               <div className="flex items-center gap-2 mb-1">
                 <CheckCircle2 className="h-4 w-4" style={{ color: mod.color }} />

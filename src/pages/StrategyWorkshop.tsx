@@ -189,7 +189,6 @@ export default function StrategyWorkshop() {
           </p>
         </div>
         {r && (
-          <AIDisclaimer compact />
           <button onClick={copy}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold"
             style={{ background: "hsl(216 45% 18%)", color: "hsl(210 40% 80%)", border: "1px solid hsl(var(--border))" }}>

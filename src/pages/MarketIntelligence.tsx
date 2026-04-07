@@ -186,7 +186,6 @@ export default function MarketIntelligence() {
       </div>}
 
       {d && !loading && (
-          <AIDisclaimer compact />
         <div className="space-y-5">
           {/* Overview hero */}
           <div className="rounded-2xl p-6 flex flex-col md:flex-row items-start gap-6" style={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}>

@@ -8,8 +8,8 @@ import {
   useEngagementStore, buildFullContext, getEngagementReadiness,
 } from "@/store/engagementStore";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
-import {
 import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
+import {
   DollarSign, TrendingUp, BarChart2, FileText, PieChart,
   Calculator, AlertTriangle, Loader2, Save, Check,
   ArrowRight, Info, Target, Shield,
@@ -267,7 +267,6 @@ All numbers must reference the provided financial data. State any assumptions cl
             Run {sub.label}
           </button>
           {rawText && (
-          <AIDisclaimer compact />
             <button onClick={() => { saveOutput(eng.id, sub.id, sub.label, rawText, eng.phase, "Financial Consultancy"); setSaved(true); }}
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-semibold"
               style={{ background: saved ? "hsl(145 65% 40%/0.15)" : "hsl(216 45% 18%)", color: saved ? "hsl(145 65% 55%)" : "hsl(38 95% 55%)" }}>
