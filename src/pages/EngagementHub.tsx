@@ -32,12 +32,13 @@ const PHASES: EngagementPhase[] = ["Discovery","Data Collection","Analysis","Str
 const HEALTH_OPTIONS: HealthStatus[] = ["On Track","At Risk","Delayed","Waiting on Client","Closed"];
 
 const PHASE_COLOR: Record<string, string> = {
-  Discovery:    "hsl(38 95% 52%)",
-  Analysis:     "hsl(200 80% 55%)",
-  Strategy:     "hsl(270 70% 60%)",
-  Deliverables: "hsl(145 65% 45%)",
-  "Follow-up":  "hsl(30 90% 55%)",
-  Closed:       "hsl(215 25% 45%)",
+  Discovery:          "hsl(38 95% 52%)",
+  "Data Collection":  "hsl(200 80% 55%)",
+  Analysis:           "hsl(270 70% 60%)",
+  Strategy:           "hsl(145 65% 45%)",
+  Deliverables:       "hsl(30 90% 55%)",
+  Review:             "hsl(217 91% 68%)",
+  Closed:             "hsl(215 25% 45%)",
 };
 const HEALTH_COLOR: Record<string, string> = {
   "On Track":       "hsl(145 65% 45%)",
