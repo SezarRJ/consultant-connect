@@ -8,8 +8,8 @@ import {
   useEngagementStore, buildFullContext, getEngagementReadiness,
 } from "@/store/engagementStore";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
-import {
 import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
+import {
   DollarSign, TrendingUp, BarChart2, FileText, PieChart,
   Calculator, AlertTriangle, Loader2, Save, Check,
   ArrowRight, Info, Target, Shield,

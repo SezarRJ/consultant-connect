@@ -5,8 +5,8 @@ import { useState } from "react";
 import { useEngagementStore, buildFullContext, getEngagementReadiness } from "@/store/engagementStore";
 import RequirementsPanel from "@/components/engagement/RequirementsPanel";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
-import {
 import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
+import {
   TrendingUp, BarChart2, DollarSign, ShieldAlert,
   Users, PackageCheck, FileBarChart2, Globe,
   Loader2, AlertTriangle, Save, Check

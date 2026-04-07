@@ -12,8 +12,8 @@ import {
 } from "@/store/engagementStore";
 import RequirementsPanel from "@/components/engagement/RequirementsPanel";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
-import {
 import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
+import {
   Briefcase, Users, Activity, FolderOpen, ClipboardList,
   Plus, Trash2, Loader2, FileText, Copy, Check,
   AlertTriangle, Save, X,

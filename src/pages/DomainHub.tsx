@@ -8,8 +8,8 @@ import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { useEngagementStore, buildFullContext } from "@/store/engagementStore";
 import { useClaudeAnalysis } from "@/hooks/useClaudeAnalysis";
-import {
 import { AIDisclaimer } from "@/components/ai/AIDisclaimer";
+import {
   Building2, ShoppingCart, Coffee, Radio, Truck,
   TrendingUp, Megaphone, Network, Loader2, Save, Check,
   AlertTriangle,
